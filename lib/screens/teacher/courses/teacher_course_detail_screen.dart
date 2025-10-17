@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'; // TODO: Convert to Con
 // ignore: unused_import
 import '../../../features/courses/courses_service.dart'; // TODO: Replace mock data with real service calls
 import '../../../features/courses/course_model.dart';
+import '../quiz/quiz_creation_screen.dart';
 
 // Mock data model for course content
 class Lecture {
@@ -166,6 +167,12 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
           trailing: const Icon(Icons.chevron_right),
           onTap: () {},
         ),
+        ListTile(
+          leading: const Icon(Icons.quiz_outlined),
+          title: const Text('Tạo Quiz mới'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _createQuiz(context),
+        ),
       ],
     );
   }
@@ -264,5 +271,11 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
         Text(label, style: const TextStyle(color: Colors.grey)),
       ],
     );
+  }
+
+  void _createQuiz(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const QuizCreationScreen()));
   }
 }
