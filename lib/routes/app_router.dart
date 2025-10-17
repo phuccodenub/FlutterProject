@@ -173,4 +173,3 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     errorBuilder: (context, state) => const NotFoundScreen(),
   );
 });
-//
