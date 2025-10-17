@@ -11,6 +11,80 @@ class StudentDashboard extends ConsumerWidget {
   const StudentDashboard({super.key, required this.user});
   final User user;
 
+  // Dữ liệu mẫu
+  static final List<Map<String, dynamic>> sampleCourses = [
+    {
+      'title': 'Flutter Cơ bản',
+      'teacher': 'TS. Trần Thị Bình',
+      'progress': 0.8,
+      'id': 'course-1'
+    },
+    {
+      'title': 'React & TypeScript Nâng cao',
+      'teacher': 'Dr. John Smith',
+      'progress': 0.4,
+      'id': 'course-2'
+    },
+    {
+      'title': 'Data Science với Python',
+      'teacher': 'Prof. Sarah Johnson',
+      'progress': 0.17,
+      'id': 'course-3'
+    },
+  ];
+
+  static final List<Map<String, dynamic>> sampleAssignments = [
+    {
+      'title': 'Bài tập 1: Hello Flutter',
+      'deadline': '2024-07-01',
+      'status': 'Chưa nộp'
+    },
+    {
+      'title': 'Bài tập 2: State Management',
+      'deadline': '2024-07-05',
+      'status': 'Đã nộp'
+    },
+    {
+      'title': 'Bài tập 3: Networking',
+      'deadline': '2024-07-10',
+      'status': 'Chưa nộp'
+    },
+  ];
+
+  static final List<Map<String, dynamic>> sampleGrades = [
+    {'title': 'Bài tập 1', 'score': 9.0, 'max': 10},
+    {'title': 'Bài tập 2', 'score': 8.5, 'max': 10},
+    {'title': 'Quiz 1', 'score': 7.0, 'max': 10},
+    {'title': 'Thi giữa kỳ', 'score': 8.0, 'max': 10},
+  ];
+
+  static final List<Map<String, dynamic>> sampleMessages = [
+    {'from': 'GV. Bình', 'content': 'Bạn nhớ nộp bài tập trước thứ 6 nhé!', 'time': '09:00'},
+    {'from': 'Bạn Nam', 'content': 'Có ai học nhóm không?', 'time': '08:30'},
+    {'from': 'GV. Smith', 'content': 'Lịch livestream tuần này đã cập nhật.', 'time': 'Hôm qua'},
+  ];
+
+  static final List<Map<String, dynamic>> sampleForum = [
+    {'topic': 'Cách tối ưu code Flutter?', 'author': 'Bạn Lan', 'replies': 5},
+    {'topic': 'Lỗi khi build app Android', 'author': 'Bạn Minh', 'replies': 2},
+  ];
+
+  static final List<Map<String, dynamic>> sampleCertificates = [
+    {'name': 'Flutter Developer', 'date': '2024-06-01'},
+    {'name': 'React Advanced', 'date': '2024-05-15'},
+  ];
+
+  static final List<Map<String, dynamic>> sampleResources = [
+    {'title': 'Sách Flutter PDF', 'type': 'ebook'},
+    {'title': 'Video React Hooks', 'type': 'video'},
+    {'title': 'Tài liệu Python', 'type': 'pdf'},
+  ];
+
+  static final List<Map<String, dynamic>> sampleCollab = [
+    {'tool': 'Google Docs', 'desc': 'Soạn thảo nhóm'},
+    {'tool': 'Trello', 'desc': 'Quản lý dự án'},
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
@@ -21,13 +95,14 @@ class StudentDashboard extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Quick Actions
-        _buildSectionHeader('Truy cập nhanh', Icons.flash_on),
+        _buildSectionHeader(context, 'Truy cập nhanh', Icons.flash_on),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildQuickActions(context),
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Learning Progress
         _buildSectionHeader(
+          context,
           'Tiến độ học tập',
           Icons.trending_up,
           action: 'Xem tất cả',
@@ -37,20 +112,20 @@ class StudentDashboard extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Analytics
-        _buildSectionHeader('Thống kê', Icons.analytics),
+        _buildSectionHeader(context, 'Thống kê', Icons.analytics),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildAnalytics(context),
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Recommendations
-        _buildSectionHeader('Gợi ý cho bạn', Icons.recommend),
+        _buildSectionHeader(context, 'Gợi ý cho bạn', Icons.recommend),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildRecommendations(context),
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon, {String? action}) {
+  Widget _buildSectionHeader(BuildContext context, String title, IconData icon, {String? action}) {
     return Row(
       children: [
         Container(
@@ -67,7 +142,11 @@ class StudentDashboard extends ConsumerWidget {
           const Spacer(),
           TextButton(
             onPressed: () {
-              // TODO: Handle action
+              if (title == 'Tiến độ học tập') {
+                context.go('/my-courses');
+              } else if (title == 'Thống kê') {
+                context.go('/grades');
+              }
             },
             child: Text(
               action,
@@ -219,12 +298,12 @@ class StudentDashboard extends ConsumerWidget {
           ),
         ),
         ActionCard(
-          title: 'Live Streams',
-          subtitle: '2 buổi học trực tuyến',
-          icon: Icons.videocam_outlined,
-          iconColor: AppColors.error,
-          iconBackgroundColor: AppColors.errorContainer,
-          onTap: () => context.go('/my-courses'),
+          title: 'Lịch',
+          subtitle: 'Xem lịch học & hạn chót',
+          icon: Icons.calendar_today,
+          iconColor: Colors.teal,
+          iconBackgroundColor: Colors.tealAccent.withOpacity(0.2),
+          onTap: () => context.go('/calendar'),
         ),
         ActionCard(
           title: 'Bài tập',
@@ -232,7 +311,7 @@ class StudentDashboard extends ConsumerWidget {
           icon: Icons.quiz_outlined,
           iconColor: AppColors.secondary,
           iconBackgroundColor: AppColors.secondaryContainer,
-          onTap: () => context.go('/my-courses'),
+          onTap: () => context.go('/assignments'),
           trailing: Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.sm,
@@ -251,6 +330,54 @@ class StudentDashboard extends ConsumerWidget {
             ),
           ),
         ),
+        ActionCard(
+          title: 'Chi tiết khóa học',
+          subtitle: 'Xem thông tin khóa học',
+          icon: Icons.info_outline,
+          iconColor: Colors.deepPurple,
+          iconBackgroundColor: Colors.deepPurple.shade50,
+          onTap: () => context.go('/course-page'),
+        ),
+        ActionCard(
+          title: 'Tin nhắn',
+          subtitle: 'Liên lạc với giảng viên, bạn học',
+          icon: Icons.message_outlined,
+          iconColor: Colors.green,
+          iconBackgroundColor: Colors.green.shade50,
+          onTap: () => context.go('/messages'),
+        ),
+        ActionCard(
+          title: 'Diễn đàn',
+          subtitle: 'Thảo luận & hỏi đáp',
+          icon: Icons.forum_outlined,
+          iconColor: Colors.orange,
+          iconBackgroundColor: Colors.orange.shade50,
+          onTap: () => context.go('/forum'),
+        ),
+        ActionCard(
+          title: 'Chứng chỉ',
+          subtitle: 'Xem chứng chỉ & thành tích',
+          icon: Icons.workspace_premium_outlined,
+          iconColor: Colors.amber,
+          iconBackgroundColor: Colors.amber.shade50,
+          onTap: () => context.go('/certificates'),
+        ),
+        ActionCard(
+          title: 'Thư viện tài nguyên',
+          subtitle: 'Tìm kiếm tài liệu',
+          icon: Icons.library_books_outlined,
+          iconColor: Colors.blueGrey,
+          iconBackgroundColor: Colors.blueGrey.shade50,
+          onTap: () => context.go('/resources'),
+        ),
+        ActionCard(
+          title: 'Cộng tác',
+          subtitle: 'Công cụ làm việc nhóm',
+          icon: Icons.groups_outlined,
+          iconColor: Colors.cyan,
+          iconBackgroundColor: Colors.cyan.shade50,
+          onTap: () => context.go('/collab'),
+        ),
       ],
     );
   }
@@ -258,29 +385,14 @@ class StudentDashboard extends ConsumerWidget {
   Widget _buildLearningProgress(BuildContext context) {
     return Column(
       children: [
-        ProgressCard(
-          title: 'Introduction to Flutter Development',
-          subtitle: 'TS. Trần Thị Bình • 12/15 bài học',
-          progress: 0.8,
-          progressColor: AppColors.primary,
-          onTap: () => context.go('/courses/course-1'),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        ProgressCard(
-          title: 'Advanced React & TypeScript',
-          subtitle: 'Dr. John Smith • 8/20 bài học',
-          progress: 0.4,
-          progressColor: AppColors.success,
-          onTap: () => context.go('/courses/course-2'),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        ProgressCard(
-          title: 'Data Science with Python',
-          subtitle: 'Prof. Sarah Johnson • 3/18 bài học',
-          progress: 0.17,
-          progressColor: AppColors.secondary,
-          onTap: () => context.go('/courses/course-3'),
-        ),
+        for (final course in sampleCourses)
+          ProgressCard(
+            title: course['title'],
+            subtitle: '${course['teacher']}',
+            progress: course['progress'],
+            progressColor: AppColors.primary,
+            onTap: () => context.go('/courses/${course['id']}'),
+          ),
       ],
     );
   }

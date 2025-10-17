@@ -21,6 +21,15 @@ import '../screens/shared/profile/profile_screen.dart';
 // Student screens
 import '../screens/student/courses/student_courses_screen.dart'; // CoursesScreen class
 import '../screens/student/courses/course_detail/course_detail_screen.dart';
+import '../screens/student/calendar/calendar_screen.dart';
+import '../screens/student/assignment/assignment_submission.dart';
+import '../screens/student/grades/grades_screen.dart';
+import '../screens/student/course/course_page.dart';
+import '../screens/student/messages/messages_screen.dart';
+import '../screens/student/forum/forum_screen.dart';
+import '../screens/student/certificate/certificate_screen.dart';
+import '../screens/student/resource/resource_library_screen.dart';
+import '../screens/student/collab/collaboration_tools_screen.dart';
 
 // Teacher screens
 import '../screens/teacher/courses/teacher_courses_screen.dart';
@@ -32,7 +41,12 @@ import 'guards/auth_guard.dart';
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      // Đặt DashboardScreen làm trang chủ nếu muốn
+      GoRoute(
+        path: '/',
+        redirect: (context, state) => requireAuth(context, state),
+        builder: (context, state) => const DashboardScreen(),
+      ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',
@@ -107,6 +121,51 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/create-course',
             builder: (context, state) => const CreateCourseScreen(),
+          ),
+          GoRoute(
+            path: '/calendar',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const CalendarScreen(),
+          ),
+          GoRoute(
+            path: '/assignments',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const AssignmentSubmissionScreen(),
+          ),
+          GoRoute(
+            path: '/grades',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const GradesScreen(),
+          ),
+          GoRoute(
+            path: '/course-page',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const CoursePage(),
+          ),
+          GoRoute(
+            path: '/messages',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const MessagesScreen(),
+          ),
+          GoRoute(
+            path: '/forum',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const ForumScreen(),
+          ),
+          GoRoute(
+            path: '/certificates',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const CertificateScreen(),
+          ),
+          GoRoute(
+            path: '/resources',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const ResourceLibraryScreen(),
+          ),
+          GoRoute(
+            path: '/collab',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const CollaborationToolsScreen(),
           ),
         ],
       ),
