@@ -7,6 +7,7 @@ import 'chat_tab.dart';
 import 'quizzes_tab.dart';
 import 'package:go_router/go_router.dart';
 
+// student-course-detail-screen.dart
 class CourseDetailScreen extends ConsumerStatefulWidget {
   const CourseDetailScreen({super.key, required this.courseId});
   final String courseId;
@@ -47,7 +48,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         shadows: [
-                          Shadow(offset: Offset(0, 1), blurRadius: 3, color: Colors.black26),
+                          Shadow(
+                            offset: Offset(0, 1),
+                            blurRadius: 3,
+                            color: Colors.black26,
+                          ),
                         ],
                       ),
                     ),
@@ -133,7 +138,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
             body: TabBarView(
               controller: _tabController,
               children: [
-                _OverviewTab(courseId: widget.courseId, course: course, user: user),
+                _OverviewTab(
+                  courseId: widget.courseId,
+                  course: course,
+                  user: user,
+                ),
                 const _ContentTab(),
                 FilesTabView(courseId: widget.courseId),
                 QuizzesTabView(courseId: widget.courseId),
@@ -153,8 +162,15 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   _TabBarDelegate(this.tabBar);
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(color: Theme.of(context).scaffoldBackgroundColor, child: tabBar);
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: tabBar,
+    );
   }
 
   @override
@@ -192,7 +208,9 @@ class _OverviewTab extends StatelessWidget {
         // Quick Actions
         Text(
           'Truy cập nhanh',
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 12),
         _buildQuickActions(context),
@@ -201,7 +219,9 @@ class _OverviewTab extends StatelessWidget {
         // Course Description
         Text(
           'Mô tả khóa học',
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 12),
         _buildDescription(context),
@@ -210,7 +230,9 @@ class _OverviewTab extends StatelessWidget {
         // Instructor Info
         Text(
           'Thông tin giảng viên',
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 12),
         _buildInstructorInfo(context),
@@ -233,7 +255,11 @@ class _OverviewTab extends StatelessWidget {
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.school, color: theme.colorScheme.primary, size: 32),
+              child: Icon(
+                Icons.school,
+                color: theme.colorScheme.primary,
+                size: 32,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -242,12 +268,16 @@ class _OverviewTab extends StatelessWidget {
                 children: [
                   Text(
                     course?.code ?? 'FLT101',
-                    style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary),
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     course?.title ?? 'Introduction to Flutter Development',
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -256,7 +286,9 @@ class _OverviewTab extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${course?.enrollmentCount ?? 245} sinh viên',
-                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ],
                   ),
@@ -281,9 +313,9 @@ class _OverviewTab extends StatelessWidget {
               children: [
                 Text(
                   'Tiến độ của bạn',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   '12/15 bài học',
@@ -297,7 +329,9 @@ class _OverviewTab extends StatelessWidget {
             LinearProgressIndicator(
               value: 0.8,
               backgroundColor: Colors.grey.shade200,
-              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).colorScheme.primary,
+              ),
               minHeight: 8,
             ),
             const SizedBox(height: 8),
@@ -380,7 +414,10 @@ class _OverviewTab extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+                child: Text(
+                  label,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
@@ -427,19 +464,26 @@ class _OverviewTab extends StatelessWidget {
                 children: [
                   Text(
                     course?.instructorName ?? 'TS. Trần Thị Bình',
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Giảng viên',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Icon(Icons.star, size: 16, color: Colors.amber),
                       const SizedBox(width: 4),
-                      Text('4.8 (125 đánh giá)', style: theme.textTheme.bodySmall),
+                      Text(
+                        '4.8 (125 đánh giá)',
+                        style: theme.textTheme.bodySmall,
+                      ),
                     ],
                   ),
                 ],

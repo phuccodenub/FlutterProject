@@ -82,7 +82,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 gradient: AppColors.primaryGradient,
                 borderRadius: BorderRadius.circular(AppRadius.xl),
               ),
-              child: const Icon(Icons.school, color: AppColors.white, size: AppSizes.iconXl),
+              child: const Icon(
+                Icons.school,
+                color: AppColors.white,
+                size: AppSizes.iconXl,
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Column(
@@ -97,7 +101,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 Text(
                   'Learning Management System',
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.grey600,
+                  ),
                 ),
               ],
             ),
@@ -120,7 +126,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       borderColor: AppColors.info.withValues(alpha: 0.3),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: AppColors.info, size: AppSizes.iconLg),
+          Icon(
+            Icons.info_outline,
+            color: AppColors.info,
+            size: AppSizes.iconLg,
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -128,12 +138,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 Text(
                   'Chế độ Demo',
-                  style: AppTypography.labelMedium.copyWith(color: AppColors.info),
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.info,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   'Sử dụng các tài khoản demo bên dưới để trải nghiệm hệ thống',
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.infoDark),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.infoDark,
+                  ),
                 ),
               ],
             ),
@@ -252,7 +266,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Text(
                 'Hoặc đăng nhập nhanh',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.grey500),
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.grey500,
+                ),
               ),
             ),
             Expanded(child: Divider(color: AppColors.grey300)),
@@ -315,13 +331,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               onPressed: () {
                 // TODO: Show help
               },
-              icon: Icon(Icons.help_outline, size: AppSizes.iconSm, color: AppColors.grey500),
+              icon: Icon(
+                Icons.help_outline,
+                size: AppSizes.iconSm,
+                color: AppColors.grey500,
+              ),
               label: Text(
                 'Trợ giúp',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.grey500),
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.grey500,
+                ),
               ),
             ),
-            Text(' • ', style: AppTypography.bodySmall.copyWith(color: AppColors.grey400)),
+            Text(
+              ' • ',
+              style: AppTypography.bodySmall.copyWith(color: AppColors.grey400),
+            ),
             TextButton.icon(
               onPressed: () {
                 // TODO: Show privacy policy
@@ -333,7 +358,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               label: Text(
                 'Bảo mật',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.grey500),
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.grey500,
+                ),
               ),
             ),
           ],
@@ -347,7 +374,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => loading = true);
     try {
-      final ok = await ref.read(authProvider.notifier).login(emailCtrl.text.trim(), passCtrl.text);
+      final ok = await ref
+          .read(authProvider.notifier)
+          .login(emailCtrl.text.trim(), passCtrl.text);
       if (ok && mounted) {
         context.go('/dashboard');
       }
@@ -403,7 +432,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ],
           ),
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }

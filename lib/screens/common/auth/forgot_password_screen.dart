@@ -30,7 +30,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -69,7 +72,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        Text(_emailSent ? 'Email đã được gửi!' : 'Quên mật khẩu?', style: AppTypography.h1),
+        Text(
+          _emailSent ? 'Email đã được gửi!' : 'Quên mật khẩu?',
+          style: AppTypography.h1,
+        ),
         const SizedBox(height: AppSpacing.sm),
         Text(
           _emailSent
@@ -97,7 +103,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               if (value == null || value.isEmpty) {
                 return 'Vui lòng nhập địa chỉ email';
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              if (!RegExp(
+                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+              ).hasMatch(value)) {
                 return 'Địa chỉ email không hợp lệ';
               }
               return null;
@@ -157,7 +165,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           borderColor: AppColors.success.withValues(alpha: 0.3),
           child: Column(
             children: [
-              Icon(Icons.check_circle_outlined, color: AppColors.success, size: AppSizes.iconXl2),
+              Icon(
+                Icons.check_circle_outlined,
+                color: AppColors.success,
+                size: AppSizes.iconXl2,
+              ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Email khôi phục đã được gửi!',
@@ -212,7 +224,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         // Support information
         InfoCard(
           title: 'Cần trợ giúp?',
-          description: 'Nếu bạn không nhận được email, hãy liên hệ với đội hỗ trợ để được giúp đỡ.',
+          description:
+              'Nếu bạn không nhận được email, hãy liên hệ với đội hỗ trợ để được giúp đỡ.',
           icon: Icons.support_agent,
           iconColor: AppColors.secondary,
           backgroundColor: AppColors.secondaryContainer,
@@ -256,7 +269,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
           ),
         );
       }
@@ -272,7 +287,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
           ),
         );
       }

@@ -33,7 +33,10 @@ class TeacherCoursesScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // My Active Courses
-          const SectionHeader(title: 'Khóa học đang giảng dạy', action: 'Xem tất cả'),
+          const SectionHeader(
+            title: 'Khóa học đang giảng dạy',
+            action: 'Xem tất cả',
+          ),
           const SizedBox(height: 12),
           _buildActiveCourses(context),
           const SizedBox(height: 24),
@@ -51,7 +54,7 @@ class TeacherCoursesScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateCourseDialog(context),
+        onPressed: () => context.go('/create-course'), // Đã thay đổi ở đây
         icon: const Icon(Icons.add),
         label: const Text('Tạo khóa học'),
       ),
@@ -122,7 +125,11 @@ class TeacherCoursesScreen extends ConsumerWidget {
       },
     ];
 
-    return Column(children: courses.map((course) => _buildCourseCard(context, course)).toList());
+    return Column(
+      children: courses
+          .map((course) => _buildCourseCard(context, course))
+          .toList(),
+    );
   }
 
   Widget _buildCourseCard(BuildContext context, Map<String, dynamic> course) {
@@ -141,7 +148,10 @@ class TeacherCoursesScreen extends ConsumerWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -157,7 +167,10 @@ class TeacherCoursesScreen extends ConsumerWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -176,7 +189,9 @@ class TeacherCoursesScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               Text(
                 course['title'],
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Row(
@@ -185,14 +200,18 @@ class TeacherCoursesScreen extends ConsumerWidget {
                   const SizedBox(width: 4),
                   Text(
                     '${course['students']} sinh viên',
-                    style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Icon(Icons.schedule, size: 16, color: Colors.grey.shade600),
                   const SizedBox(width: 4),
                   Text(
                     'Tiết tiếp: ${course['nextClass']}',
-                    style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),
@@ -203,12 +222,17 @@ class TeacherCoursesScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Tiến độ khóa học', style: theme.textTheme.bodySmall),
+                        Text(
+                          'Tiến độ khóa học',
+                          style: theme.textTheme.bodySmall,
+                        ),
                         const SizedBox(height: 4),
                         LinearProgressIndicator(
                           value: course['progress'],
                           backgroundColor: Colors.grey.shade200,
-                          valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            theme.colorScheme.primary,
+                          ),
                         ),
                       ],
                     ),
@@ -305,7 +329,10 @@ class TeacherCoursesScreen extends ConsumerWidget {
               color: (activity['color'] as Color).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(activity['icon'] as IconData, color: activity['color'] as Color),
+            child: Icon(
+              activity['icon'] as IconData,
+              color: activity['color'] as Color,
+            ),
           ),
           title: activity['title'] as String,
           subtitle: '${activity['course']} • ${activity['time']}',
@@ -331,7 +358,10 @@ class TeacherCoursesScreen extends ConsumerWidget {
             ),
             SizedBox(height: 16),
             TextField(
-              decoration: InputDecoration(labelText: 'Mã khóa học', hintText: 'Ví dụ: FLT201'),
+              decoration: InputDecoration(
+                labelText: 'Mã khóa học',
+                hintText: 'Ví dụ: FLT201',
+              ),
             ),
             SizedBox(height: 16),
             TextField(
@@ -344,14 +374,17 @@ class TeacherCoursesScreen extends ConsumerWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
               // TODO: Create course
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Khóa học đã được tạo!')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Khóa học đã được tạo!')),
+              );
             },
             child: const Text('Tạo'),
           ),
@@ -362,13 +395,15 @@ class TeacherCoursesScreen extends ConsumerWidget {
 
   void _startLivestream(BuildContext context) {
     // TODO: Navigate to livestream creation
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đang khởi tạo phòng live...')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đang khởi tạo phòng live...')),
+    );
   }
 
   void _createQuiz(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const QuizCreationScreen()));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const QuizCreationScreen()));
   }
 
   void _createAnnouncement(BuildContext context) {
@@ -388,18 +423,24 @@ class TeacherCoursesScreen extends ConsumerWidget {
             SizedBox(height: 16),
             TextField(
               maxLines: 4,
-              decoration: InputDecoration(labelText: 'Nội dung', hintText: 'Nội dung thông báo...'),
+              decoration: InputDecoration(
+                labelText: 'Nội dung',
+                hintText: 'Nội dung thông báo...',
+              ),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Thông báo đã được gửi!')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Thông báo đã được gửi!')),
+              );
             },
             child: const Text('Gửi'),
           ),
@@ -413,9 +454,11 @@ class TeacherCoursesScreen extends ConsumerWidget {
   }
 
   void _manageStudents(BuildContext context, String courseId) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => StudentManagementScreen(courseId: courseId)));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => StudentManagementScreen(courseId: courseId),
+      ),
+    );
   }
 
   void _startLiveForCourse(BuildContext context, String courseId) {

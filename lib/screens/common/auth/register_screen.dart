@@ -46,7 +46,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back)),
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -79,7 +82,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             gradient: AppColors.secondaryGradient,
             borderRadius: BorderRadius.circular(AppRadius.xl),
           ),
-          child: const Icon(Icons.person_add, color: AppColors.white, size: AppSizes.iconXl),
+          child: const Icon(
+            Icons.person_add,
+            color: AppColors.white,
+            size: AppSizes.iconXl,
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
         Text(tr('auth.register.title'), style: AppTypography.h1),
@@ -140,7 +147,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               if (value == null || value.isEmpty) {
                 return 'Vui lòng nhập địa chỉ email';
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              if (!RegExp(
+                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+              ).hasMatch(value)) {
                 return 'Địa chỉ email không hợp lệ';
               }
               return null;
@@ -159,7 +168,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               if (value == null || value.isEmpty) {
                 return 'Vui lòng nhập số điện thoại';
               }
-              if (!RegExp(r'^\d{10,11}$').hasMatch(value.replaceAll(RegExp(r'[\s\-\(\)]'), ''))) {
+              if (!RegExp(
+                r'^\d{10,11}$',
+              ).hasMatch(value.replaceAll(RegExp(r'[\s\-\(\)]'), ''))) {
                 return 'Số điện thoại không hợp lệ';
               }
               return null;
@@ -211,7 +222,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             prefixIcon: const Icon(Icons.lock_outlined),
             suffixIcon: IconButton(
               icon: Icon(
-                _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                _obscureConfirmPassword
+                    ? Icons.visibility
+                    : Icons.visibility_off,
                 color: AppColors.grey500,
               ),
               onPressed: () {
@@ -346,7 +359,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             Container(
               padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: (isSelected ? color : AppColors.grey500).withValues(alpha: 0.1),
+                color: (isSelected ? color : AppColors.grey500).withValues(
+                  alpha: 0.1,
+                ),
                 borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: Icon(
@@ -369,7 +384,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: AppSpacing.xs2),
                   Text(
                     description,
-                    style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.grey600,
+                    ),
                   ),
                 ],
               ),
@@ -460,7 +477,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
           ),
         );
 
@@ -478,7 +497,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
           ),
         );
       }

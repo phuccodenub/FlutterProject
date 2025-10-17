@@ -14,7 +14,10 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(tr('home.title'), style: Theme.of(context).textTheme.headlineMedium),
+              Text(
+                tr('home.title'),
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               const SizedBox(height: 8),
               Text(tr('home.subtitle')),
               const Spacer(),

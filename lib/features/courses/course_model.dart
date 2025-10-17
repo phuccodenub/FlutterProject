@@ -1,3 +1,5 @@
+import 'dart:io'; // <-- QUAN TRỌNG: Cần import để sử dụng kiểu 'File'
+
 class Course {
   const Course({
     required this.id,
@@ -7,6 +9,7 @@ class Course {
     required this.instructorName,
     this.thumbnailUrl,
     this.enrollmentCount = 0,
+    this.imageFile, // <-- Thêm thuộc tính này
   });
 
   final String id;
@@ -14,6 +17,7 @@ class Course {
   final String description;
   final String code;
   final String instructorName;
-  final String? thumbnailUrl;
+  final String? thumbnailUrl; // Dùng cho ảnh từ server
   final int enrollmentCount;
+  final File? imageFile; // Dùng cho ảnh vừa chọn từ máy
 }

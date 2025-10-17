@@ -27,7 +27,11 @@ class StudentDashboard extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Learning Progress
-        _buildSectionHeader('Tiến độ học tập', Icons.trending_up, action: 'Xem tất cả'),
+        _buildSectionHeader(
+          'Tiến độ học tập',
+          Icons.trending_up,
+          action: 'Xem tất cả',
+        ),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildLearningProgress(context),
         const SizedBox(height: AppSpacing.sectionSpacing),
@@ -106,7 +110,11 @@ class StudentDashboard extends ConsumerWidget {
                   color: AppColors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(greetingIcon, color: AppColors.white, size: AppSizes.iconLg),
+                child: Icon(
+                  greetingIcon,
+                  color: AppColors.white,
+                  size: AppSizes.iconLg,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -134,7 +142,9 @@ class StudentDashboard extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             'Sẵn sàng để học tập hôm nay chưa? 🚀',
-            style: AppTypography.bodyLarge.copyWith(color: AppColors.white.withValues(alpha: 0.9)),
+            style: AppTypography.bodyLarge.copyWith(
+              color: AppColors.white.withValues(alpha: 0.9),
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           CustomButton(
@@ -326,7 +336,8 @@ class StudentDashboard extends ConsumerWidget {
         InfoCard(
           title: 'UI/UX Design Fundamentals',
           subtitle: 'Dựa trên sở thích của bạn',
-          description: 'Khóa học cơ bản về thiết kế giao diện và trải nghiệm người dùng',
+          description:
+              'Khóa học cơ bản về thiết kế giao diện và trải nghiệm người dùng',
           icon: Icons.design_services,
           iconColor: Colors.pink,
           onTap: () {
@@ -337,7 +348,8 @@ class StudentDashboard extends ConsumerWidget {
         InfoCard(
           title: 'Mobile App Development',
           subtitle: 'Phù hợp với kỹ năng hiện tại',
-          description: 'Học cách phát triển ứng dụng di động với Flutter và React Native',
+          description:
+              'Học cách phát triển ứng dụng di động với Flutter và React Native',
           icon: Icons.phone_android,
           iconColor: Colors.indigo,
           onTap: () {
@@ -348,7 +360,8 @@ class StudentDashboard extends ConsumerWidget {
         InfoCard(
           title: 'Cloud Computing Basics',
           subtitle: 'Xu hướng công nghệ mới',
-          description: 'Làm quen với điện toán đám mây và các dịch vụ AWS, Azure',
+          description:
+              'Làm quen với điện toán đám mây và các dịch vụ AWS, Azure',
           icon: Icons.cloud,
           iconColor: Colors.blue,
           onTap: () {

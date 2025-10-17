@@ -41,7 +41,10 @@ class RootShell extends ConsumerWidget {
     );
   }
 
-  List<NavigationDestination> _buildNavigationDestinations(int unread, dynamic user) {
+  List<NavigationDestination> _buildNavigationDestinations(
+    int unread,
+    dynamic user,
+  ) {
     final role = user?.role ?? 'student';
 
     List<NavigationDestination> destinations = [
@@ -159,10 +162,17 @@ class RootShell extends ConsumerWidget {
       top: -2,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-        decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Text(
           unread > 99 ? '99+' : '$unread',
-          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

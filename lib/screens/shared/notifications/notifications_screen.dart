@@ -18,15 +18,18 @@ class NotificationsScreen extends ConsumerWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const NotificationsPrefsScreen()));
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const NotificationsPrefsScreen(),
+                ),
+              );
             },
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Preferences',
           ),
           IconButton(
-            onPressed: () => ref.read(notificationProvider.notifier).markAllRead(),
+            onPressed: () =>
+                ref.read(notificationProvider.notifier).markAllRead(),
             icon: const Icon(Icons.mark_email_read_outlined),
             tooltip: 'Mark all read',
           ),
@@ -45,7 +48,8 @@ class NotificationsScreen extends ConsumerWidget {
                       id: 'n-${DateTime.now().millisecondsSinceEpoch}',
                       type: 'chat',
                       title: 'New Message in React Course',
-                      message: 'Alice Johnson: Can anyone help me with useState hooks?',
+                      message:
+                          'Alice Johnson: Can anyone help me with useState hooks?',
                       createdAt: DateTime.now(),
                     );
                     ref.read(notificationProvider.notifier).add(n);
@@ -88,13 +92,18 @@ class NotificationsScreen extends ConsumerWidget {
                 final n = noti.items[index];
                 return ListTile(
                   leading: Icon(
-                    n.isRead ? Icons.notifications_none : Icons.notifications_active_outlined,
+                    n.isRead
+                        ? Icons.notifications_none
+                        : Icons.notifications_active_outlined,
                     color: n.isRead ? Colors.grey : Colors.blue,
                   ),
                   title: Text(n.title),
                   subtitle: Text(n.message),
-                  trailing: Text(n.createdAt.toLocal().toIso8601String().substring(11, 19)),
-                  onTap: () => ref.read(notificationProvider.notifier).markRead(n.id),
+                  trailing: Text(
+                    n.createdAt.toLocal().toIso8601String().substring(11, 19),
+                  ),
+                  onTap: () =>
+                      ref.read(notificationProvider.notifier).markRead(n.id),
                 );
               },
             ),

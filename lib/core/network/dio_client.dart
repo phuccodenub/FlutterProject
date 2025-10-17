@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../storage/prefs.dart';
 
 class DioClient {
   DioClient({required String baseUrl, int timeoutMs = 10000}) {
@@ -15,7 +16,11 @@ class DioClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // TODO: inject token from storage
+          // Inject token from storage
+          final auth = await Prefs.loadAuth();
+          if (auth.token != null && auth.token!.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer ${auth.token}';
+          }
           handler.next(options);
         },
         onResponse: (response, handler) => handler.next(response),

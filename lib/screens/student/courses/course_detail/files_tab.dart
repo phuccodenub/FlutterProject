@@ -3,9 +3,8 @@ import '../../../../features/files/file_service.dart';
 import '../../../../features/files/file_models.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:async';
-// TODO: Create PDF and Video viewer screens in lib/screens/shared/viewers/
-// import '../../../shared/viewers/pdf_viewer_screen.dart';
-// import '../../../shared/viewers/video_viewer_screen.dart';
+import '../../../shared/viewers/pdf_viewer_screen.dart';
+import '../../../shared/viewers/video_viewer_screen.dart';
 
 class FilesTabView extends StatefulWidget {
   const FilesTabView({super.key, required this.courseId});
@@ -54,7 +53,10 @@ class _FilesTabViewState extends State<FilesTabView> {
           padding: const EdgeInsets.all(8),
           child: Row(
             children: [
-              ElevatedButton(onPressed: _upload, child: const Text('Upload File')),
+              ElevatedButton(
+                onPressed: _upload,
+                child: const Text('Upload File'),
+              ),
               const SizedBox(width: 8),
               Text('Files (${files.length})'),
             ],
@@ -73,14 +75,17 @@ class _FilesTabViewState extends State<FilesTabView> {
                   onChanged: (v) async {
                     term = v;
                     _debounce?.cancel();
-                    _debounce = Timer(const Duration(milliseconds: 300), () async {
-                      files = await fileService.searchFiles(
-                        widget.courseId,
-                        term: term,
-                        category: category,
-                      );
-                      if (mounted) setState(() {});
-                    });
+                    _debounce = Timer(
+                      const Duration(milliseconds: 300),
+                      () async {
+                        files = await fileService.searchFiles(
+                          widget.courseId,
+                          term: term,
+                          category: category,
+                        );
+                        if (mounted) setState(() {});
+                      },
+                    );
                   },
                 ),
               ),
@@ -90,7 +95,10 @@ class _FilesTabViewState extends State<FilesTabView> {
                 items: const [
                   DropdownMenuItem(value: 'all', child: Text('All')),
                   DropdownMenuItem(value: 'lecture', child: Text('Lectures')),
-                  DropdownMenuItem(value: 'assignment', child: Text('Assignments')),
+                  DropdownMenuItem(
+                    value: 'assignment',
+                    child: Text('Assignments'),
+                  ),
                   DropdownMenuItem(value: 'resource', child: Text('Resources')),
                   DropdownMenuItem(value: 'video', child: Text('Videos')),
                   DropdownMenuItem(value: 'document', child: Text('Documents')),
@@ -134,7 +142,11 @@ class _FilesTabViewState extends State<FilesTabView> {
                                 } else {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Không có file cục bộ để xem')),
+                                      const SnackBar(
+                                        content: Text(
+                                          'Không có file cục bộ để xem',
+                                        ),
+                                      ),
                                     );
                                   }
                                 }
@@ -145,21 +157,27 @@ class _FilesTabViewState extends State<FilesTabView> {
                       ),
                       onTap: () async {
                         await fileService.incrementDownload(f.id);
-                        final list = await fileService.getFilesByCourse(widget.courseId);
+                        final list = await fileService.getFilesByCourse(
+                          widget.courseId,
+                        );
                         setState(() => files = list);
                         if (f.localPath != null) {
                           if (f.mimeType.contains('pdf')) {
                             if (context.mounted) {
-                              // TODO: Create PdfViewerScreen widget
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('PDF viewer not implemented yet')),
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      PdfViewerScreen(path: f.localPath!),
+                                ),
                               );
                             }
                           } else if (f.mimeType.startsWith('video/')) {
                             if (context.mounted) {
-                              // TODO: Create VideoViewerScreen widget
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Video viewer not implemented yet')),
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      VideoViewerScreen(path: f.localPath!),
+                                ),
                               );
                             }
                           }
@@ -171,7 +189,9 @@ class _FilesTabViewState extends State<FilesTabView> {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text('Xóa tệp?'),
-                                content: Text('Bạn chắc chắn muốn xóa "${f.originalName}"?'),
+                                content: Text(
+                                  'Bạn chắc chắn muốn xóa "${f.originalName}"?',
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx, false),
@@ -187,7 +207,9 @@ class _FilesTabViewState extends State<FilesTabView> {
                             false;
                         if (ok) {
                           await fileService.deleteFile(f.id);
-                          final list = await fileService.getFilesByCourse(widget.courseId);
+                          final list = await fileService.getFilesByCourse(
+                            widget.courseId,
+                          );
                           setState(() => files = list);
                         }
                       },

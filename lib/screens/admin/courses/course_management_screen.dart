@@ -5,7 +5,8 @@ class CourseManagementScreen extends ConsumerStatefulWidget {
   const CourseManagementScreen({super.key});
 
   @override
-  ConsumerState<CourseManagementScreen> createState() => _CourseManagementScreenState();
+  ConsumerState<CourseManagementScreen> createState() =>
+      _CourseManagementScreenState();
 }
 
 class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
@@ -32,7 +33,10 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           PopupMenuButton(
             itemBuilder: (context) => [
               const PopupMenuItem(value: 'export', child: Text('Xuất báo cáo')),
-              const PopupMenuItem(value: 'categories', child: Text('Quản lý danh mục')),
+              const PopupMenuItem(
+                value: 'categories',
+                child: Text('Quản lý danh mục'),
+              ),
               const PopupMenuItem(value: 'settings', child: Text('Cài đặt')),
             ],
             onSelected: (value) => _handleMenuAction(context, value.toString()),
@@ -78,7 +82,9 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                             decoration: InputDecoration(
                               hintText: 'Tìm kiếm khóa học...',
                               prefixIcon: const Icon(Icons.search),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
                         ),
@@ -120,7 +126,10 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 children: [
                   Text(
                     entry.value.toString(),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     entry.key,
@@ -238,7 +247,10 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: Text(course['thumbnail'] ?? '📚', style: const TextStyle(fontSize: 24)),
+                child: Text(
+                  course['thumbnail'] ?? '📚',
+                  style: const TextStyle(fontSize: 24),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -249,19 +261,25 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 children: [
                   Text(
                     course['title'],
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Bởi ${course['instructor']}',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     course['category'],
-                    style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   _buildCourseStats(course, status, theme),
@@ -271,8 +289,12 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             // Actions
             PopupMenuButton(
               itemBuilder: (context) => _buildCourseActions(status),
-              onSelected: (value) =>
-                  _handleCourseAction(context, course['id'], value.toString(), status),
+              onSelected: (value) => _handleCourseAction(
+                context,
+                course['id'],
+                value.toString(),
+                status,
+              ),
             ),
           ],
         ),
@@ -280,7 +302,11 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     );
   }
 
-  Widget _buildCourseStats(Map<String, dynamic> course, String status, ThemeData theme) {
+  Widget _buildCourseStats(
+    Map<String, dynamic> course,
+    String status,
+    ThemeData theme,
+  ) {
     switch (status) {
       case 'active':
         return Row(
@@ -297,7 +323,10 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             const SizedBox(width: 16),
             Icon(Icons.star, size: 16, color: Colors.orange),
             const SizedBox(width: 4),
-            Text('${course['rating']}', style: const TextStyle(fontSize: 12, color: Colors.orange)),
+            Text(
+              '${course['rating']}',
+              style: const TextStyle(fontSize: 12, color: Colors.orange),
+            ),
             const Spacer(),
             Text(
               course['price'],
@@ -401,9 +430,9 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
   void _handleMenuAction(BuildContext context, String action) {
     switch (action) {
       case 'export':
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Đang xuất báo cáo khóa học...')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đang xuất báo cáo khóa học...')),
+        );
         break;
       case 'categories':
         ScaffoldMessenger.of(
@@ -418,7 +447,12 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     }
   }
 
-  void _handleCourseAction(BuildContext context, String courseId, String action, String status) {
+  void _handleCourseAction(
+    BuildContext context,
+    String courseId,
+    String action,
+    String status,
+  ) {
     switch (action) {
       case 'view':
         // TODO: Navigate to course detail
@@ -427,9 +461,9 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
         // TODO: Navigate to course editor
         break;
       case 'analytics':
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Mở phân tích khóa học...')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mở phân tích khóa học...')),
+        );
         break;
       case 'approve':
         _showApproveDialog(context, courseId);
@@ -458,13 +492,16 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
         title: const Text('Duyệt khóa học'),
         content: const Text('Bạn có chắc chắn muốn duyệt khóa học này?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã duyệt khóa học')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đã duyệt khóa học')),
+              );
             },
             child: const Text('Duyệt'),
           ),
@@ -493,13 +530,16 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã từ chối khóa học')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đã từ chối khóa học')),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Từ chối'),
@@ -529,13 +569,16 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã tạm dừng khóa học')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đã tạm dừng khóa học')),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             child: const Text('Tạm dừng'),
@@ -555,7 +598,10 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           'Hành động này không thể hoàn tác.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();

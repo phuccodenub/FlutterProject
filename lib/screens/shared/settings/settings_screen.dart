@@ -15,7 +15,13 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const ListTile(title: Text('Theme')),
-          _buildThemeRadioOption(context, ref, theme, ThemeMode.system, 'System'),
+          _buildThemeRadioOption(
+            context,
+            ref,
+            theme,
+            ThemeMode.system,
+            'System',
+          ),
           _buildThemeRadioOption(context, ref, theme, ThemeMode.light, 'Light'),
           _buildThemeRadioOption(context, ref, theme, ThemeMode.dark, 'Dark'),
           const Divider(),
@@ -44,7 +50,11 @@ class SettingsScreen extends ConsumerWidget {
       title: Text(label),
       leading: GestureDetector(
         onTap: () => ref.read(appThemeProvider.notifier).setMode(value),
-        child: Radio<ThemeMode>(value: value, groupValue: theme.mode, onChanged: (_) {}),
+        child: Radio<ThemeMode>(
+          value: value,
+          groupValue: theme.mode,
+          onChanged: (_) {},
+        ),
       ),
       onTap: () => ref.read(appThemeProvider.notifier).setMode(value),
     );

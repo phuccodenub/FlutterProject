@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/widgets/widgets.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_dimensions.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../features/auth/auth_state.dart';
+import '../../../core/widgets/quick_action_card.dart';
+import '../../../core/widgets/stat_card.dart';
+import '../../../core/widgets/progress_card.dart';
+import '../../../core/widgets/section_header.dart';
+import '../../../core/widgets/info_card.dart';
+import '../quiz/quiz_creation_screen.dart';
 
 class TeacherDashboard extends ConsumerWidget {
   const TeacherDashboard({super.key, required this.user});
@@ -13,639 +15,350 @@ class TeacherDashboard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authProvider);
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Welcome Section
+        _buildWelcomeCard(context),
+        const SizedBox(height: 24),
 
-    return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [_buildSliverAppBar(context, auth)];
-        },
-        body: RefreshIndicator(
-          onRefresh: () async {
-            // TODO: Refresh dashboard data
-          },
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Quick Stats
-                _buildTeachingStats(),
-                const SizedBox(height: AppSpacing.lg),
+        // Quick Actions
+        const SectionHeader(title: 'Truy cập nhanh', icon: Icons.dashboard),
+        const SizedBox(height: 12),
+        _buildQuickActions(context),
+        const SizedBox(height: 24),
 
-                // Quick Actions
-                _buildQuickActions(context),
-                const SizedBox(height: AppSpacing.lg),
-
-                // My Courses
-                _buildMyCourses(context),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Recent Students
-                _buildRecentStudents(),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Pending Reviews
-                _buildPendingReviews(context),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Teaching Performance
-                _buildTeachingPerformance(),
-              ],
-            ),
-          ),
+        // My Courses
+        const SectionHeader(
+          title: 'Khóa học của tôi',
+          action: 'Quản lý tất cả',
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // TODO: Navigate to create course
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Tạo khóa học'),
-        backgroundColor: AppColors.teacherPrimary,
-        foregroundColor: AppColors.white,
-      ),
+        const SizedBox(height: 12),
+        _buildMyCourses(context),
+        const SizedBox(height: 24),
+
+        // Teaching Stats
+        const SectionHeader(title: 'Thống kê giảng dạy', icon: Icons.analytics),
+        const SizedBox(height: 12),
+        _buildTeachingStats(context),
+        const SizedBox(height: 24),
+
+        // Recent Activities
+        const SectionHeader(title: 'Hoạt động gần đây', icon: Icons.history),
+        const SizedBox(height: 12),
+        _buildRecentActivities(context),
+      ],
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context, AuthState auth) {
-    return SliverAppBar(
-      expandedHeight: 200,
-      floating: false,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text('Teacher Dashboard', style: AppTypography.h5.copyWith(color: AppColors.white)),
-        background: Container(
-          decoration: BoxDecoration(gradient: AppColors.teacherGradient),
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: AppSpacing.screenHorizontal,
-              right: AppSpacing.screenHorizontal,
-              bottom: AppSpacing.xl,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+  Widget _buildWelcomeCard(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green.shade600, Colors.teal.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.person, color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: AppColors.white.withValues(alpha: 0.2),
-                      child: Icon(Icons.school, color: AppColors.white, size: AppSizes.iconLg),
+                    Text(
+                      'Chào ${user.fullName}! 👨‍🏫',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const SizedBox(width: AppSpacing.md),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Xin chào, ${auth.user?.fullName}',
-                          style: AppTypography.bodyLarge.copyWith(
-                            color: AppColors.white.withValues(alpha: 0.9),
-                          ),
-                        ),
-                        Text(
-                          'Giảng viên · 5 khóa học',
-                          style: AppTypography.bodyMedium.copyWith(
-                            color: AppColors.white.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      'Sẵn sàng truyền cảm hứng học tập hôm nay!',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTeachingStats() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Thống kê giảng dạy', style: AppTypography.h6),
-        const SizedBox(height: AppSpacing.md),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                'Học viên',
-                '342',
-                Icons.people,
-                AppColors.primary,
-                '+23 tuần này',
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: _buildStatCard(
-                'Khóa học',
-                '5',
-                Icons.school,
-                AppColors.teacherPrimary,
-                '2 đang hoạt động',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                'Đánh giá',
-                '4.9',
-                Icons.star,
-                AppColors.warning,
-                '124 đánh giá',
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: _buildStatCard(
-                'Thu nhập',
-                '₫45M',
-                Icons.monetization_on,
-                AppColors.success,
-                'Tháng này',
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, String subtitle) {
-    return CustomCard(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                  ),
-                  child: Icon(icon, color: color, size: AppSizes.iconMd),
-                ),
-                const Spacer(),
-                Icon(Icons.trending_up, size: AppSizes.iconSm, color: AppColors.success),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(title, style: AppTypography.bodySmall.copyWith(color: AppColors.grey600)),
-            const SizedBox(height: AppSpacing.xs),
-            Text(value, style: AppTypography.h5.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: AppSpacing.xs),
-            Text(subtitle, style: AppTypography.bodySmall.copyWith(color: AppColors.grey600)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Thao tác nhanh', style: AppTypography.h6),
-        const SizedBox(height: AppSpacing.md),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: AppSpacing.md,
-          crossAxisSpacing: AppSpacing.md,
-          childAspectRatio: 1.5,
-          children: [
-            _buildActionCard('Tạo bài học', Icons.video_library, AppColors.primary, () {}),
-            _buildActionCard('Xem báo cáo', Icons.analytics, AppColors.accent, () {}),
-            _buildActionCard('Quản lý học viên', Icons.people_alt, AppColors.secondary, () {}),
-            _buildActionCard('Tin nhắn', Icons.message, AppColors.warning, () {}),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
-    return CustomCard(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-              ),
-              child: Icon(icon, color: color, size: AppSizes.iconLg),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              title,
-              style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMyCourses(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Khóa học của tôi', style: AppTypography.h6),
-            TextButton(
-              onPressed: () => context.go('/teacher/courses'),
-              child: Text(
-                'Xem tất cả',
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.teacherPrimary),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        SizedBox(
-          height: 200,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.only(right: index < 2 ? AppSpacing.md : 0),
-                child: _buildCourseCard(index),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCourseCard(int index) {
-    final courses = [
-      {
-        'title': 'Flutter Development',
-        'students': 89,
-        'progress': 0.75,
-        'status': 'active',
-        'color': AppColors.primary,
-      },
-      {
-        'title': 'React Native Basics',
-        'students': 156,
-        'progress': 1.0,
-        'status': 'completed',
-        'color': AppColors.secondary,
-      },
-      {
-        'title': 'Mobile UI/UX Design',
-        'students': 67,
-        'progress': 0.45,
-        'status': 'draft',
-        'color': AppColors.accent,
-      },
-    ];
-
-    final course = courses[index];
-    return SizedBox(
-      width: 200,
-      child: CustomCard(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: (course['color'] as Color).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                ),
-                child: Icon(
-                  Icons.play_circle,
-                  color: course['color'] as Color,
-                  size: AppSizes.iconMd,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                course['title'] as String,
-                style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w600),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                '${course['students']} học viên',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
-              ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${((course['progress'] as double) * 100).toInt()}%',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.success,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  _buildStatusBadge(course['status'] as String),
-                ],
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    Color color;
-    String text;
-    switch (status) {
-      case 'active':
-        color = AppColors.success;
-        text = 'Hoạt động';
-        break;
-      case 'completed':
-        color = AppColors.primary;
-        text = 'Hoàn thành';
-        break;
-      case 'draft':
-        color = AppColors.warning;
-        text = 'Nháp';
-        break;
-      default:
-        color = AppColors.grey500;
-        text = 'Khác';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
-      child: Text(
-        text,
-        style: AppTypography.bodySmall.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-          fontSize: 10,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecentStudents() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Học viên gần đây', style: AppTypography.h6),
-        const SizedBox(height: AppSpacing.md),
-        CustomCard(
-          child: Column(
+          const SizedBox(height: 16),
+          Row(
             children: [
-              _buildStudentItem(
-                'Nguyễn Văn A',
-                'Flutter Development',
-                '85%',
-                AppColors.success,
-                'assets/images/avatar1.png',
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.go('/teacher-courses'),
+                  icon: const Icon(Icons.school),
+                  label: const Text('Quản lý khóa học'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.green.shade600,
+                  ),
+                ),
               ),
-              const Divider(height: 1),
-              _buildStudentItem(
-                'Trần Thị B',
-                'React Native Basics',
-                '92%',
-                AppColors.success,
-                'assets/images/avatar2.png',
-              ),
-              const Divider(height: 1),
-              _buildStudentItem(
-                'Lê Văn C',
-                'Mobile UI/UX Design',
-                '67%',
-                AppColors.warning,
-                'assets/images/avatar3.png',
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    context.go('/create-course');
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Tạo khóa học'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white),
+                  ),
+                ),
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStudentItem(
-    String name,
-    String course,
-    String progress,
-    Color progressColor,
-    String avatar,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: AppColors.grey200,
-            child: Text(
-              name[0].toUpperCase(),
-              style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-                const SizedBox(height: AppSpacing.xs),
-                Text(course, style: AppTypography.bodySmall.copyWith(color: AppColors.grey600)),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-            decoration: BoxDecoration(
-              color: progressColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            child: Text(
-              progress,
-              style: AppTypography.bodySmall.copyWith(
-                color: progressColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPendingReviews(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Cần xem xét', style: AppTypography.h6),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'Xem tất cả',
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.teacherPrimary),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        CustomCard(
-          child: Column(
+  Widget _buildQuickActions(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Tính toán height dựa trên content thực tế
+        final cardHeight =
+            (constraints.maxWidth - 12) / 2 / 1.1; // childAspectRatio = 1.1
+        final totalHeight = (cardHeight * 2) + 12; // 2 hàng + spacing
+
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: totalHeight + 20, // Thêm padding
+            minHeight: 200,
+          ),
+          child: GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            childAspectRatio: 1.1,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
             children: [
-              _buildReviewItem(
-                'Bài tập tuần 3',
-                '12 bài nộp chưa chấm',
-                Icons.assignment,
-                AppColors.warning,
-                () {},
+              QuickActionCard(
+                icon: Icons.videocam,
+                title: 'Live Stream',
+                subtitle: 'Bắt đầu buổi học trực tuyến',
+                color: Colors.red,
+                onTap: () {
+                  // TODO: Start livestream
+                },
               ),
-              const Divider(height: 1),
-              _buildReviewItem(
-                'Q&A mới',
-                '8 câu hỏi chưa trả lời',
-                Icons.help_outline,
-                AppColors.primary,
-                () {},
+              QuickActionCard(
+                icon: Icons.add_circle_outline,
+                title: 'Tạo thông báo',
+                subtitle: 'Gửi thông báo đến sinh viên',
+                color: Colors.orange,
+                onTap: () {
+                  // TODO: Create announcement
+                },
               ),
-              const Divider(height: 1),
-              _buildReviewItem(
-                'Yêu cầu chứng chỉ',
-                '5 yêu cầu chờ duyệt',
-                Icons.verified,
-                AppColors.accent,
-                () {},
+              QuickActionCard(
+                icon: Icons.quiz,
+                title: 'Tạo bài kiểm tra',
+                subtitle: 'Tạo quiz và bài tập',
+                color: Colors.purple,
+                onTap: () => _createQuiz(context),
+              ),
+              QuickActionCard(
+                icon: Icons.people,
+                title: 'Sinh viên',
+                subtitle: 'Xem danh sách sinh viên',
+                color: Colors.blue,
+                onTap: () {
+                  // TODO: View students
+                },
               ),
             ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildReviewItem(
-    String title,
-    String description,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Icon(icon, color: color, size: AppSizes.iconSm),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    description,
-                    style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: AppColors.grey400, size: AppSizes.iconSm),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTeachingPerformance() {
+  Widget _buildMyCourses(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Hiệu suất giảng dạy', style: AppTypography.h6),
-        const SizedBox(height: AppSpacing.md),
-        CustomCard(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              children: [
-                _buildPerformanceMetric('Tỷ lệ hoàn thành', '87%', 0.87, AppColors.success),
-                const SizedBox(height: AppSpacing.lg),
-                _buildPerformanceMetric('Tương tác học viên', '92%', 0.92, AppColors.primary),
-                const SizedBox(height: AppSpacing.lg),
-                _buildPerformanceMetric('Phản hồi tích cực', '95%', 0.95, AppColors.accent),
-              ],
+        ProgressCard(
+          title: 'Introduction to Flutter Development',
+          subtitle: '45 sinh viên • 15 bài học',
+          progress: 1.0,
+          color: Colors.blue,
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Đang diễn ra',
+              style: TextStyle(
+                color: Colors.green,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
+          onTap: () => context.go('/courses/course-1'),
+        ),
+        const SizedBox(height: 8),
+        ProgressCard(
+          title: 'Advanced Mobile Development',
+          subtitle: '28 sinh viên • 20 bài học',
+          progress: 0.6,
+          color: Colors.green,
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Chuẩn bị',
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          onTap: () => context.go('/courses/course-2'),
         ),
       ],
     );
   }
 
-  Widget _buildPerformanceMetric(String title, String percentage, double value, Color color) {
+  Widget _buildTeachingStats(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Tính toán height dựa trên content thực tế cho stats
+        final cardHeight =
+            (constraints.maxWidth - 12) / 2 / 1.3; // childAspectRatio = 1.3
+        final totalHeight = (cardHeight * 2) + 12; // 2 hàng + spacing
+
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: totalHeight + 20,
+            minHeight: 180,
+          ),
+          child: GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            childAspectRatio: 1.3,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            children: [
+              StatCard(
+                icon: Icons.school,
+                value: '2',
+                label: 'Khóa học',
+                color: Colors.blue,
+              ),
+              StatCard(
+                icon: Icons.people,
+                value: '73',
+                label: 'Sinh viên',
+                color: Colors.green,
+                trend: '+5',
+                trendUp: true,
+              ),
+              StatCard(
+                icon: Icons.star,
+                value: '4.8',
+                label: 'Đánh giá TB',
+                color: Colors.orange,
+                trend: '+0.2',
+                trendUp: true,
+              ),
+              StatCard(
+                icon: Icons.assignment_turned_in,
+                value: '156',
+                label: 'Bài tập đã chấm',
+                color: Colors.purple,
+                trend: '+12',
+                trendUp: true,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRecentActivities(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title, style: AppTypography.bodyMedium),
-            Text(
-              percentage,
-              style: AppTypography.bodyMedium.copyWith(color: color, fontWeight: FontWeight.w600),
+        InfoCard(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
+            child: const Icon(Icons.quiz, color: Colors.green),
+          ),
+          title: 'Quiz "Flutter Basics" đã được tạo',
+          subtitle: '2 giờ trước • Flutter Development',
+          trailing: const Text('12 sinh viên đã làm bài'),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        LinearProgressIndicator(
-          value: value,
-          backgroundColor: AppColors.grey200,
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-          minHeight: 6,
+        const SizedBox(height: 8),
+        InfoCard(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.message, color: Colors.blue),
+          ),
+          title: 'Thông báo về deadline bài tập',
+          subtitle: '4 giờ trước • Advanced Mobile Dev',
+          trailing: const Text('Đã xem: 28/28'),
+        ),
+        const SizedBox(height: 8),
+        InfoCard(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.purple.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.videocam, color: Colors.purple),
+          ),
+          title: 'Buổi livestream "State Management"',
+          subtitle: '1 ngày trước • 45 người tham gia',
+          trailing: const Icon(Icons.play_circle_outline),
         ),
       ],
     );
+  }
+
+  void _createQuiz(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const QuizCreationScreen()));
   }
 }

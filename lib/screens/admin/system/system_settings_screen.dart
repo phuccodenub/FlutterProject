@@ -230,9 +230,9 @@ class SystemSettingsScreen extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Text(
                   title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -262,7 +262,10 @@ class SystemSettingsScreen extends ConsumerWidget {
           ],
         ),
         actions: [
-          ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Đóng')),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Đóng'),
+          ),
         ],
       ),
     );
@@ -287,9 +290,9 @@ class SystemSettingsScreen extends ConsumerWidget {
   }
 
   void _showSessionSettings(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Mở cài đặt phiên đăng nhập...')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Mở cài đặt phiên đăng nhập...')),
+    );
   }
 
   void _showSecurityLogs(BuildContext context) {
@@ -305,21 +308,21 @@ class SystemSettingsScreen extends ConsumerWidget {
   }
 
   void _showEmailTemplates(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Mở quản lý template email...')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Mở quản lý template email...')),
+    );
   }
 
   void _showCloudConfig(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Mở cấu hình cloud storage...')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Mở cấu hình cloud storage...')),
+    );
   }
 
   void _showCleanupSettings(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Mở cài đặt dọn dẹp tự động...')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Mở cài đặt dọn dẹp tự động...')),
+    );
   }
 
   void _showBackupSchedule(BuildContext context) {
@@ -344,7 +347,10 @@ class SystemSettingsScreen extends ConsumerWidget {
           'Quá trình này có thể mất vài phút.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
@@ -374,13 +380,16 @@ class SystemSettingsScreen extends ConsumerWidget {
           'Tất cả người dùng sẽ không thể truy cập hệ thống.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã bật chế độ bảo trì')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đã bật chế độ bảo trì')),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             child: const Text('Bật'),
@@ -392,7 +401,10 @@ class SystemSettingsScreen extends ConsumerWidget {
 
   void _checkForUpdates(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đang kiểm tra cập nhật...'), duration: Duration(seconds: 2)),
+      const SnackBar(
+        content: Text('Đang kiểm tra cập nhật...'),
+        duration: Duration(seconds: 2),
+      ),
     );
 
     // Simulate update check - use a safer approach

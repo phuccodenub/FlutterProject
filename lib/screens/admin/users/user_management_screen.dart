@@ -5,7 +5,8 @@ class UserManagementScreen extends ConsumerStatefulWidget {
   const UserManagementScreen({super.key});
 
   @override
-  ConsumerState<UserManagementScreen> createState() => _UserManagementScreenState();
+  ConsumerState<UserManagementScreen> createState() =>
+      _UserManagementScreenState();
 }
 
 class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
@@ -31,7 +32,10 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
           ),
           PopupMenuButton(
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'export', child: Text('Xuất danh sách')),
+              const PopupMenuItem(
+                value: 'export',
+                child: Text('Xuất danh sách'),
+              ),
               const PopupMenuItem(value: 'import', child: Text('Nhập từ file')),
               const PopupMenuItem(value: 'settings', child: Text('Cài đặt')),
             ],
@@ -77,7 +81,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
                 icon: const Icon(Icons.filter_list),
                 onPressed: () => _showFilterDialog(context),
               ),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ),
@@ -106,7 +112,10 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
                 children: [
                   Text(
                     entry.value.toString(),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     entry.key,
@@ -249,7 +258,10 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
               backgroundColor: theme.colorScheme.primary,
               child: Text(
                 user['avatar'],
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -262,11 +274,16 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
                       Expanded(
                         child: Text(
                           user['name'],
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: isActive
                               ? Colors.green.withValues(alpha: 0.1)
@@ -287,7 +304,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
                   const SizedBox(height: 4),
                   Text(
                     user['email'],
-                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -335,10 +354,14 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
                   value: isActive ? 'deactivate' : 'activate',
                   child: Text(isActive ? 'Vô hiệu hóa' : 'Kích hoạt'),
                 ),
-                const PopupMenuItem(value: 'reset_password', child: Text('Đặt lại mật khẩu')),
+                const PopupMenuItem(
+                  value: 'reset_password',
+                  child: Text('Đặt lại mật khẩu'),
+                ),
                 const PopupMenuItem(value: 'delete', child: Text('Xóa')),
               ],
-              onSelected: (value) => _handleUserAction(context, user['id'], value.toString()),
+              onSelected: (value) =>
+                  _handleUserAction(context, user['id'], value.toString()),
             ),
           ],
         ),
@@ -356,18 +379,27 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               const TextField(
-                decoration: InputDecoration(labelText: 'Họ và tên *', hintText: 'Nguyễn Văn A'),
+                decoration: InputDecoration(
+                  labelText: 'Họ và tên *',
+                  hintText: 'Nguyễn Văn A',
+                ),
               ),
               const SizedBox(height: 16),
               const TextField(
-                decoration: InputDecoration(labelText: 'Email *', hintText: 'user@example.com'),
+                decoration: InputDecoration(
+                  labelText: 'Email *',
+                  hintText: 'user@example.com',
+                ),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField(
                 decoration: const InputDecoration(labelText: 'Vai trò *'),
                 items: const [
                   DropdownMenuItem(value: 'student', child: Text('Sinh viên')),
-                  DropdownMenuItem(value: 'instructor', child: Text('Giáo viên')),
+                  DropdownMenuItem(
+                    value: 'instructor',
+                    child: Text('Giáo viên'),
+                  ),
                   DropdownMenuItem(value: 'admin', child: Text('Quản trị')),
                 ],
                 onChanged: (value) {},
@@ -384,13 +416,18 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã tạo tài khoản mới thành công!')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Đã tạo tài khoản mới thành công!'),
+                ),
+              );
             },
             child: const Text('Tạo'),
           ),
@@ -406,19 +443,21 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
   void _handleMenuAction(BuildContext context, String action) {
     switch (action) {
       case 'export':
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Đang xuất danh sách người dùng...')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đang xuất danh sách người dùng...')),
+        );
         break;
       case 'import':
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Tính năng nhập file sẽ được cập nhật sớm')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tính năng nhập file sẽ được cập nhật sớm'),
+          ),
+        );
         break;
       case 'settings':
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Mở cài đặt quản lý người dùng...')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mở cài đặt quản lý người dùng...')),
+        );
         break;
     }
   }
@@ -435,7 +474,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
       case 'deactivate':
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Đã ${action == 'activate' ? 'kích hoạt' : 'vô hiệu hóa'} tài khoản'),
+            content: Text(
+              'Đã ${action == 'activate' ? 'kích hoạt' : 'vô hiệu hóa'} tài khoản',
+            ),
           ),
         );
         break;
@@ -458,13 +499,16 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
           'Mật khẩu mới sẽ được gửi qua email.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã gửi mật khẩu mới qua email')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đã gửi mật khẩu mới qua email')),
+              );
             },
             child: const Text('Đặt lại'),
           ),
@@ -483,13 +527,16 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen>
           'Hành động này không thể hoàn tác.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã xóa người dùng')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đã xóa người dùng')),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Xóa'),

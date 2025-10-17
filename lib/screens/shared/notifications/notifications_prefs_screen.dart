@@ -49,9 +49,9 @@ class NotificationsPrefsScreen extends ConsumerWidget {
             child: ElevatedButton(
               onPressed: () async {
                 // Request permissions if needed (platform-specific)
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Xin quyền thông báo (demo)')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Xin quyền thông báo (demo)')),
+                );
               },
               child: const Text('Xin quyền thông báo'),
             ),

@@ -38,7 +38,9 @@ class ProfileScreen extends ConsumerWidget {
           Card(
             elevation: 0,
             color: theme.colorScheme.primary.withValues(alpha: 0.1),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -51,7 +53,10 @@ class ProfileScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
-                            colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+                            colors: [
+                              theme.colorScheme.primary,
+                              theme.colorScheme.secondary,
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -76,7 +81,11 @@ class ProfileScreen extends ConsumerWidget {
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 3),
                           ),
-                          child: Icon(_getRoleIcon(user.role), size: 20, color: Colors.white),
+                          child: Icon(
+                            _getRoleIcon(user.role),
+                            size: 20,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
@@ -84,12 +93,17 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     user.fullName,
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: _getRoleColor(user.role),
                       borderRadius: BorderRadius.circular(20),
@@ -112,7 +126,9 @@ class ProfileScreen extends ConsumerWidget {
           // Account Information
           Text(
             'Thông tin tài khoản',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 12),
           InfoCard(
@@ -145,7 +161,9 @@ class ProfileScreen extends ConsumerWidget {
           // Settings Section
           Text(
             'Cài đặt',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 12),
           InfoCard(
@@ -221,14 +239,18 @@ class ProfileScreen extends ConsumerWidget {
                   Text(
                     'LMS Mobile v0.1.0',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.5),
+                      color: theme.textTheme.bodySmall?.color?.withValues(
+                        alpha: 0.5,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Made with ❤️ using Flutter',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.5),
+                      color: theme.textTheme.bodySmall?.color?.withValues(
+                        alpha: 0.5,
+                      ),
                     ),
                   ),
                 ],
@@ -295,7 +317,10 @@ class ProfileScreen extends ConsumerWidget {
         title: const Text('Đăng xuất'),
         content: const Text('Bạn có chắc chắn muốn đăng xuất không?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () async {
               await ref.read(authProvider.notifier).logout();

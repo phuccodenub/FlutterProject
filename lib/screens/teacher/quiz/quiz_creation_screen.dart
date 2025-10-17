@@ -1,9 +1,17 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ignore: unused_import
+import 'package:go_router/go_router.dart'; // TODO: May be used for quiz preview navigation
 import '../../../core/widgets/section_header.dart';
 
-enum QuestionType { singleChoice, multipleChoice, trueFalse, shortAnswer, essay }
+enum QuestionType {
+  singleChoice,
+  multipleChoice,
+  trueFalse,
+  shortAnswer,
+  essay,
+}
 
 class QuizCreationScreen extends ConsumerStatefulWidget {
   const QuizCreationScreen({super.key});
@@ -28,12 +36,19 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
         title: const Text('Tạo Quiz'),
         actions: [
           TextButton(onPressed: _saveAsDraft, child: const Text('Lưu nháp')),
-          ElevatedButton(onPressed: _publishQuiz, child: const Text('Xuất bản')),
+          ElevatedButton(
+            onPressed: _publishQuiz,
+            child: const Text('Xuất bản'),
+          ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [_buildQuizSettings(), const SizedBox(height: 24), _buildQuestionsSection()],
+        children: [
+          _buildQuizSettings(),
+          const SizedBox(height: 24),
+          _buildQuestionsSection(),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addQuestion,
@@ -85,9 +100,14 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
                 Expanded(
                   child: DropdownButtonFormField<int>(
                     initialValue: _maxAttempts,
-                    decoration: const InputDecoration(labelText: 'Số lần làm tối đa'),
+                    decoration: const InputDecoration(
+                      labelText: 'Số lần làm tối đa',
+                    ),
                     items: [1, 2, 3, 5, 10].map((attempts) {
-                      return DropdownMenuItem(value: attempts, child: Text('$attempts lần'));
+                      return DropdownMenuItem(
+                        value: attempts,
+                        child: Text('$attempts lần'),
+                      );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
@@ -208,13 +228,19 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (question.title.isNotEmpty) ...[
-                  Text('Câu hỏi:', style: Theme.of(context).textTheme.labelMedium),
+                  Text(
+                    'Câu hỏi:',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
                   const SizedBox(height: 4),
                   Text(question.title),
                   const SizedBox(height: 12),
                 ],
                 if (question.options.isNotEmpty) ...[
-                  Text('Đáp án:', style: Theme.of(context).textTheme.labelMedium),
+                  Text(
+                    'Đáp án:',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
                   const SizedBox(height: 8),
                   ...question.options.asMap().entries.map((entry) {
                     final optionIndex = entry.key;
@@ -242,7 +268,10 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Text('Điểm: ${question.points}', style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      'Điểm: ${question.points}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     const SizedBox(width: 16),
                     Text(
                       'Thời gian: ${question.timeLimit > 0 ? '${question.timeLimit}s' : 'Không giới hạn'}',
@@ -345,28 +374,30 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
 
   void _saveAsDraft() {
     // TODO: Save quiz as draft
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã lưu nháp quiz')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Đã lưu nháp quiz')));
   }
 
   void _publishQuiz() {
     if (_titleController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Vui lòng nhập tiêu đề quiz')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập tiêu đề quiz')),
+      );
       return;
     }
 
     if (_questions.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Vui lòng thêm ít nhất một câu hỏi')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng thêm ít nhất một câu hỏi')),
+      );
       return;
     }
 
     // TODO: Publish quiz
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đã xuất bản quiz thành công!')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã xuất bản quiz thành công!')),
+    );
     Navigator.of(context).pop();
   }
 }
@@ -383,7 +414,10 @@ class QuestionTypeSelector extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Chọn loại câu hỏi', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Chọn loại câu hỏi',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 16),
           _buildQuestionTypeOption(
             context,
@@ -454,7 +488,11 @@ class QuestionTypeSelector extends StatelessWidget {
 }
 
 class QuestionEditorDialog extends StatefulWidget {
-  const QuestionEditorDialog({super.key, required this.question, required this.onSave});
+  const QuestionEditorDialog({
+    super.key,
+    required this.question,
+    required this.onSave,
+  });
 
   final Question question;
   final Function(Question) onSave;
@@ -504,7 +542,10 @@ class _QuestionEditorDialogState extends State<QuestionEditorDialog> {
             ),
             const SizedBox(height: 16),
             if (_needsOptions()) ...[
-              Text('Các lựa chọn:', style: Theme.of(context).textTheme.labelLarge),
+              Text(
+                'Các lựa chọn:',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
               const SizedBox(height: 8),
               ..._buildOptionFields(),
               TextButton.icon(
@@ -544,7 +585,10 @@ class _QuestionEditorDialogState extends State<QuestionEditorDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Hủy'),
+        ),
         ElevatedButton(onPressed: _saveQuestion, child: const Text('Lưu')),
       ],
     );
@@ -595,7 +639,10 @@ class _QuestionEditorDialogState extends State<QuestionEditorDialog> {
               ),
             ),
             if (widget.question.type != QuestionType.trueFalse)
-              IconButton(onPressed: () => _removeOption(index), icon: const Icon(Icons.delete)),
+              IconButton(
+                onPressed: () => _removeOption(index),
+                icon: const Icon(Icons.delete),
+              ),
           ],
         ),
       );
@@ -620,9 +667,9 @@ class _QuestionEditorDialogState extends State<QuestionEditorDialog> {
 
   void _saveQuestion() {
     if (_titleController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Vui lòng nhập nội dung câu hỏi')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập nội dung câu hỏi')),
+      );
       return;
     }
 

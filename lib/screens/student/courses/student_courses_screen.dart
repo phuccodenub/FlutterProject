@@ -8,15 +8,15 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
 
-class StudentCoursesScreen extends ConsumerStatefulWidget {
-  const StudentCoursesScreen({super.key, this.myCoursesOnly = false});
+class CoursesScreen extends ConsumerStatefulWidget {
+  const CoursesScreen({super.key, this.myCoursesOnly = false});
   final bool myCoursesOnly;
 
   @override
-  ConsumerState<StudentCoursesScreen> createState() => _CoursesScreenState();
+  ConsumerState<CoursesScreen> createState() => _CoursesScreenState();
 }
 
-class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
+class _CoursesScreenState extends ConsumerState<CoursesScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final _searchController = TextEditingController();
@@ -26,7 +26,10 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: widget.myCoursesOnly ? 3 : 4, vsync: this);
+    _tabController = TabController(
+      length: widget.myCoursesOnly ? 3 : 4,
+      vsync: this,
+    );
   }
 
   @override
@@ -85,7 +88,9 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
                 ? AppColors.primaryGradient
                 : AppColors.secondaryGradient,
           ),
-          child: widget.myCoursesOnly ? _buildMyCoursesHeader() : _buildExploreHeader(),
+          child: widget.myCoursesOnly
+              ? _buildMyCoursesHeader()
+              : _buildExploreHeader(),
         ),
       ),
     );
@@ -136,12 +141,16 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
         children: [
           Text(
             'Hơn 1000+ khóa học',
-            style: AppTypography.bodyLarge.copyWith(color: AppColors.white.withValues(alpha: 0.9)),
+            style: AppTypography.bodyLarge.copyWith(
+              color: AppColors.white.withValues(alpha: 0.9),
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Học từ các chuyên gia hàng đầu',
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.white.withValues(alpha: 0.8)),
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.white.withValues(alpha: 0.8),
+            ),
           ),
         ],
       ),
@@ -233,7 +242,11 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
           unselectedLabelColor: AppColors.grey600,
           labelStyle: AppTypography.labelMedium,
           tabs: widget.myCoursesOnly
-              ? const [Tab(text: 'Đang học'), Tab(text: 'Đang tiến hành'), Tab(text: 'Hoàn thành')]
+              ? const [
+                  Tab(text: 'Đang học'),
+                  Tab(text: 'Đang tiến hành'),
+                  Tab(text: 'Hoàn thành'),
+                ]
               : const [
                   Tab(text: 'Tất cả'),
                   Tab(text: 'Đề xuất'),
@@ -270,7 +283,9 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
           final matchesSearch =
               _searchQuery.isEmpty ||
               course.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              course.description.toLowerCase().contains(_searchQuery.toLowerCase());
+              course.description.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              );
 
           final matchesCategory =
               _selectedCategory == 'all' ||
@@ -299,7 +314,10 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
       case CourseFilter.enrolled:
       case CourseFilter.inProgress:
       case CourseFilter.completed:
-        return coursesService.getMyCourses(auth.user?.id ?? 0, auth.user?.role ?? 'student');
+        return coursesService.getMyCourses(
+          auth.user?.id ?? 0,
+          auth.user?.role ?? 'student',
+        );
       case CourseFilter.all:
       case CourseFilter.recommended:
       case CourseFilter.trending:
@@ -327,7 +345,9 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
         return Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.md),
           child: ShimmerLoading(
-            child: CustomCard(child: Container(height: 120, color: AppColors.grey200)),
+            child: CustomCard(
+              child: Container(height: 120, color: AppColors.grey200),
+            ),
           ),
         );
       },
@@ -362,7 +382,9 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
       title: title,
       subtitle: subtitle,
       actionText: filter == CourseFilter.enrolled ? 'Khám phá khóa học' : null,
-      onAction: filter == CourseFilter.enrolled ? () => context.go('/courses') : null,
+      onAction: filter == CourseFilter.enrolled
+          ? () => context.go('/courses')
+          : null,
     );
   }
 
@@ -387,7 +409,11 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: AppSizes.iconXl3, color: AppColors.error),
+          Icon(
+            Icons.error_outline,
+            size: AppSizes.iconXl3,
+            color: AppColors.error,
+          ),
           const SizedBox(height: AppSpacing.md),
           Text('Có lỗi xảy ra', style: AppTypography.h6),
           const SizedBox(height: AppSpacing.sm),
@@ -425,7 +451,15 @@ class _CoursesScreenState extends ConsumerState<StudentCoursesScreen>
   }
 }
 
-enum CourseFilter { all, enrolled, inProgress, completed, recommended, trending, newCourses }
+enum CourseFilter {
+  all,
+  enrolled,
+  inProgress,
+  completed,
+  recommended,
+  trending,
+  newCourses,
+}
 
 class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverTabBarDelegate(this._tabBar);
@@ -438,8 +472,15 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => _tabBar.preferredSize.height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(color: Theme.of(context).scaffoldBackgroundColor, child: _tabBar);
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: _tabBar,
+    );
   }
 
   @override

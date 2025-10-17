@@ -51,7 +51,9 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
     final currentUserId = auth.user?.id ?? 0;
 
     // Filter out current user from typing
-    final othersTyping = typingUsers.where((id) => id != currentUserId).toList();
+    final othersTyping = typingUsers
+        .where((id) => id != currentUserId)
+        .toList();
 
     return Column(
       children: [
@@ -67,7 +69,10 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
             children: [
               const Icon(Icons.group, size: 18),
               const SizedBox(width: 6),
-              Text('Online: ${online.length}', style: const TextStyle(fontWeight: FontWeight.w500)),
+              Text(
+                'Online: ${online.length}',
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
               const Spacer(),
               TextButton.icon(
                 onPressed: () {
@@ -93,14 +98,18 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
             itemBuilder: (context, index) {
               final m = messages[index];
               final isMe = m.userId == currentUserId;
-              final lastSeen = ref.read(chatProvider.notifier).getLastSeenText(m.userId);
+              final lastSeen = ref
+                  .read(chatProvider.notifier)
+                  .getLastSeenText(m.userId);
 
               return Align(
                 alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 6),
                   padding: const EdgeInsets.all(12),
-                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
                   decoration: BoxDecoration(
                     color: isMe ? Colors.blue.shade100 : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
@@ -129,7 +138,10 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                           const SizedBox(width: 6),
                           Text(
                             '• $lastSeen',
-                            style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
                         ],
                       ),
@@ -146,11 +158,16 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.attach_file, size: 16, color: Colors.grey.shade600),
+                              Icon(
+                                Icons.attach_file,
+                                size: 16,
+                                color: Colors.grey.shade600,
+                              ),
                               const SizedBox(width: 4),
                               Flexible(
                                 child: Text(
-                                  m.attachmentName ?? m.attachmentPath!.split('/').last,
+                                  m.attachmentName ??
+                                      m.attachmentPath!.split('/').last,
                                   style: const TextStyle(
                                     decoration: TextDecoration.underline,
                                     fontSize: 12,
@@ -162,7 +179,10 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                                 const SizedBox(width: 4),
                                 Text(
                                   '(${_formatBytes(m.attachmentSize!)})',
-                                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey.shade600,
+                                  ),
                                 ),
                               ],
                             ],
@@ -172,7 +192,10 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                       const SizedBox(height: 4),
                       Text(
                         _formatTime(m.timestamp),
-                        style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
@@ -193,7 +216,10 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                   height: 20,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(3, (index) => _TypingDot(delay: index * 200)),
+                    children: List.generate(
+                      3,
+                      (index) => _TypingDot(delay: index * 200),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -248,18 +274,30 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                   controller: ctrl,
                   decoration: InputDecoration(
                     hintText: 'Nhập tin nhắn...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                   maxLines: null,
                   onChanged: (_) {
                     _typingDebounce?.cancel();
                     final user = auth.user;
                     if (user == null) return;
-                    ref.read(chatProvider.notifier).setTyping(widget.courseId, user.id, true);
-                    _typingDebounce = Timer(const Duration(milliseconds: 800), () {
-                      ref.read(chatProvider.notifier).setTyping(widget.courseId, user.id, false);
-                    });
+                    ref
+                        .read(chatProvider.notifier)
+                        .setTyping(widget.courseId, user.id, true);
+                    _typingDebounce = Timer(
+                      const Duration(milliseconds: 800),
+                      () {
+                        ref
+                            .read(chatProvider.notifier)
+                            .setTyping(widget.courseId, user.id, false);
+                      },
+                    );
                   },
                 ),
               ),
@@ -278,7 +316,9 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                       // ignore: use_build_context_synchronously
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Đã đính kèm: ${res.files.single.name}'),
+                          content: Text(
+                            'Đã đính kèm: ${res.files.single.name}',
+                          ),
                           duration: const Duration(seconds: 2),
                         ),
                       );
@@ -346,14 +386,18 @@ class _TypingDot extends StatefulWidget {
   State<_TypingDot> createState() => _TypingDotState();
 }
 
-class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMixin {
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
     _animation = Tween<double>(
       begin: 0,
       end: 1,
@@ -379,7 +423,9 @@ class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMi
           height: 6,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.grey.shade600.withValues(alpha: 0.3 + (_animation.value * 0.7)),
+            color: Colors.grey.shade600.withValues(
+              alpha: 0.3 + (_animation.value * 0.7),
+            ),
           ),
         );
       },
