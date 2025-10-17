@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../features/courses/course_model.dart';
 import '../screens/home_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -17,6 +17,7 @@ import '../screens/root_shell.dart';
 import '../screens/settings_screen.dart';
 import '../screens/profile_screen.dart';
 import 'guards/auth_guard.dart';
+import '../screens/teacher/teacher_course_detail_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -52,11 +53,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const TeacherCoursesScreen(),
           ),
 
+          // GoRoute(
+          //   path: '/teacher/courses/:courseId',
+          //   redirect: (context, state) => requireAuth(context, state),
+          //   builder: (context, state) =>
+          //       CourseDetailScreen(courseId: state.pathParameters['courseId']!),
+          // ),
           GoRoute(
             path: '/teacher/courses/:courseId',
-            redirect: (context, state) => requireAuth(context, state),
-            builder: (context, state) =>
-                CourseDetailScreen(courseId: state.pathParameters['courseId']!),
+            builder: (context, state) {
+              // Lấy đối tượng Course từ tham số 'extra'
+              final course = state.extra as Course;
+              return TeacherCourseDetailScreen(course: course);
+            },
           ),
           GoRoute(
             path: '/course/:id',

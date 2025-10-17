@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/courses/courses_service.dart'; // Thay thế bằng đường dẫn đúng
 import '../../features/courses/course_model.dart';

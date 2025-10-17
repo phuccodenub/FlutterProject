@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/widgets/section_header.dart';
+import '../../features/courses/course_model.dart';
 
 class CreateCourseScreen extends ConsumerStatefulWidget {
   const CreateCourseScreen({super.key});
@@ -76,39 +78,44 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
   }
 
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      if (_pickedImage == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Vui lòng chọn ảnh bìa cho khóa học.'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-        return;
-      }
-
-      final title = _titleController.text;
-      final description = _descriptionController.text;
-      final category = _selectedCategory;
-      final startDate = _startDateController.text;
-      final endDate = _endDateController.text;
-
-      print('Course Title: $title');
-      print('Description: $description');
-      print('Category: $category');
-      print('Start Date: $startDate');
-      print('End Date: $endDate');
-      print('Image Path: ${_pickedImage!.path}');
-
+    // 1. Validate Form
+    if (!_formKey.currentState!.validate()) {
+      return; // Dừng lại nếu form không hợp lệ
+    }
+    if (_pickedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Khóa học đã được tạo thành công!'),
-          backgroundColor: Colors.green,
+          content: Text('Vui lòng chọn ảnh bìa cho khóa học.'),
+          backgroundColor: Colors.redAccent,
         ),
       );
-
-      context.pop();
+      return;
     }
+
+    // 2. Tạo đối tượng Course từ dữ liệu đã nhập
+    final newCourse = Course(
+      id: const Uuid().v4(), // Tạo một ID ngẫu nhiên, duy nhất
+      title: _titleController.text,
+      description: _descriptionController.text,
+      imageFile: _pickedImage,
+      // Dữ liệu giả định cho các trường còn thiếu trong form
+      code: 'NEW101',
+      instructorName: 'Tên giáo viên', // Trong thực tế sẽ lấy từ provider user
+    );
+
+    // 3. Điều hướng đến màn hình chi tiết và gửi đối tượng Course
+    // Sử dụng context.push để có thể nhấn nút back quay lại
+    context.push(
+      '/teacher/courses/${newCourse.id}', // Điều hướng tới URL của khóa học mới
+      extra: newCourse, // <-- Đây là cách truyền đối tượng qua GoRouter
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Khóa học đã được tạo thành công!'),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   @override
