@@ -7,6 +7,7 @@ import 'chat_tab.dart';
 import 'quizzes_tab.dart';
 import 'package:go_router/go_router.dart';
 
+// student-course-detail-screen.dart
 class CourseDetailScreen extends ConsumerStatefulWidget {
   const CourseDetailScreen({super.key, required this.courseId});
   final String courseId;

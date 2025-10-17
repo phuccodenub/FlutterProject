@@ -7,6 +7,7 @@ import '../../core/widgets/stat_card.dart';
 import '../../core/widgets/progress_card.dart';
 import '../../core/widgets/section_header.dart';
 import '../../core/widgets/info_card.dart';
+import '../../screens/teacher/quiz_creation_screen.dart';
 
 class TeacherDashboard extends ConsumerWidget {
   const TeacherDashboard({super.key, required this.user});
@@ -179,9 +180,7 @@ class TeacherDashboard extends ConsumerWidget {
                 title: 'Tạo bài kiểm tra',
                 subtitle: 'Tạo quiz và bài tập',
                 color: Colors.purple,
-                onTap: () {
-                  // TODO: Create quiz
-                },
+                onTap: () => _createQuiz(context),
               ),
               QuickActionCard(
                 icon: Icons.people,
@@ -355,5 +354,11 @@ class TeacherDashboard extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  void _createQuiz(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const QuizCreationScreen()));
   }
 }

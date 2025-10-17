@@ -53,7 +53,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
 
           GoRoute(
-            path: '/courses/:courseId',
+            path: '/teacher/courses/:courseId',
             redirect: (context, state) => requireAuth(context, state),
             builder: (context, state) =>
                 CourseDetailScreen(courseId: state.pathParameters['courseId']!),
