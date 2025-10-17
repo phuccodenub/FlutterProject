@@ -54,7 +54,7 @@ class TeacherCoursesScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateCourseDialog(context),
+        onPressed: () => context.go('/create-course'), // Đã thay đổi ở đây
         icon: const Icon(Icons.add),
         label: const Text('Tạo khóa học'),
       ),

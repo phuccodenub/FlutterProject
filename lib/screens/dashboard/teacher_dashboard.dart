@@ -105,7 +105,7 @@ class TeacherDashboard extends ConsumerWidget {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () => context.go('/my-courses'),
+                  onPressed: () => context.go('/teacher-courses'),
                   icon: const Icon(Icons.school),
                   label: const Text('Quản lý khóa học'),
                   style: ElevatedButton.styleFrom(
@@ -118,7 +118,7 @@ class TeacherDashboard extends ConsumerWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // TODO: Create new course
+                    context.go('/create-course');
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('Tạo khóa học'),

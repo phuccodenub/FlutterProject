@@ -7,6 +7,8 @@ import '../screens/auth/register_screen.dart';
 import '../screens/auth/forgot_password_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/courses/courses_screen.dart';
+import '../screens/teacher/teacher_courses_screen.dart';
+import '../screens/courses/create_course_screen.dart';
 import '../screens/course_detail/course_detail_screen.dart';
 import '../screens/livestream_screen.dart';
 import '../screens/notifications_screen.dart';
@@ -45,6 +47,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 const CoursesScreen(myCoursesOnly: true),
           ),
           GoRoute(
+            path: '/teacher-courses',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const TeacherCoursesScreen(),
+          ),
+
+          GoRoute(
             path: '/courses/:courseId',
             redirect: (context, state) => requireAuth(context, state),
             builder: (context, state) =>
@@ -76,6 +84,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             redirect: (context, state) => requireAuth(context, state),
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/create-course',
+            builder: (context, state) => const CreateCourseScreen(),
           ),
         ],
       ),
