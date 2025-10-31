@@ -353,8 +353,7 @@ class _CardCourse {
     if (level == null) return null;
     final l = level.toLowerCase();
     if (l.contains('cơ bản') || l.contains('beginner')) return 'beginner';
-    if (l.contains('trung cấp') || l.contains('intermediate'))
-      return 'intermediate';
+    if (l.contains('trung cấp') || l.contains('intermediate')) return 'intermediate';
     if (l.contains('nâng cao') || l.contains('advanced')) return 'advanced';
     return null;
   }
