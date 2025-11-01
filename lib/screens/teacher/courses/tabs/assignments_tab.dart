@@ -4,7 +4,7 @@ import '../providers/teacher_course_providers.dart';
 import '../grading_screen.dart';
 import '../gradebook_screen.dart';
 import '../models/course_content_models.dart';
-import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/widgets/widgets.dart';
 
 class AssignmentsTab extends ConsumerWidget {
   const AssignmentsTab({super.key});
@@ -71,41 +71,30 @@ class AssignmentsTab extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         if (assignments.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Center(child: Text('Chưa có bài tập nào')),
+          EmptyState(
+            icon: Icons.assignment_outlined,
+            title: 'Chưa có bài tập nào',
+            subtitle: 'Tạo bài tập mới để bắt đầu giao và chấm.',
+            actionLabel: 'Tạo bài tập mới',
+            onAction: () =>
+                _openCreateAssignment(context, ref, students.length),
           )
-        else
-          ...assignments.map((a) {
-            return Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: const Icon(Icons.assignment_outlined),
-                title: Text(
-                  a.title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
+        else ...[
+          const SectionHeader(
+            title: 'Danh sách bài tập',
+            icon: Icons.assignment_outlined,
+          ),
+          const SizedBox(height: 8),
+          ...assignments.map(
+            (a) => ActionCard(
+              title: a.title,
+              subtitle:
                   'Hạn nộp: ${_fmtDateTime(a.deadline)} • Đã nộp: ${a.submitted}/${a.total}',
-                ),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _openGrading(context, a, students),
-              ),
-            );
-          }),
+              icon: Icons.assignment_outlined,
+              onTap: () => _openGrading(context, a, students),
+            ),
+          ),
+        ],
       ],
     );
   }
