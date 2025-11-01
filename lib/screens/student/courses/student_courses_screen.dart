@@ -8,6 +8,33 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
 
+// GIỮ NGUYÊN PHẦN NÀY (HOẶC TỐT HƠN LÀ CHUYỂN RA FILE RIÊNG)
+enum CourseFilter {
+  all,
+  enrolled,
+  inProgress,
+  completed,
+  recommended,
+  trending,
+  newCourses,
+}
+
+// TODO: Giả sử coursesService được cung cấp qua Riverpod
+final coursesServiceProvider = Provider((ref) => CoursesService());
+
+final myCoursesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) {
+  final auth = ref.watch(authProvider);
+  if (auth.user == null) return [];
+  return ref
+      .watch(coursesServiceProvider)
+      .getMyCourses(auth.user!.id ?? 0, auth.user!.role ?? 'student');
+});
+
+final allCoursesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) {
+  return ref.watch(coursesServiceProvider).getAllCourses();
+});
+// KẾT THÚC PHẦN PROVIDER
+
 class CoursesScreen extends ConsumerStatefulWidget {
   const CoursesScreen({super.key, this.myCoursesOnly = false});
   final bool myCoursesOnly;
@@ -16,25 +43,19 @@ class CoursesScreen extends ConsumerStatefulWidget {
   ConsumerState<CoursesScreen> createState() => _CoursesScreenState();
 }
 
-class _CoursesScreenState extends ConsumerState<CoursesScreen>
-    with TickerProviderStateMixin {
-  late TabController _tabController;
+class _CoursesScreenState extends ConsumerState<CoursesScreen> {
+  // Bỏ TickerProviderStateMixin
+  // Bỏ _tabController
+
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategory = 'all';
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(
-      length: widget.myCoursesOnly ? 3 : 4,
-      vsync: this,
-    );
-  }
+  // Bỏ initState và dispose (vì _tabController không còn)
+  // _searchController được dispose ở dưới
 
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -43,40 +64,55 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
 
-    return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            _buildSliverAppBar(context),
-            if (!widget.myCoursesOnly) _buildSliverSearchAndFilter(),
-            _buildSliverTabBar(),
-          ];
-        },
-        body: TabBarView(
-          controller: _tabController,
-          children: widget.myCoursesOnly
-              ? [
-                  _buildCoursesTab(auth, CourseFilter.enrolled),
-                  _buildCoursesTab(auth, CourseFilter.inProgress),
-                  _buildCoursesTab(auth, CourseFilter.completed),
-                ]
-              : [
-                  _buildCoursesTab(auth, CourseFilter.all),
-                  _buildCoursesTab(auth, CourseFilter.recommended),
-                  _buildCoursesTab(auth, CourseFilter.trending),
-                  _buildCoursesTab(auth, CourseFilter.newCourses),
-                ],
+    // Bọc Scaffold trong DefaultTabController
+    return DefaultTabController(
+      length: widget.myCoursesOnly ? 3 : 4,
+      child: Scaffold(
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              _buildSliverAppBar(
+                context,
+                innerBoxIsScrolled,
+              ), // Cập nhật hàm này
+              if (!widget.myCoursesOnly) _buildSliverSearchAndFilter(),
+              // Bỏ _buildSliverTabBar()
+            ];
+          },
+          body: TabBarView(
+            // Bỏ controller
+            children: widget.myCoursesOnly
+                ? [
+                    // Sửa: Dùng hàm mới để build tab, truyền provider
+                    _buildMyCoursesTabContents(CourseFilter.enrolled),
+                    _buildMyCoursesTabContents(CourseFilter.inProgress),
+                    _buildMyCoursesTabContents(CourseFilter.completed),
+                  ]
+                : [
+                    // Sửa: Dùng hàm mới để build tab, truyền provider
+                    _buildExploreTabContents(CourseFilter.all),
+                    _buildExploreTabContents(CourseFilter.recommended),
+                    _buildExploreTabContents(CourseFilter.trending),
+                    _buildExploreTabContents(CourseFilter.newCourses),
+                  ],
+          ),
         ),
+        floatingActionButton: _buildFloatingActionButton(auth),
       ),
-      floatingActionButton: _buildFloatingActionButton(auth),
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context) {
+  Widget _buildSliverAppBar(BuildContext context, bool innerBoxIsScrolled) {
+    // Lấy chiều cao chuẩn của TabBar
+    final tabBarHeight = TabBar(tabs: []).preferredSize.height;
+
     return SliverAppBar(
-      expandedHeight: widget.myCoursesOnly ? 120 : 200,
+      expandedHeight:
+          (widget.myCoursesOnly ? 120 : 200) +
+          tabBarHeight, // Thêm chiều cao TabBar
       floating: false,
       pinned: true,
+      forceElevated: innerBoxIsScrolled,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           widget.myCoursesOnly ? 'Khóa học của tôi' : 'Khám phá khóa học',
@@ -93,10 +129,41 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
               : _buildExploreHeader(),
         ),
       ),
+      // Sửa: Bọc TabBar trong PreferredSize và Container
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(tabBarHeight),
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: TabBar(
+            // Không cần controller vì đã dùng DefaultTabController
+            indicatorColor: AppColors.primary,
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.grey600,
+            labelStyle: AppTypography.labelMedium,
+            indicatorWeight: 3.0,
+            tabs: widget.myCoursesOnly
+                ? const [
+                    Tab(text: 'Đang học'),
+                    Tab(text: 'Đang tiến hành'),
+                    Tab(text: 'Hoàn thành'),
+                  ]
+                : const [
+                    Tab(text: 'Tất cả'),
+                    Tab(text: 'Đề xuất'),
+                    Tab(text: 'Thịnh hành'),
+                    Tab(text: 'Mới nhất'),
+                  ],
+          ),
+        ),
+      ),
     );
   }
 
+  // --- (Các hàm _buildMyCoursesHeader, _buildExploreHeader,
+  // _buildSliverSearchAndFilter, _buildCategoryChip giữ nguyên) ---
+
   Widget _buildMyCoursesHeader() {
+    // ... (Giữ nguyên code của bạn) ...
     return Padding(
       padding: const EdgeInsets.only(
         left: AppSpacing.screenHorizontal,
@@ -116,7 +183,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                '15 khóa học đang theo học',
+                '15 khóa học đang theo học', // TODO: Lấy dữ liệu động
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.white.withValues(alpha: 0.9),
                 ),
@@ -129,6 +196,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
   }
 
   Widget _buildExploreHeader() {
+    // ... (Giữ nguyên code của bạn) ...
     return Padding(
       padding: const EdgeInsets.only(
         left: AppSpacing.screenHorizontal,
@@ -158,6 +226,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
   }
 
   Widget _buildSliverSearchAndFilter() {
+    // ... (Giữ nguyên code của bạn) ...
     return SliverToBoxAdapter(
       child: Container(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -205,6 +274,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
   }
 
   Widget _buildCategoryChip(String category, String label, IconData icon) {
+    // ... (Giữ nguyên code của bạn) ...
     final isSelected = _selectedCategory == category;
     return Padding(
       padding: const EdgeInsets.only(right: AppSpacing.sm),
@@ -230,56 +300,55 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
       ),
     );
   }
+  // --- (HẾT PHẦN GIỮ NGUYÊN) ---
 
-  Widget _buildSliverTabBar() {
-    return SliverPersistentHeader(
-      pinned: true,
-      delegate: _SliverTabBarDelegate(
-        TabBar(
-          controller: _tabController,
-          indicatorColor: AppColors.primary,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.grey600,
-          labelStyle: AppTypography.labelMedium,
-          tabs: widget.myCoursesOnly
-              ? const [
-                  Tab(text: 'Đang học'),
-                  Tab(text: 'Đang tiến hành'),
-                  Tab(text: 'Hoàn thành'),
-                ]
-              : const [
-                  Tab(text: 'Tất cả'),
-                  Tab(text: 'Đề xuất'),
-                  Tab(text: 'Thịnh hành'),
-                  Tab(text: 'Mới nhất'),
-                ],
-        ),
-      ),
-    );
-  }
+  // Bỏ hàm _buildSliverTabBar()
 
-  Widget _buildCoursesTab(AuthState auth, CourseFilter filter) {
-    final future = _getFuture(auth, filter);
+  // Bỏ hàm _getFuture() (đã thay bằng provider)
 
-    return FutureBuilder(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingState();
-        }
+  /// Hàm build nội dung cho các tab "Khóa học của tôi"
+  Widget _buildMyCoursesTabContents(CourseFilter filter) {
+    final myCoursesAsync = ref.watch(myCoursesProvider);
+    final auth = ref.watch(authProvider);
 
-        if (snapshot.hasError) {
-          return _buildErrorState(snapshot.error.toString());
-        }
+    return myCoursesAsync.when(
+      loading: () => _buildLoadingState(),
+      error: (err, stack) => _buildErrorState(err.toString()),
+      data: (courses) {
+        // Lọc danh sách dựa trên tab (filter)
+        // TODO: Cần thêm logic lọc thực tế (ví dụ: c.status == 'enrolled')
+        // Hiện tại đang giả định `filterList` trả về danh sách dựa trên filter
+        final finalCoursesList = _filterList(courses, filter);
 
-        final courses = snapshot.data ?? [];
-
-        if (courses.isEmpty) {
+        // Hiển thị trạng thái rỗng
+        if (finalCoursesList.isEmpty) {
           return _buildEmptyState(filter);
         }
 
-        // Filter courses based on search and category
-        final filteredCourses = courses.where((course) {
+        // Hiển thị danh sách
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
+          itemCount: finalCoursesList.length,
+          itemBuilder: (context, index) {
+            return _buildCourseCard(finalCoursesList[index], auth);
+          },
+        );
+      },
+    );
+  }
+
+  /// Hàm build nội dung cho các tab "Khám phá"
+  Widget _buildExploreTabContents(CourseFilter filter) {
+    final allCoursesAsync = ref.watch(allCoursesProvider);
+    final auth = ref.watch(authProvider);
+
+    return allCoursesAsync.when(
+      loading: () => _buildLoadingState(),
+      error: (err, stack) => _buildErrorState(err.toString()),
+      data: (courses) {
+        // *** SỬA LOGIC QUAN TRỌNG ***
+        // Chỉ lọc theo search/category khi ở màn hình "Khám phá"
+        final searchedCourses = courses.where((course) {
           final matchesSearch =
               _searchQuery.isEmpty ||
               course.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -294,37 +363,64 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
           return matchesSearch && matchesCategory;
         }).toList();
 
-        if (filteredCourses.isEmpty && _searchQuery.isNotEmpty) {
-          return _buildSearchEmptyState();
+        // Lọc tiếp danh sách dựa trên tab (Trending, New...)
+        // TODO: Cần thêm logic lọc thực tế
+        final finalCoursesList = _filterList(searchedCourses, filter);
+
+        // Hiển thị trạng thái rỗng
+        if (finalCoursesList.isEmpty) {
+          // Kiểm tra xem rỗng là do search hay do tab
+          if (_searchQuery.isNotEmpty || _selectedCategory != 'all') {
+            return _buildSearchEmptyState();
+          } else {
+            return _buildEmptyState(filter);
+          }
         }
 
+        // Hiển thị danh sách
         return ListView.builder(
           padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
-          itemCount: filteredCourses.length,
+          itemCount: finalCoursesList.length,
           itemBuilder: (context, index) {
-            return _buildCourseCard(filteredCourses[index], auth);
+            return _buildCourseCard(finalCoursesList[index], auth);
           },
         );
       },
     );
   }
 
-  Future<List<dynamic>> _getFuture(AuthState auth, CourseFilter filter) {
+  /// Hàm trợ giúp để lọc danh sách khóa học (tạm thời)
+  /// TODO: Thay thế bằng logic lọc thật
+  List<dynamic> _filterList(List<dynamic> courses, CourseFilter filter) {
     switch (filter) {
       case CourseFilter.enrolled:
+        // return courses.where((c) => c.status == 'enrolled').toList();
+        return courses; // Tạm thời trả về tất cả
       case CourseFilter.inProgress:
+        // return courses.where((c) => c.status == 'inProgress').toList();
+        return courses; // Tạm thời trả về tất cả
       case CourseFilter.completed:
-        return coursesService.getMyCourses(
-          auth.user?.id ?? 0,
-          auth.user?.role ?? 'student',
-        );
+        // return courses.where((c) => c.status == 'completed').toList();
+        return courses; // Tạm thời trả về tất cả
+
+      // Các filter của "Khám phá"
       case CourseFilter.all:
+        return courses;
       case CourseFilter.recommended:
+        // return courses.where((c) => c.isRecommended).toList();
+        return courses; // Tạm thời trả về tất cả
       case CourseFilter.trending:
+        // return courses.where((c) => c.isTrending).toList();
+        return courses; // Tạm thời trả về tất cả
       case CourseFilter.newCourses:
-        return coursesService.getAllCourses();
+        // return courses.orderBy((c) => c.createdAt, desc: true).toList();
+        return courses; // Tạm thời trả về tất cả
     }
   }
+
+  // --- (Các hàm _buildCourseCard, _buildLoadingState, _buildEmptyState,
+  // _buildSearchEmptyState, _buildErrorState, _buildFloatingActionButton
+  // giữ nguyên như code gốc của bạn) ---
 
   Widget _buildCourseCard(dynamic course, AuthState auth) {
     return Padding(
@@ -424,7 +520,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
           ),
           const SizedBox(height: AppSpacing.lg),
           CustomButton(
-            onPressed: () => setState(() {}),
+            onPressed: () => setState(() {}), // TODO: Cải thiện logic refresh
             text: 'Thử lại',
             variant: ButtonVariant.outline,
             icon: Icons.refresh,
@@ -451,40 +547,4 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen>
   }
 }
 
-enum CourseFilter {
-  all,
-  enrolled,
-  inProgress,
-  completed,
-  recommended,
-  trending,
-  newCourses,
-}
-
-class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverTabBarDelegate(this._tabBar);
-
-  final TabBar _tabBar;
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: _tabBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
-    return false;
-  }
-}
+// Bỏ class _SliverTabBarDelegate

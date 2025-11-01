@@ -1,11 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../theme/app_dimensions.dart';
 import 'custom_cards.dart';
+import '../../features/courses/course_model.dart';
 
 class CourseCard extends StatelessWidget {
-  final dynamic course;
+  final dynamic course; // Có thể là Course (model) hoặc dữ liệu khác (Map)
   final VoidCallback? onTap;
   final bool isEnrolled;
   final bool showProgress;
@@ -39,7 +41,7 @@ class CourseCard extends StatelessWidget {
 
                 // Course Title
                 Text(
-                  course.title ?? 'Untitled Course',
+                  _title(),
                   style: AppTypography.h6,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -48,8 +50,10 @@ class CourseCard extends StatelessWidget {
 
                 // Course Description
                 Text(
-                  course.description ?? 'No description available',
-                  style: AppTypography.bodyMedium.copyWith(color: AppColors.grey600),
+                  _description(),
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.grey600,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -67,11 +71,17 @@ class CourseCard extends StatelessWidget {
                     // Enrollment Count
                     Row(
                       children: [
-                        Icon(Icons.people, size: AppSizes.iconSm, color: AppColors.grey600),
+                        Icon(
+                          Icons.people,
+                          size: AppSizes.iconSm,
+                          color: AppColors.grey600,
+                        ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          '${course.enrollmentCount ?? 0}',
-                          style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
+                          '${_enrollmentCount()}',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.grey600,
+                          ),
                         ),
                       ],
                     ),
@@ -80,11 +90,17 @@ class CourseCard extends StatelessWidget {
                     // Rating
                     Row(
                       children: [
-                        Icon(Icons.star, size: AppSizes.iconSm, color: AppColors.warning),
+                        Icon(
+                          Icons.star,
+                          size: AppSizes.iconSm,
+                          color: AppColors.warning,
+                        ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          '${_getRating()}',
-                          style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
+                          '${_getRating().toStringAsFixed(1)}',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.grey600,
+                          ),
                         ),
                       ],
                     ),
@@ -117,14 +133,27 @@ class CourseCard extends StatelessWidget {
       child: Stack(
         children: [
           // Placeholder or Network Image
-          if (course.imageUrl != null && course.imageUrl!.isNotEmpty)
+          if (_imageFile() != null)
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(AppRadius.md),
+                topRight: Radius.circular(AppRadius.md),
+              ),
+              child: Image.file(
+                _imageFile()!,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            )
+          else if (_imageUrl() != null && _imageUrl()!.isNotEmpty)
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(AppRadius.md),
                 topRight: Radius.circular(AppRadius.md),
               ),
               child: Image.network(
-                course.imageUrl!,
+                _imageUrl()!,
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
@@ -137,15 +166,27 @@ class CourseCard extends StatelessWidget {
             _buildPlaceholderImage(),
 
           // Category Badge
-          Positioned(top: AppSpacing.sm, left: AppSpacing.sm, child: _buildCategoryBadge()),
+          Positioned(
+            top: AppSpacing.sm,
+            left: AppSpacing.sm,
+            child: _buildCategoryBadge(),
+          ),
 
           // Favorite Button (if not enrolled)
           if (!isEnrolled)
-            Positioned(top: AppSpacing.sm, right: AppSpacing.sm, child: _buildFavoriteButton()),
+            Positioned(
+              top: AppSpacing.sm,
+              right: AppSpacing.sm,
+              child: _buildFavoriteButton(),
+            ),
 
           // Progress Badge (if enrolled)
           if (isEnrolled)
-            Positioned(top: AppSpacing.sm, right: AppSpacing.sm, child: _buildProgressBadge()),
+            Positioned(
+              top: AppSpacing.sm,
+              right: AppSpacing.sm,
+              child: _buildProgressBadge(),
+            ),
         ],
       ),
     );
@@ -172,13 +213,16 @@ class CourseCard extends StatelessWidget {
 
   Widget _buildCategoryBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       child: Text(
-        course.category ?? 'General',
+        _categoryLabel(),
         style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
       ),
     );
@@ -191,14 +235,21 @@ class CourseCard extends StatelessWidget {
         color: AppColors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
-      child: Icon(Icons.favorite_border, size: AppSizes.iconSm, color: AppColors.grey700),
+      child: Icon(
+        Icons.favorite_border,
+        size: AppSizes.iconSm,
+        color: AppColors.grey700,
+      ),
     );
   }
 
   Widget _buildProgressBadge() {
     final progress = _getProgress();
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.success.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -216,7 +267,11 @@ class CourseCard extends StatelessWidget {
   Widget _buildCourseMetadata() {
     return Row(
       children: [
-        Icon(Icons.play_circle_outline, size: AppSizes.iconSm, color: AppColors.grey600),
+        Icon(
+          Icons.play_circle_outline,
+          size: AppSizes.iconSm,
+          color: AppColors.grey600,
+        ),
         const SizedBox(width: AppSpacing.xs),
         Text(
           '${course.duration ?? '30'} phút',
@@ -297,7 +352,10 @@ class CourseCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: chipColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -310,7 +368,10 @@ class CourseCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Text(
             statusText,
-            style: AppTypography.bodySmall.copyWith(color: chipColor, fontWeight: FontWeight.w600),
+            style: AppTypography.bodySmall.copyWith(
+              color: chipColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -318,11 +379,14 @@ class CourseCard extends StatelessWidget {
   }
 
   Widget _buildPriceChip() {
-    final price = course.price ?? 0.0;
-    final isFree = price == 0.0;
+    final price = _price();
+    final isFree = price == null || price == 0.0;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: isFree
             ? AppColors.success.withValues(alpha: 0.1)
@@ -345,7 +409,7 @@ class CourseCard extends StatelessWidget {
   }
 
   LinearGradient _getCategoryGradient() {
-    final category = course.category?.toLowerCase() ?? 'general';
+    final category = _categoryLower();
 
     switch (category) {
       case 'programming':
@@ -388,7 +452,7 @@ class CourseCard extends StatelessWidget {
   }
 
   IconData _getCategoryIcon() {
-    final category = course.category?.toLowerCase() ?? 'general';
+    final category = _categoryLower();
 
     switch (category) {
       case 'programming':
@@ -407,26 +471,106 @@ class CourseCard extends StatelessWidget {
   }
 
   String _getDifficultyText() {
-    final difficulty = course.difficulty?.toLowerCase() ?? 'beginner';
-
-    switch (difficulty) {
-      case 'beginner':
-        return 'Cơ bản';
-      case 'intermediate':
-        return 'Trung cấp';
-      case 'advanced':
-        return 'Nâng cao';
-      default:
-        return 'Cơ bản';
-    }
+    // Model Course hiện không có độ khó -> trả về mặc định
+    return 'Cơ bản';
   }
 
   double _getRating() {
-    return course.rating?.toDouble() ?? 4.5;
+    // Model Course không có rating -> mặc định
+    try {
+      // Nếu dữ liệu là Map và có 'rating'
+      if (course is Map && (course as Map).containsKey('rating')) {
+        final r = (course as Map)['rating'];
+        if (r is num) return r.toDouble();
+      }
+    } catch (_) {}
+    return 4.5;
   }
 
   double _getProgress() {
     if (!isEnrolled) return 0.0;
-    return course.progress?.toDouble() ?? 0.0;
+    // Model Course không có progress -> mặc định 0
+    try {
+      if (course is Map && (course as Map).containsKey('progress')) {
+        final p = (course as Map)['progress'];
+        if (p is num) return p.toDouble();
+      }
+    } catch (_) {}
+    return 0.0;
+  }
+
+  // ------- Helpers để an toàn với model Course hiện tại -------
+  Course? get _courseOrNull => course is Course ? course as Course : null;
+
+  String _title() =>
+      _courseOrNull?.title ??
+      (course is Map
+          ? ((course as Map)['title']?.toString() ?? 'Untitled Course')
+          : 'Untitled Course');
+
+  String _description() =>
+      _courseOrNull?.description ??
+      (course is Map
+          ? ((course as Map)['description']?.toString() ??
+                'No description available')
+          : 'No description available');
+
+  int _enrollmentCount() =>
+      _courseOrNull?.enrollmentCount ??
+      (course is Map
+          ? (((course as Map)['enrollmentCount'] as num?)?.toInt() ?? 0)
+          : 0);
+
+  String? _imageUrl() =>
+      _courseOrNull?.thumbnailUrl ??
+      (course is Map
+          ? ((course as Map)['imageUrl']?.toString() ??
+                ((course as Map)['thumbnailUrl']?.toString()))
+          : null);
+
+  File? _imageFile() => _courseOrNull?.imageFile;
+
+  String _categoryLower() {
+    // Nếu là Course -> suy diễn từ code; nếu là Map -> lấy trực tiếp nếu có
+    if (_courseOrNull != null) {
+      final code = _courseOrNull!.code.toUpperCase();
+      if (code.startsWith('CS') || code.startsWith('IT')) return 'programming';
+      if (code.startsWith('DES')) return 'design';
+      if (code.startsWith('BUS')) return 'business';
+      if (code.startsWith('MK')) return 'marketing';
+      if (code.startsWith('DATA')) return 'data';
+      return 'general';
+    }
+    if (course is Map) {
+      final cat = (course as Map)['category']?.toString().toLowerCase();
+      if (cat != null && cat.isNotEmpty) return cat;
+    }
+    return 'general';
+  }
+
+  String _categoryLabel() {
+    final c = _categoryLower();
+    switch (c) {
+      case 'programming':
+        return 'Lập trình';
+      case 'design':
+        return 'Thiết kế';
+      case 'business':
+        return 'Kinh doanh';
+      case 'marketing':
+        return 'Marketing';
+      case 'data':
+        return 'Data Science';
+      default:
+        return 'General';
+    }
+  }
+
+  double? _price() {
+    if (course is Map && (course as Map).containsKey('price')) {
+      final p = (course as Map)['price'];
+      if (p is num) return p.toDouble();
+    }
+    return 0.0; // Mặc định miễn phí
   }
 }

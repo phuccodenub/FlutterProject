@@ -9,6 +9,7 @@ class Course {
     required this.instructorName,
     this.thumbnailUrl,
     this.enrollmentCount = 0,
+    this.duration,
     this.imageFile, // <-- Thêm thuộc tính này
   });
 
@@ -19,5 +20,6 @@ class Course {
   final String instructorName;
   final String? thumbnailUrl; // Dùng cho ảnh từ server
   final int enrollmentCount;
+  final String? duration;
   final File? imageFile; // Dùng cho ảnh vừa chọn từ máy
 }
