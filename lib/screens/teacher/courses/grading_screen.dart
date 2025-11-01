@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/widgets.dart';
 import 'models/course_content_models.dart';
+import 'grading_detail_screen.dart';
 
 class GradingScreen extends StatefulWidget {
   final AssignmentItem assignment;
@@ -328,7 +329,17 @@ class _GradingScreenState extends State<GradingScreen> {
 
                           const SizedBox(width: 8),
                           OutlinedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => GradingDetailScreen(
+                                    studentName: name,
+                                    assignment: widget.assignment,
+                                    submissionText: s['submission'],
+                                  ),
+                                ),
+                              );
+                            },
                             child: Text(graded ? 'Sửa điểm' : 'Chấm điểm'),
                           ),
                         ],
