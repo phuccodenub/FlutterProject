@@ -231,7 +231,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           backgroundColor: AppColors.secondaryContainer,
           trailing: CustomButton(
             onPressed: () {
-              // TODO: Open support
+              _showSupportDialog(context);
             },
             text: 'Liên hệ',
             variant: ButtonVariant.ghost,
@@ -294,5 +294,190 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         );
       }
     }
+  }
+
+  void _showSupportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.support_agent,
+              color: Theme.of(context).colorScheme.primary,
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Hỗ trợ khách hàng'),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSupportItem(
+                icon: Icons.email,
+                title: 'Email hỗ trợ',
+                description: 'Gửi email chi tiết về vấn đề của bạn',
+                action: 'Gửi email',
+                onTap: () {
+                  Navigator.pop(context);
+                  // Simulate email compose
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đã mở ứng dụng email với địa chỉ support@lms.edu.vn')),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildSupportItem(
+                icon: Icons.phone,
+                title: 'Hotline 24/7',
+                description: 'Gọi điện trực tiếp để được hỗ trợ ngay lập tức',
+                action: 'Gọi ngay',
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đang gọi đến 1900 1234...')),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildSupportItem(
+                icon: Icons.chat,
+                title: 'Chat trực tuyến',
+                description: 'Trò chuyện với nhân viên hỗ trợ qua chat',
+                action: 'Bắt đầu chat',
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đang kết nối với nhân viên hỗ trợ...')),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildSupportItem(
+                icon: Icons.help_center,
+                title: 'Câu hỏi thường gặp',
+                description: 'Tìm câu trả lời nhanh chóng cho các vấn đề phổ biến',
+                action: 'Xem FAQ',
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đang mở trang Câu hỏi thường gặp...')),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, color: Colors.orange, size: 16),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'Giờ làm việc',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text('• Hotline: 24/7 tất cả các ngày'),
+                    const Text('• Email: Phản hồi trong vòng 2-4 giờ'),
+                    const Text('• Chat: 8:00 - 22:00 hàng ngày'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Đóng'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSupportItem({
+    required IconData icon,
+    required String title,
+    required String description,
+    required String action,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              action,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 12,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

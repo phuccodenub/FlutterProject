@@ -8,6 +8,9 @@ import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../features/auth/biometric_auth_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'privacy_policy_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -153,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           ),
           CustomButton(
-            onPressed: _showDemoAccountsDialog,
+            onPressed: () => _showDemoAccounts(context),
             text: 'Xem',
             variant: ButtonVariant.ghost,
             size: ButtonSize.small,
@@ -250,6 +253,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             size: ButtonSize.large,
             icon: Icons.login,
           ),
+          const SizedBox(height: AppSpacing.md),
+          // Biometric Login Button
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: loading ? null : _handleBiometricLogin,
+              icon: const Icon(Icons.fingerprint),
+              label: const Text('Đăng nhập bằng vân tay/khuôn mặt'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -328,9 +344,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextButton.icon(
-              onPressed: () {
-                // TODO: Show help
-              },
+              onPressed: () => _showHelpDialog(context),
               icon: Icon(
                 Icons.help_outline,
                 size: AppSizes.iconSm,
@@ -349,7 +363,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             TextButton.icon(
               onPressed: () {
-                // TODO: Show privacy policy
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PrivacyPolicyScreen(),
+                  ),
+                );
               },
               icon: Icon(
                 Icons.privacy_tip_outlined,
@@ -387,6 +405,74 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _handleBiometricLogin() async {
+    try {
+      setState(() => loading = true);
+
+      // Get biometric service instance
+      final bioService = BiometricAuthService();
+
+      // Check if biometric is available
+      final available = await bioService.canUseBiometric();
+      if (!available) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Thiết bị này không hỗ trợ xác thực sinh trắc học'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Authenticate with biometric
+      final authenticated = await bioService.authenticate(
+        reason: 'Xác thực để đăng nhập vào LMS',
+      );
+
+      if (authenticated) {
+        // Try to retrieve saved credentials from secure storage
+        const secureStorage = FlutterSecureStorage();
+        final savedEmail = await secureStorage.read(key: 'saved_email');
+        final savedPassword = await secureStorage.read(key: 'saved_password');
+
+        if (savedEmail != null && savedPassword != null) {
+          // Auto-login with saved credentials
+          final ok = await ref
+              .read(authProvider.notifier)
+              .login(savedEmail, savedPassword);
+
+          if (ok && mounted) {
+            context.go('/dashboard');
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Không tìm thấy thông tin đăng nhập được lưu. Vui lòng đăng nhập thủ công lần đầu.'),
+                backgroundColor: Colors.blue,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi xác thực: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => loading = false);
+      }
+    }
+  }
+
   Widget _buildQuickLoginButton(
     String label,
     String email,
@@ -415,7 +501,178 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  void _showDemoAccountsDialog() {
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.help, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            const Text('Trợ giúp đăng nhập'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHelpItem(
+                icon: Icons.account_circle,
+                title: 'Tài khoản demo',
+                description: 'Sử dụng tài khoản demo để trải nghiệm hệ thống',
+                action: 'Xem tài khoản demo',
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDemoAccounts(context);
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildHelpItem(
+                icon: Icons.lock_reset,
+                title: 'Quên mật khẩu?',
+                description: 'Khôi phục mật khẩu qua email',
+                action: 'Khôi phục mật khẩu',
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/forgot-password');
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildHelpItem(
+                icon: Icons.fingerprint,
+                title: 'Đăng nhập sinh trắc học',
+                description: 'Sử dụng vân tay hoặc nhận diện khuôn mặt',
+                action: 'Tìm hiểu thêm',
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Bật sinh trắc học trong cài đặt điện thoại để sử dụng tính năng này'),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildHelpItem(
+                icon: Icons.person_add,
+                title: 'Chưa có tài khoản?',
+                description: 'Đăng ký tài khoản mới miễn phí',
+                action: 'Đăng ký ngay',
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/register');
+                },
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.info, size: 16, color: Colors.blue[700]),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Lưu ý bảo mật',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      '• Không chia sẻ mật khẩu với người khác\n• Sử dụng mật khẩu mạnh có ít nhất 8 ký tự\n• Đăng xuất khi sử dụng máy tính chung',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Đóng'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Contact support
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Liên hệ hỗ trợ: support@lms.edu.vn')),
+              );
+            },
+            child: const Text('Liên hệ hỗ trợ'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHelpItem({
+    required IconData icon,
+    required String title,
+    required String description,
+    required String action,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.grey[600]),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    action,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDemoAccounts(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

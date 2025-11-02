@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:crop_your_image/crop_your_image.dart';
+import 'dart:typed_data';
+import '../../../core/services/url_launcher_service.dart';
 import '../../../features/auth/auth_state.dart';
 import '../../../core/widgets/info_card.dart';
+import 'profile_edit_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -26,7 +31,11 @@ class ProfileScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () {
-              // TODO: Navigate to edit profile
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ProfileEditScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -47,26 +56,31 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   Stack(
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [
-                              theme.colorScheme.primary,
-                              theme.colorScheme.secondary,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                      GestureDetector(
+                        onTap: () {
+                          _handleAvatarUpload(context);
+                        },
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                theme.colorScheme.primary,
+                                theme.colorScheme.secondary,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                           ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            _getInitials(user.fullName),
-                            style: theme.textTheme.headlineLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                          child: Center(
+                            child: Text(
+                              _getInitials(user.fullName),
+                              style: theme.textTheme.headlineLarge?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -84,6 +98,23 @@ class ProfileScreen extends ConsumerWidget {
                           child: Icon(
                             _getRoleIcon(user.role),
                             size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: -8,
+                        top: -8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            size: 14,
                             color: Colors.white,
                           ),
                         ),
@@ -210,8 +241,12 @@ class ProfileScreen extends ConsumerWidget {
             title: 'Trợ giúp & Hỗ trợ',
             subtitle: 'FAQ, Liên hệ, Phản hồi',
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: Navigate to help
+            onTap: () async {
+              await UrlLauncherService.openEmail(
+                email: 'support@lms.com',
+                subject: 'Hỗ trợ LMS App',
+                body: 'Xin chào, tôi cần hỗ trợ với...',
+              );
             },
           ),
           const SizedBox(height: 24),
@@ -338,5 +373,81 @@ class ProfileScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _handleAvatarUpload(BuildContext context) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile == null) return;
+
+    final imageBytes = await pickedFile.readAsBytes();
+
+    if (context.mounted) {
+      // Navigate to crop screen
+      final croppedBytes = await Navigator.of(context).push<Uint8List>(
+        MaterialPageRoute(
+          builder: (ctx) => CropImageScreen(imageBytes: imageBytes),
+        ),
+      );
+
+      if (croppedBytes != null && context.mounted) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Avatar updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // TODO: Upload cropped image to server
+        // final success = await _uploadProfileImage(croppedBytes);
+      }
+    }
+  }
+}
+
+/// Image Crop Screen Widget
+class CropImageScreen extends StatefulWidget {
+  final Uint8List imageBytes;
+
+  const CropImageScreen({super.key, required this.imageBytes});
+
+  @override
+  State<CropImageScreen> createState() => _CropImageScreenState();
+}
+
+class _CropImageScreenState extends State<CropImageScreen> {
+  final CropController _cropController = CropController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Crop Avatar'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.check),
+            onPressed: () {
+              _cropController.crop();
+            },
+          ),
+        ],
+      ),
+      body: Crop(
+        image: widget.imageBytes,
+        controller: _cropController,
+        onCropped: (croppedData) {
+          Navigator.pop(context, croppedData);
+        },
+        aspectRatio: 1.0, // Square for avatar
+        initialSize: 0.8,
+        withCircleUi: true,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

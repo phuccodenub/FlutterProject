@@ -19,17 +19,30 @@ import '../screens/shared/messages/messages_screen.dart';
 import '../screens/shared/messages/chat_detail_screen.dart';
 import '../screens/shared/settings/settings_screen.dart';
 import '../screens/shared/profile/profile_screen.dart';
+import '../screens/shared/profile/profile_edit_screen.dart';
+import '../screens/shared/calendar/calendar_screen.dart';
+import '../screens/shared/calendar/event_detail_screen.dart';
+
+// Common auth screens  
+import '../screens/common/auth/privacy_policy_screen.dart';
 
 // Student screens
 import '../screens/student/courses/student_courses_screen.dart'; // CoursesScreen class
-import '../screens/student/courses/course_detail/course_detail_screen.dart';
+import '../screens/student/courses/course_detail/course_detail_screen.dart' as student_course;
+import '../screens/student/courses/course_edit_screen.dart';
 
 // Teacher screens
 import '../screens/teacher/courses/teacher_courses_screen.dart';
 import '../screens/teacher/courses/create_course_screen.dart';
 import '../screens/teacher/courses/teacher_course_detail_screen.dart';
+import '../screens/teacher/students/student_management_screen.dart' as student_mgmt;
+import '../screens/teacher/students/student_detail_screen.dart' as teacher_student;
+
+// Admin screens
+import '../screens/admin/system/system_settings_screen.dart';
 
 import 'guards/auth_guard.dart';
+import '../core/widgets/page_transitions.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -65,6 +78,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const TeacherCoursesScreen(),
           ),
 
+          GoRoute(
+            path: '/admin-system-settings',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const SystemSettingsScreen(),
+          ),
+
           // GoRoute(
           //   path: '/teacher/courses/:courseId',
           //   redirect: (context, state) => requireAuth(context, state),
@@ -83,7 +102,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: '/course/:id',
             redirect: (context, state) => requireAuth(context, state),
             builder: (context, state) =>
-                CourseDetailScreen(courseId: state.pathParameters['id']!),
+                student_course.CourseDetailScreen(courseId: state.pathParameters['id']!),
           ),
           GoRoute(
             path: '/course/:id/live',
@@ -120,10 +139,75 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const ProfileScreen(),
           ),
           GoRoute(
+            path: '/calendar',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const CalendarScreen(),
+          ),
+          GoRoute(
             path: '/create-course',
             builder: (context, state) => const CreateCourseScreen(),
           ),
+          
+          // Profile editing routes
+          GoRoute(
+            path: '/profile/edit',
+            redirect: (context, state) => requireAuth(context, state),
+            pageBuilder: (context, state) => CustomPageTransition.buildTransition(
+              child: const ProfileEditScreen(),
+              state: state,
+              type: PageTransitionType.slideUp,
+            ),
+          ),
+          
+          // Calendar routes
+          GoRoute(
+            path: '/calendar/event/:eventId',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) {
+              // Event object should be passed via 'extra' parameter
+              final event = state.extra as CalendarEvent;
+              return EventDetailScreen(event: event);
+            },
+          ),
+          
+          // Course editing routes
+          GoRoute(
+            path: '/course/:courseId/edit',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => CourseEditScreen(
+              courseId: state.pathParameters['courseId']!,
+            ),
+          ),
+          
+          // Student management routes
+          GoRoute(
+            path: '/teacher/course/:courseId/students',
+            redirect: (context, state) => requireAuth(context, state),
+            pageBuilder: (context, state) => CustomPageTransition.listTransition(
+              child: student_mgmt.StudentManagementScreen(
+                courseId: state.pathParameters['courseId']!,
+              ),
+              state: state,
+            ),
+          ),
+          
+          GoRoute(
+            path: '/teacher/student/:studentId/detail',
+            redirect: (context, state) => requireAuth(context, state),
+            pageBuilder: (context, state) => CustomPageTransition.detailTransition(
+              child: teacher_student.StudentDetailScreen(
+                studentId: state.pathParameters['studentId']!,
+              ),
+              state: state,
+            ),
+          ),
         ],
+      ),
+      
+      // Privacy policy route (outside shell for accessibility)
+      GoRoute(
+        path: '/privacy-policy',
+        builder: (context, state) => const PrivacyPolicyScreen(),
       ),
     ],
     errorBuilder: (context, state) => const NotFoundScreen(),

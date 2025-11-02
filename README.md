@@ -71,6 +71,7 @@ flutter run
 - **[Demo Guide](DEMO_GUIDE.md)** - Complete feature walkthrough and testing guide
 - **[Build Instructions](BUILD_INSTRUCTIONS.md)** - Detailed build and deployment guide
 - **[Implementation Summary](IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
+- **[Mobile App README](README_MOBILE_APP.md)** - Original project documentation
 
 ## 🏗️ Architecture
 

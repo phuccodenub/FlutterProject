@@ -11,6 +11,7 @@ class Course {
     this.enrollmentCount = 0,
     this.duration,
     this.imageFile, // <-- Thêm thuộc tính này
+    this.category, // <-- Thêm category
   });
 
   final String id;
@@ -22,4 +23,6 @@ class Course {
   final int enrollmentCount;
   final String? duration;
   final File? imageFile; // Dùng cho ảnh vừa chọn từ máy
+  final String? category; // Danh mục khóa học (Programming, Design, Business, etc.)
 }
+

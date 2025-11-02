@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'dart:async';
+import 'dart:io';
 import '../../../../features/chat/chat_store.dart';
 import '../../../../features/auth/auth_state.dart';
 
@@ -20,6 +22,23 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
   String? attachName;
   int? attachSize;
   final ScrollController _scrollController = ScrollController();
+
+  bool _isImageFile(String? filePath) {
+    if (filePath == null) return false;
+    final ext = filePath.toLowerCase().split('.').last;
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext);
+  }
+
+  void _showImageViewer(BuildContext context, String imagePath) {
+    final imageFile = File(imagePath);
+    if (!imageFile.existsSync()) return;
+
+    final imageProvider = FileImage(imageFile);
+    showImageViewer(
+      context,
+      imageProvider,
+    );
+  }
 
   @override
   void dispose() {
@@ -149,45 +168,78 @@ class _ChatTabViewState extends ConsumerState<ChatTabView> {
                       Text(m.message, style: const TextStyle(fontSize: 14)),
                       if (m.attachmentPath != null) ...[
                         const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.attach_file,
-                                size: 16,
-                                color: Colors.grey.shade600,
+                        if (_isImageFile(m.attachmentPath))
+                          // Show image thumbnail with tap to view
+                          GestureDetector(
+                            onTap: () => _showImageViewer(context, m.attachmentPath!),
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 200,
+                                maxHeight: 200,
                               ),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  m.attachmentName ??
-                                      m.attachmentPath!.split('/').last,
-                                  style: const TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    fontSize: 12,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: Colors.grey.shade400,
+                                  width: 1,
                                 ),
                               ),
-                              if (m.attachmentSize != null) ...[
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(m.attachmentPath!),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey.shade200,
+                                      child: const Icon(Icons.broken_image),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          // Show file attachment info
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.attach_file,
+                                  size: 16,
+                                  color: Colors.grey.shade600,
+                                ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  '(${_formatBytes(m.attachmentSize!)})',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey.shade600,
+                                Flexible(
+                                  child: Text(
+                                    m.attachmentName ??
+                                        m.attachmentPath!.split('/').last,
+                                    style: const TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
+                                if (m.attachmentSize != null) ...[
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '(${_formatBytes(m.attachmentSize!)})',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
-                        ),
                       ],
                       const SizedBox(height: 4),
                       Text(

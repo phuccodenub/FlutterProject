@@ -997,7 +997,7 @@ class _FeatureScreenState extends ConsumerState<FeatureScreen> {
 | `DEMO_GUIDE.md` | Hướng dẫn test toàn bộ tính năng |
 | `IMPLEMENTATION_SUMMARY.md` | Chi tiết triển khai kỹ thuật |
 | `BUILD_INSTRUCTIONS.md` | Hướng dẫn build & deployment |
-| `README.md` | Tài liệu dự án chính |
+| `README_MOBILE_APP.md` | Tài liệu dự án gốc |
 | `lib_tree.md` | Cấu trúc thư mục chi tiết |
 
 ---

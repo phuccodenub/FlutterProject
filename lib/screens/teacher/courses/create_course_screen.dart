@@ -316,8 +316,8 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
         border: OutlineInputBorder(),
         prefixIcon: Icon(Icons.category_outlined),
       ),
-      value: _selectedCategory,
-      style: const TextStyle(fontSize: 15, color: Colors.black87),
+
+      initialValue: _selectedCategory,
       items: _categories
           .map(
             (category) => DropdownMenuItem<String>(

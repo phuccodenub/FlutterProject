@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_dimensions.dart';
 import 'app_typography.dart';
@@ -94,22 +95,24 @@ class AppThemeState {
         return TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey.shade600);
       }),
     ),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(fontSize: 57, fontWeight: FontWeight.w400),
-      displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400),
-      displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
-      headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-      headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
-      headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-      titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-      bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-      bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+    textTheme: GoogleFonts.interTextTheme(
+      const TextTheme(
+        displayLarge: TextStyle(fontSize: 57, fontWeight: FontWeight.w400),
+        displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400),
+        displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
+        headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+        headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
+        headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+      ),
     ),
   );
 
@@ -184,22 +187,24 @@ class AppThemeState {
         return const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF94A3B8));
       }),
     ),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(fontSize: 57, fontWeight: FontWeight.w400, color: Colors.white),
-      displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400, color: Colors.white),
-      displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400, color: Colors.white),
-      headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400, color: Colors.white),
-      headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.white),
-      headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.white),
-      titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.white),
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-      titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
-      bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFFE2E8F0)),
-      bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFFE2E8F0)),
-      bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFFCBD5E1)),
-      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
-      labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
-      labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white),
+    textTheme: GoogleFonts.interTextTheme(
+      const TextTheme(
+        displayLarge: TextStyle(fontSize: 57, fontWeight: FontWeight.w400, color: Colors.white),
+        displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400, color: Colors.white),
+        displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400, color: Colors.white),
+        headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400, color: Colors.white),
+        headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.white),
+        headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.white),
+        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.white),
+        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+        titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+        bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFFE2E8F0)),
+        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFFE2E8F0)),
+        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFFCBD5E1)),
+        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+        labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+        labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white),
+      ),
     ),
   );
 }

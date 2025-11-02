@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../features/files/file_service.dart';
 import '../../../../features/files/file_models.dart';
+import '../../../../core/services/file_saver_service.dart';
 import 'package:open_filex/open_filex.dart';
 import 'dart:async';
 import '../../../shared/viewers/pdf_viewer_screen.dart';
@@ -132,6 +133,14 @@ class _FilesTabViewState extends State<FilesTabView> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // Download button
+                          IconButton(
+                            tooltip: 'Tải xuống',
+                            icon: const Icon(Icons.download),
+                            onPressed: () async {
+                              _showDownloadDialog(context, f);
+                            },
+                          ),
                           if (f.previewable)
                             IconButton(
                               tooltip: 'Preview',
@@ -219,5 +228,112 @@ class _FilesTabViewState extends State<FilesTabView> {
         ),
       ],
     );
+  }
+
+  Future<void> _showDownloadDialog(BuildContext context, CourseFile file) async {
+    if (!context.mounted) return;
+
+    double progress = 0.0;
+    String? errorMessage;
+
+    // Show dialog
+    if (!context.mounted) return;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (statefulContext, setDialogState) {
+            return AlertDialog(
+              title: const Text('Đang tải xuống'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Tệp: ${file.originalName}',
+                    style: Theme.of(statefulContext).textTheme.bodyMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 16),
+                  if (errorMessage == null) ...[
+                    LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 8,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${(progress * 100).toStringAsFixed(0)}%',
+                      style: Theme.of(statefulContext).textTheme.bodySmall,
+                    ),
+                  ] else ...[
+                    Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      errorMessage,
+                      style: Theme.of(statefulContext).textTheme.bodySmall?.copyWith(
+                        color: Colors.red,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('Đóng'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    // Perform download
+    try {
+      // Build download URL (adjust based on your API)
+      final downloadUrl =
+          'https://api.lms.local/files/${file.id}/download';
+
+      await FileSaverService.downloadAndSave(
+        url: downloadUrl,
+        fileName: file.originalName,
+        onProgress: (progressValue) {
+          progress = progressValue;
+          // Rebuild dialog to show progress
+        },
+      );
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã tải xuống "${file.originalName}" thành công'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      errorMessage = e.toString();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi tải xuống: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

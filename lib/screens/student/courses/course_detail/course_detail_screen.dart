@@ -6,6 +6,7 @@ import 'files_tab.dart';
 import 'chat_tab.dart';
 import 'quizzes_tab.dart';
 import 'package:go_router/go_router.dart';
+import '../course_edit_screen.dart';
 
 // student-course-detail-screen.dart
 class CourseDetailScreen extends ConsumerStatefulWidget {
@@ -102,7 +103,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
-                          // TODO: Edit course
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => CourseEditScreen(courseId: widget.courseId),
+                            ),
+                          );
                         },
                       ),
                     ],
