@@ -19,12 +19,9 @@ import google_sign_in_ios
 import local_auth_darwin
 import path_provider_foundation
 import pdfx
-<<<<<<< HEAD
+import printing
 import quill_native_bridge_macos
 import share_plus
-=======
-import printing
->>>>>>> db27159d6d46f9f1272b3366f928e8e6091f6e85
 import shared_preferences_foundation
 import sqflite_darwin
 import url_launcher_macos
@@ -45,12 +42,9 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   LocalAuthPlugin.register(with: registry.registrar(forPlugin: "LocalAuthPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   PdfxPlugin.register(with: registry.registrar(forPlugin: "PdfxPlugin"))
-<<<<<<< HEAD
+  PrintingPlugin.register(with: registry.registrar(forPlugin: "PrintingPlugin"))
   QuillNativeBridgePlugin.register(with: registry.registrar(forPlugin: "QuillNativeBridgePlugin"))
   SharePlusMacosPlugin.register(with: registry.registrar(forPlugin: "SharePlusMacosPlugin"))
-=======
-  PrintingPlugin.register(with: registry.registrar(forPlugin: "PrintingPlugin"))
->>>>>>> db27159d6d46f9f1272b3366f928e8e6091f6e85
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))

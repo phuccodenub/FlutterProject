@@ -25,4 +25,3 @@ class Course {
   final File? imageFile; // Dùng cho ảnh vừa chọn từ máy
   final String? category; // Danh mục khóa học (Programming, Design, Business, etc.)
 }
-

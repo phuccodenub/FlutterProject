@@ -15,11 +15,8 @@
 #include <local_auth_windows/local_auth_plugin.h>
 #include <pdfx/pdfx_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
-<<<<<<< HEAD
-#include <share_plus/share_plus_windows_plugin_c_api.h>
-=======
 #include <printing/printing_plugin.h>
->>>>>>> db27159d6d46f9f1272b3366f928e8e6091f6e85
+#include <share_plus/share_plus_windows_plugin_c_api.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
@@ -41,13 +38,10 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("PdfxPlugin"));
   PermissionHandlerWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("PermissionHandlerWindowsPlugin"));
-<<<<<<< HEAD
-  SharePlusWindowsPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("SharePlusWindowsPluginCApi"));
-=======
   PrintingPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("PrintingPlugin"));
->>>>>>> db27159d6d46f9f1272b3366f928e8e6091f6e85
+  SharePlusWindowsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("SharePlusWindowsPluginCApi"));
   UrlLauncherWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
 }
