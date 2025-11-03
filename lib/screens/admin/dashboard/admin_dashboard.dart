@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../features/auth/auth_state.dart';
 import '../../../core/widgets/quick_action_card.dart';
 import '../../../core/widgets/stat_card.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/info_card.dart';
+import '../../../core/widgets/advanced_info_card.dart';
 import '../users/user_management_screen.dart';
 import '../courses/course_management_screen.dart';
 import '../system/system_settings_screen.dart';
@@ -52,97 +54,18 @@ class AdminDashboard extends ConsumerWidget {
   }
 
   Widget _buildWelcomeCard(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.orange.shade600, Colors.red.shade600],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.admin_panel_settings,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Chào ${user.fullName}! 👑',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Quản lý và giám sát hệ thống LMS',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SystemSettingsScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.settings),
-                label: const Text('Cài đặt hệ thống'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.orange.shade600,
-                ),
-              ),
-              const SizedBox(width: 12),
-              OutlinedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Tính năng báo cáo sẽ được cập nhật sớm'),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.assessment),
-                label: const Text('Báo cáo'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return AdvancedInfoCard(
+      leadingIcon: Icons.admin_panel_settings,
+      title: 'Xin chào, Quản trị viên',
+      subtitle:
+          'Chúc bạn một ngày làm việc hiệu quả. Truy cập nhanh các khu vực quản trị phổ biến.',
+      gradientColors: [Colors.orange.shade600, Colors.red.shade600],
+      primaryActionLabel: 'Quản lý khóa học',
+      primaryActionIcon: Icons.school,
+      onPrimaryAction: () => context.go('/admin-course-management'),
+      secondaryActionLabel: 'Báo cáo',
+      secondaryActionIcon: Icons.people,
+      onSecondaryAction: () => context.go('/admin-reports'),
     );
   }
 

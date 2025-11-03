@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/models/user.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -231,7 +232,9 @@ class CoursePreviewScreen extends ConsumerWidget {
       child: CustomButton(
         text: 'Ghi danh ngay',
         onPressed: () {
-          // Handle enrollment action
+          // Điều hướng đến CourseDetailScreen ở chế độ sinh viên
+          // Sử dụng go_router: route chi tiết khóa học dạng /course/:id
+          context.push('/course/$courseId');
         },
       ),
     );
