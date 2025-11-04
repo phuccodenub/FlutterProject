@@ -127,7 +127,17 @@ class LectureContentScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton.icon(
-            onPressed: onPrevious,
+            onPressed: () {
+              if (onPrevious != null) {
+                onPrevious!();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Đây là bài đầu tiên, không có bài trước.'),
+                  ),
+                );
+              }
+            },
             icon: const Icon(Icons.arrow_back),
             label: const Text('Bài trước'),
             style: TextButton.styleFrom(
@@ -137,7 +147,19 @@ class LectureContentScreen extends StatelessWidget {
             ),
           ),
           TextButton.icon(
-            onPressed: onNext,
+            onPressed: () {
+              if (onNext != null) {
+                onNext!();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Đây là bài cuối cùng, không có bài tiếp theo.',
+                    ),
+                  ),
+                );
+              }
+            },
             icon: const Icon(Icons.arrow_forward),
             label: const Text('Bài tiếp theo'),
             style: TextButton.styleFrom(

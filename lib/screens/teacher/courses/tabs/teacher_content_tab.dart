@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:open_filex/open_filex.dart';
 import '../models/course_content_models.dart';
 
 class TeacherContentTab extends StatefulWidget {
@@ -235,11 +238,17 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
     final initialType = lecture == null
         ? 'text'
         : _getString(lecture, ['type']) ?? 'text';
+    final initialUrl = lecture == null ? null : _getString(lecture, ['url']);
+    final initialFilePath = lecture == null
+        ? null
+        : _getString(lecture, ['filePath']);
 
     final result = await _showLectureDialog(
       ctx,
       initialTitle: initialTitle,
       initialType: initialType,
+      initialUrl: initialUrl,
+      initialFilePath: initialFilePath,
     );
     if (!mounted) return;
     if (result == null) return;
@@ -253,6 +262,8 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
             id: DateTime.now().millisecondsSinceEpoch.toString(),
             title: result.title,
             type: result.type,
+            url: result.url,
+            filePath: result.filePath,
           ),
         );
       } else {
@@ -262,6 +273,8 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
           final target = section.lectures[lectureIndex];
           target.title = result.title;
           target.type = result.type;
+          target.url = result.url;
+          target.filePath = result.filePath;
         }
       }
     });
@@ -332,36 +345,89 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
     BuildContext context, {
     String initialTitle = '',
     String initialType = 'text',
+    String? initialUrl,
+    String? initialFilePath,
   }) async {
     final titleCtrl = TextEditingController(text: initialTitle);
     String type = initialType;
+    final linkCtrl = TextEditingController(text: initialUrl ?? '');
+    String? pickedFilePath = initialFilePath;
+    String pickedFileName = pickedFilePath != null && pickedFilePath.isNotEmpty
+        ? pickedFilePath.split('\\').last.split('/').last
+        : '';
     return showDialog<_LectureFormResult>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           title: const Text('Bài giảng'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'Tiêu đề'),
-                autofocus: true,
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: type,
-                items: const [
-                  DropdownMenuItem(value: 'video', child: Text('Video')),
-                  DropdownMenuItem(value: 'file', child: Text('Tệp')),
-                  DropdownMenuItem(value: 'text', child: Text('Văn bản')),
-                ],
-                onChanged: (v) {
-                  if (v != null) type = v;
-                },
-                decoration: const InputDecoration(labelText: 'Loại nội dung'),
-              ),
-            ],
+          content: StatefulBuilder(
+            builder: (ctx, setLocal) {
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: titleCtrl,
+                      decoration: const InputDecoration(labelText: 'Tiêu đề'),
+                      autofocus: true,
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      initialValue: type,
+                      items: const [
+                        DropdownMenuItem(value: 'video', child: Text('Video')),
+                        DropdownMenuItem(value: 'file', child: Text('Tệp')),
+                        DropdownMenuItem(value: 'text', child: Text('Văn bản')),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) setLocal(() => type = v);
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Loại nội dung',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (type == 'video') ...[
+                      TextField(
+                        controller: linkCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Link Youtube/Vimeo',
+                          hintText: 'https://...',
+                        ),
+                      ),
+                    ] else if (type == 'file') ...[
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              final res = await FilePicker.platform.pickFiles();
+                              if (res != null && res.files.isNotEmpty) {
+                                setLocal(() {
+                                  pickedFilePath = res.files.single.path;
+                                  pickedFileName = res.files.single.name;
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.upload_file),
+                            label: const Text('Chọn tệp'),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              pickedFileName.isNotEmpty
+                                  ? pickedFileName
+                                  : 'Chưa chọn tệp',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            },
           ),
           actions: [
             TextButton(
@@ -372,7 +438,14 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
               onPressed: () {
                 final t = titleCtrl.text.trim();
                 if (t.isEmpty) return;
-                Navigator.of(ctx).pop(_LectureFormResult(title: t, type: type));
+                Navigator.of(ctx).pop(
+                  _LectureFormResult(
+                    title: t,
+                    type: type,
+                    url: type == 'video' ? linkCtrl.text.trim() : null,
+                    filePath: type == 'file' ? pickedFilePath : null,
+                  ),
+                );
               },
               child: const Text('Lưu'),
             ),
@@ -400,6 +473,56 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
         ],
       ),
     );
+  }
+
+  Future<void> _openLecture(Lecture lecture) async {
+    try {
+      if (lecture.type == 'video') {
+        final raw = lecture.url?.trim();
+        if (raw == null || raw.isEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Không có URL để mở.')));
+          return;
+        }
+        Uri? uri = Uri.tryParse(raw);
+        // Thêm https:// nếu thiếu scheme
+        if (uri != null && !uri.hasScheme) {
+          uri = Uri.parse('https://$raw');
+        }
+        if (uri == null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('URL không hợp lệ.')));
+          return;
+        }
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Không thể mở URL: ${uri.toString()}')),
+          );
+        }
+      } else if (lecture.type == 'file') {
+        final path = lecture.filePath;
+        if (path == null || path.isEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Không có tệp để mở.')));
+          return;
+        }
+        final res = await OpenFilex.open(path);
+        if (res.type != ResultType.done) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Không thể mở tệp: ${res.message}')),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi khi mở nội dung: $e')));
+    }
   }
 
   void _reorderSections(int oldIndex, int newIndex) {
@@ -665,12 +788,42 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
                                 ),
                                 subtitle: subtitle.isEmpty
                                     ? null
-                                    : Text(
-                                        subtitle,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                        ),
+                                    : Builder(
+                                        builder: (context) {
+                                          final isClickableVideo =
+                                              lecture.type == 'video' &&
+                                              (lecture.url?.isNotEmpty ??
+                                                  false);
+                                          final isClickableFile =
+                                              lecture.type == 'file' &&
+                                              (lecture.filePath?.isNotEmpty ??
+                                                  false);
+                                          final clickable =
+                                              isClickableVideo ||
+                                              isClickableFile;
+                                          final baseStyle = TextStyle(
+                                            fontSize: 12,
+                                            color: clickable
+                                                ? Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary
+                                                : Colors.grey[600],
+                                            decoration: clickable
+                                                ? TextDecoration.underline
+                                                : TextDecoration.none,
+                                          );
+                                          final sub = Text(
+                                            subtitle,
+                                            style: baseStyle,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          );
+                                          if (!clickable) return sub;
+                                          return InkWell(
+                                            onTap: () => _openLecture(lecture),
+                                            child: sub,
+                                          );
+                                        },
                                       ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -711,7 +864,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
                                     ),
                                   ],
                                 ),
-                                onTap: () {},
+                                onTap: () => _openLecture(lecture),
                               ),
                             );
                           },
@@ -753,5 +906,12 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
 class _LectureFormResult {
   final String title;
   final String type;
-  _LectureFormResult({required this.title, required this.type});
+  final String? url;
+  final String? filePath;
+  _LectureFormResult({
+    required this.title,
+    required this.type,
+    this.url,
+    this.filePath,
+  });
 }

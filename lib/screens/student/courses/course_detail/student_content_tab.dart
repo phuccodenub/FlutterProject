@@ -92,19 +92,6 @@ class StudentContentTab extends StatelessWidget {
     ]),
   ];
 
-  Icon _getLessonIcon(String type) {
-    switch (type) {
-      case 'video':
-        return const Icon(Icons.play_circle_outline, color: AppColors.primary);
-      case 'document':
-        return const Icon(Icons.article_outlined, color: AppColors.accent);
-      case 'quiz':
-        return const Icon(Icons.quiz_outlined, color: AppColors.warning);
-      default:
-        return const Icon(Icons.help_outline, color: AppColors.grey500);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -125,33 +112,128 @@ class StudentContentTab extends StatelessWidget {
               style: AppTypography.h6.copyWith(color: AppColors.grey800),
             ),
             childrenPadding: const EdgeInsets.only(bottom: 8),
-            children: chapter.lessons.map((lesson) {
-              return ListTile(
-                leading: _getLessonIcon(lesson.type),
-                title: Text(
-                  lesson.title,
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: lesson.isCompleted
-                        ? AppColors.grey500
-                        : AppColors.grey700,
-                  ),
+            children: [
+              for (int li = 0; li < chapter.lessons.length; li++)
+                _LessonTile(
+                  chapters: _dummyChapters,
+                  chapterIndex: index,
+                  lessonIndex: li,
+                  lesson: chapter.lessons[li],
                 ),
-                trailing: lesson.isCompleted
-                    ? const Icon(Icons.check_circle, color: AppColors.success)
-                    : null,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          LectureContentScreen(lesson: lesson),
-                    ),
-                  );
-                },
-              );
-            }).toList(),
+            ],
           ),
         );
       },
     );
+  }
+}
+
+class _LessonTile extends StatelessWidget {
+  const _LessonTile({
+    required this.chapters,
+    required this.chapterIndex,
+    required this.lessonIndex,
+    required this.lesson,
+  });
+
+  final List<Chapter> chapters;
+  final int chapterIndex;
+  final int lessonIndex;
+  final Lesson lesson;
+
+  void _pushLesson(BuildContext context, int ci, int li) {
+    final target = chapters[ci].lessons[li];
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LectureContentScreen(
+          lesson: target,
+          onPrevious: _previousOf(ci, li) == null
+              ? null
+              : () {
+                  final prev = _previousOf(ci, li)!;
+                  _replaceWithLesson(context, prev.$1, prev.$2);
+                },
+          onNext: _nextOf(ci, li) == null
+              ? null
+              : () {
+                  final next = _nextOf(ci, li)!;
+                  _replaceWithLesson(context, next.$1, next.$2);
+                },
+        ),
+      ),
+    );
+  }
+
+  void _replaceWithLesson(BuildContext context, int ci, int li) {
+    final target = chapters[ci].lessons[li];
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => LectureContentScreen(
+          lesson: target,
+          onPrevious: _previousOf(ci, li) == null
+              ? null
+              : () {
+                  final prev = _previousOf(ci, li)!;
+                  _replaceWithLesson(context, prev.$1, prev.$2);
+                },
+          onNext: _nextOf(ci, li) == null
+              ? null
+              : () {
+                  final next = _nextOf(ci, li)!;
+                  _replaceWithLesson(context, next.$1, next.$2);
+                },
+        ),
+      ),
+    );
+  }
+
+  /// Trả về (chapterIndex, lessonIndex) của bài kế tiếp nếu có, ngược lại null
+  (int, int)? _nextOf(int ci, int li) {
+    final lessons = chapters[ci].lessons;
+    if (li + 1 < lessons.length) return (ci, li + 1);
+    if (ci + 1 < chapters.length && chapters[ci + 1].lessons.isNotEmpty) {
+      return (ci + 1, 0);
+    }
+    return null;
+  }
+
+  /// Trả về (chapterIndex, lessonIndex) của bài trước nếu có, ngược lại null
+  (int, int)? _previousOf(int ci, int li) {
+    if (li - 1 >= 0) return (ci, li - 1);
+    if (ci - 1 >= 0) {
+      final prevLessons = chapters[ci - 1].lessons;
+      if (prevLessons.isNotEmpty) return (ci - 1, prevLessons.length - 1);
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: _getLessonIcon(lesson.type),
+      title: Text(
+        lesson.title,
+        style: AppTypography.bodyMedium.copyWith(
+          color: lesson.isCompleted ? AppColors.grey500 : AppColors.grey700,
+        ),
+      ),
+      trailing: lesson.isCompleted
+          ? const Icon(Icons.check_circle, color: AppColors.success)
+          : null,
+      onTap: () => _pushLesson(context, chapterIndex, lessonIndex),
+    );
+  }
+
+  Icon _getLessonIcon(String type) {
+    switch (type) {
+      case 'video':
+        return const Icon(Icons.play_circle_outline, color: AppColors.primary);
+      case 'document':
+        return const Icon(Icons.article_outlined, color: AppColors.accent);
+      case 'quiz':
+        return const Icon(Icons.quiz_outlined, color: AppColors.warning);
+      default:
+        return const Icon(Icons.help_outline, color: AppColors.grey500);
+    }
   }
 }
