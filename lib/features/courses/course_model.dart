@@ -12,6 +12,8 @@ class Course {
     this.duration,
     this.imageFile, // <-- Thêm thuộc tính này
     this.category, // <-- Thêm category
+    this.startDate, // <-- Thêm ngày bắt đầu
+    this.endDate, // <-- Thêm ngày kết thúc
   });
 
   final String id;
@@ -23,5 +25,8 @@ class Course {
   final int enrollmentCount;
   final String? duration;
   final File? imageFile; // Dùng cho ảnh vừa chọn từ máy
-  final String? category; // Danh mục khóa học (Programming, Design, Business, etc.)
+  final String?
+  category; // Danh mục khóa học (Programming, Design, Business, etc.)
+  final DateTime? startDate; // Ngày bắt đầu khóa học
+  final DateTime? endDate; // Ngày kết thúc khóa học
 }

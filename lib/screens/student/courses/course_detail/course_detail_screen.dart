@@ -471,6 +471,48 @@ class _OverviewTab extends StatelessWidget {
                     ),
                   ],
                 ),
+                // Hàng hiển thị thời gian bắt đầu và kết thúc (nếu có)
+                if (course?.startDate != null || course?.endDate != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 16,
+                        color: Colors.grey.shade600,
+                      ),
+                      const SizedBox(width: 4),
+                      Builder(
+                        builder: (_) {
+                          String fmt(DateTime d) {
+                            final dd = d.day.toString().padLeft(2, '0');
+                            final mm = d.month.toString().padLeft(2, '0');
+                            final yyyy = d.year.toString();
+                            return '$dd/$mm/$yyyy';
+                          }
+
+                          final s = course?.startDate != null
+                              ? fmt(course!.startDate as DateTime)
+                              : null;
+                          final e = course?.endDate != null
+                              ? fmt(course!.endDate as DateTime)
+                              : null;
+                          final text = (s != null && e != null)
+                              ? 'Từ $s • Đến $e'
+                              : (s != null)
+                              ? 'Bắt đầu: $s'
+                              : 'Kết thúc: $e';
+                          return Text(
+                            text,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade700,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

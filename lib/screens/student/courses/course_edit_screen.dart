@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CourseEditScreen extends StatefulWidget {
   const CourseEditScreen({super.key, required this.courseId});
@@ -31,6 +33,12 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
   bool _allowComments = true;
   bool _allowDownloads = false;
   bool _requireEnrollment = true;
+
+  // Media state
+  File? _coverImageFile;
+  XFile? _introVideoFile;
+  bool _isPickingCover = false;
+  bool _isPickingVideo = false;
 
   @override
   void initState() {
@@ -178,50 +186,13 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
                 title: 'Hình ảnh & Media',
                 icon: Icons.image,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.cloud_upload,
-                          size: 48,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Tải lên ảnh bìa khóa học',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Khuyên dùng: 1920x1080px, dưới 2MB',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildCoverImagePicker(),
                   const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Chức năng tải lên ảnh bìa'),
-                              ),
-                            );
-                          },
+                          onPressed: _isPickingCover ? null : _pickCoverImage,
                           icon: const Icon(Icons.image),
                           label: const Text('Chọn ảnh bìa'),
                         ),
@@ -229,21 +200,35 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Chức năng tải lên video giới thiệu',
-                                ),
-                              ),
-                            );
-                          },
+                          onPressed: _isPickingVideo ? null : _pickIntroVideo,
                           icon: const Icon(Icons.video_library),
                           label: const Text('Video giới thiệu'),
                         ),
                       ),
                     ],
                   ),
+                  if (_introVideoFile != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.videocam, size: 18),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _introVideoFile!.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () =>
+                              setState(() => _introVideoFile = null),
+                          child: const Text('Xóa'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
 
@@ -279,6 +264,99 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildCoverImagePicker() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: _coverImageFile != null
+          ? Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.file(_coverImageFile!, fit: BoxFit.cover),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_upload, size: 48, color: Colors.grey[600]),
+                  const SizedBox(height: 8),
+                  Text(
+                    _isPickingCover
+                        ? 'Đang mở thư viện...'
+                        : 'Tải lên ảnh bìa khóa học',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Khuyên dùng: 1920x1080px, dưới 2MB',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Future<void> _pickCoverImage() async {
+    if (_isPickingCover) return;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _isPickingCover = true);
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked != null) {
+        setState(() => _coverImageFile = File(picked.path));
+      }
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Lỗi khi chọn ảnh bìa: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isPickingCover = false);
+    }
+  }
+
+  Future<void> _pickIntroVideo() async {
+    if (_isPickingVideo) return;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _isPickingVideo = true);
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickVideo(source: ImageSource.gallery);
+      if (picked != null) {
+        setState(() => _introVideoFile = picked);
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Lỗi khi chọn video: $e')));
+    } finally {
+      if (mounted) setState(() => _isPickingVideo = false);
+    }
   }
 
   Widget _buildSection({

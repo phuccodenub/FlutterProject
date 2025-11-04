@@ -12,6 +12,11 @@ class RootShell extends ConsumerWidget {
     if (location.startsWith('/dashboard')) {
       return 0;
     }
+    // Course-related routes should highlight the Courses tab
+    if (location.startsWith('/course') ||
+        location.startsWith('/create-course')) {
+      return 1;
+    }
     // Admin mappings
     if (location.startsWith('/admin-course-management') ||
         location.startsWith('/admin-system-settings')) {

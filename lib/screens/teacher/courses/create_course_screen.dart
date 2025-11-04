@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import '../../../features/courses/course_model.dart';
 import 'providers/teacher_course_providers.dart';
 import '../../../core/widgets/common_app_bar.dart';
@@ -138,9 +137,30 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
       // "Upload" ảnh: sao chép vào thư mục ứng dụng để dùng lâu dài
       final docsDir = await getApplicationDocumentsDirectory();
       final id = const Uuid().v4();
-      final fileName = 'course_$id${p.extension(_pickedImage!.path)}';
-      final destPath = p.join(docsDir.path, fileName);
+      final originalPath = _pickedImage!.path;
+      final dotIndex = originalPath.lastIndexOf('.');
+      final ext = dotIndex != -1 ? originalPath.substring(dotIndex) : '';
+      final fileName = 'course_$id$ext';
+      final destPath = '${docsDir.path}${Platform.pathSeparator}$fileName';
       final savedFile = await _pickedImage!.copy(destPath);
+
+      // Parse ngày từ ô nhập (định dạng dd/MM/yyyy)
+      DateTime? parseDdMMyyyy(String s) {
+        try {
+          final parts = s.split('/');
+          if (parts.length != 3) return null;
+          final d = int.tryParse(parts[0]);
+          final m = int.tryParse(parts[1]);
+          final y = int.tryParse(parts[2]);
+          if (d == null || m == null || y == null) return null;
+          return DateTime(y, m, d);
+        } catch (_) {
+          return null;
+        }
+      }
+
+      final start = parseDdMMyyyy(_startDateController.text.trim());
+      final end = parseDdMMyyyy(_endDateController.text.trim());
 
       final newCourse = Course(
         id: id,
@@ -150,6 +170,8 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
         instructorName: 'Tên giáo viên',
         imageFile: savedFile,
         category: _selectedCategory,
+        startDate: start,
+        endDate: end,
       );
 
       // Lưu bằng Riverpod (teacher scope)
