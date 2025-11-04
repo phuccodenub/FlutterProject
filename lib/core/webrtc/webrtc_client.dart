@@ -33,7 +33,10 @@ class WebRTCClient {
   Function(int userId)? onParticipantLeft;
   Function(String error)? onError;
 
-  Future<MediaStream?> startLocal({bool video = true, bool audio = true}) async {
+  Future<MediaStream?> startLocal({
+    bool video = true,
+    bool audio = true,
+  }) async {
     try {
       final constraints = <String, dynamic>{
         'audio': audio,
@@ -84,7 +87,10 @@ class WebRTCClient {
     }
   }
 
-  Future<RTCPeerConnection?> createPeer(int userId, {bool isOffer = true}) async {
+  Future<RTCPeerConnection?> createPeer(
+    int userId, {
+    bool isOffer = true,
+  }) async {
     try {
       final config = {
         'iceServers': [
@@ -174,7 +180,10 @@ class WebRTCClient {
     }
   }
 
-  Future<void> setRemoteDescription(int userId, RTCSessionDescription description) async {
+  Future<void> setRemoteDescription(
+    int userId,
+    RTCSessionDescription description,
+  ) async {
     final pc = _participants[userId]?.peerConnection;
     if (pc == null) return;
 

@@ -17,7 +17,7 @@ class AuthApiService {
   Future<AuthResponse> login(String email, String password) async {
     try {
       final request = AuthRequest(email: email, password: password);
-      
+
       if (kDebugMode) {
         print('🔐 Login attempt for: $email');
       }
@@ -28,7 +28,7 @@ class AuthApiService {
       );
 
       final authResponse = AuthResponse.fromJson(response.data);
-      
+
       if (kDebugMode) {
         print('✅ Login successful: ${authResponse.success}');
       }
@@ -76,7 +76,7 @@ class AuthApiService {
       );
 
       final authResponse = AuthResponse.fromJson(response.data);
-      
+
       if (kDebugMode) {
         print('✅ Registration successful: ${authResponse.success}');
       }
@@ -110,7 +110,7 @@ class AuthApiService {
       );
 
       final authResponse = AuthResponse.fromJson(response.data);
-      
+
       if (kDebugMode) {
         print('✅ Token refresh successful: ${authResponse.success}');
       }
@@ -139,7 +139,7 @@ class AuthApiService {
       final response = await _dio.post(ApiConfig.authLogout);
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Logout successful: ${apiResponse.success}');
       }
@@ -171,7 +171,7 @@ class AuthApiService {
         response.data,
         (data) => UserProfile.fromJson(data),
       );
-      
+
       if (kDebugMode) {
         print('✅ Token verification: ${apiResponse.success}');
       }
@@ -211,7 +211,7 @@ class AuthApiService {
       );
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Password change: ${apiResponse.success}');
       }
@@ -243,7 +243,7 @@ class AuthApiService {
         response.data,
         (data) => data as Map<String, dynamic>,
       );
-      
+
       if (kDebugMode) {
         print('✅ 2FA enable: ${apiResponse.success}');
       }
@@ -277,7 +277,7 @@ class AuthApiService {
       );
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ 2FA setup verification: ${apiResponse.success}');
       }
@@ -311,7 +311,7 @@ class AuthApiService {
       );
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ 2FA disable: ${apiResponse.success}');
       }
@@ -347,13 +347,10 @@ class AuthApiService {
         print('🔐 2FA Login attempt for: $email');
       }
 
-      final response = await _dio.post(
-        '/auth/login-2fa',
-        data: requestData,
-      );
+      final response = await _dio.post('/auth/login-2fa', data: requestData);
 
       final authResponse = AuthResponse.fromJson(response.data);
-      
+
       if (kDebugMode) {
         print('✅ 2FA Login successful: ${authResponse.success}');
       }
@@ -378,12 +375,14 @@ class AuthApiService {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return Exception('Connection timeout. Please check your internet connection.');
-      
+        return Exception(
+          'Connection timeout. Please check your internet connection.',
+        );
+
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         final data = e.response?.data;
-        
+
         if (statusCode == 401) {
           return Exception('Invalid credentials or session expired.');
         } else if (statusCode == 403) {
@@ -400,13 +399,13 @@ class AuthApiService {
           return Exception(data['message']);
         }
         return Exception('Request failed with status $statusCode');
-      
+
       case DioExceptionType.cancel:
         return Exception('Request was cancelled.');
-      
+
       case DioExceptionType.connectionError:
         return Exception('No internet connection.');
-      
+
       case DioExceptionType.unknown:
       default:
         return Exception('Network error: ${e.message}');

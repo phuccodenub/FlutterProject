@@ -6,7 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'notification_models.dart';
 
 class NotificationState {
-  const NotificationState({this.items = const [], this.prefs = const NotificationPrefs()});
+  const NotificationState({
+    this.items = const [],
+    this.prefs = const NotificationPrefs(),
+  });
   final List<AppNotification> items;
   final NotificationPrefs prefs;
 
@@ -127,6 +130,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   );
 }
 
-final notificationProvider = StateNotifierProvider<NotificationNotifier, NotificationState>(
-  (ref) => NotificationNotifier(),
-);
+final notificationProvider =
+    StateNotifierProvider<NotificationNotifier, NotificationState>(
+      (ref) => NotificationNotifier(),
+    );

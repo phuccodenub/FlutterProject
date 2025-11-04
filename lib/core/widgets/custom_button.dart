@@ -3,7 +3,15 @@ import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_typography.dart';
 
-enum ButtonVariant { primary, secondary, outline, ghost, destructive, success, warning }
+enum ButtonVariant {
+  primary,
+  secondary,
+  outline,
+  ghost,
+  destructive,
+  success,
+  warning,
+}
 
 enum ButtonSize { small, medium, large }
 
@@ -58,7 +66,11 @@ class CustomButton extends StatelessWidget {
       );
     }
 
-    final textWidget = Text(text, style: _getTextStyle(), textAlign: TextAlign.center);
+    final textWidget = Text(
+      text,
+      style: _getTextStyle(),
+      textAlign: TextAlign.center,
+    );
 
     if (icon == null) {
       return textWidget;
@@ -158,7 +170,10 @@ class CustomButton extends StatelessWidget {
   BorderSide _getBorderSide() {
     switch (variant) {
       case ButtonVariant.outline:
-        return BorderSide(color: isEnabled ? AppColors.primary : AppColors.grey300, width: 1.5);
+        return BorderSide(
+          color: isEnabled ? AppColors.primary : AppColors.grey300,
+          width: 1.5,
+        );
       default:
         return BorderSide.none;
     }

@@ -20,37 +20,37 @@ class User {
   final DateTime? lastLogin;
   final Map<String, dynamic>? preferences;
   final Map<String, dynamic>? metadata;
-  
+
   // Email verification
   final bool emailVerified;
   final DateTime? emailVerifiedAt;
-  
+
   // Social login
   final String? socialId;
   final String? socialProvider;
-  
+
   // Student fields
   final String? studentId;
   final String? studentClass;
   final String? major;
   final int? year;
   final double? gpa;
-  
-  // Instructor fields  
+
+  // Instructor fields
   final String? instructorId;
   final String? department;
   final String? specialization;
   final int? experienceYears;
   final EducationLevel? educationLevel;
   final String? researchInterests;
-  
+
   // Common fields
   final DateTime? dateOfBirth;
   final Gender? gender;
   final String? address;
   final String? emergencyContact;
   final String? emergencyPhone;
-  
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -104,12 +104,15 @@ class User {
       avatar: json['avatar'],
       role: _parseUserRole(json['role']),
       status: _parseUserStatus(json['status']),
-      lastLogin: json['last_login'] != null ? DateTime.parse(json['last_login']) : null,
+      lastLogin: json['last_login'] != null
+          ? DateTime.parse(json['last_login'])
+          : null,
       preferences: json['preferences'],
       metadata: json['metadata'],
       emailVerified: json['email_verified'] ?? false,
-      emailVerifiedAt: json['email_verified_at'] != null 
-          ? DateTime.parse(json['email_verified_at']) : null,
+      emailVerifiedAt: json['email_verified_at'] != null
+          ? DateTime.parse(json['email_verified_at'])
+          : null,
       socialId: json['social_id'],
       socialProvider: json['social_provider'],
       studentId: json['student_id'],
@@ -123,8 +126,9 @@ class User {
       experienceYears: json['experience_years'],
       educationLevel: _parseEducationLevel(json['education_level']),
       researchInterests: json['research_interests'],
-      dateOfBirth: json['date_of_birth'] != null 
-          ? DateTime.parse(json['date_of_birth']) : null,
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.parse(json['date_of_birth'])
+          : null,
       gender: _parseGender(json['gender']),
       address: json['address'],
       emergencyContact: json['emergency_contact'],
@@ -178,40 +182,59 @@ class User {
 
   static UserRole _parseUserRole(String? role) {
     switch (role) {
-      case 'student': return UserRole.student;
-      case 'instructor': return UserRole.instructor;
-      case 'admin': return UserRole.admin;
-      case 'super_admin': return UserRole.superAdmin;
-      default: return UserRole.student;
+      case 'student':
+        return UserRole.student;
+      case 'instructor':
+        return UserRole.instructor;
+      case 'admin':
+        return UserRole.admin;
+      case 'super_admin':
+        return UserRole.superAdmin;
+      default:
+        return UserRole.student;
     }
   }
 
   static UserStatus _parseUserStatus(String? status) {
     switch (status) {
-      case 'active': return UserStatus.active;
-      case 'inactive': return UserStatus.inactive;
-      case 'suspended': return UserStatus.suspended;
-      case 'pending': return UserStatus.pending;
-      default: return UserStatus.pending;
+      case 'active':
+        return UserStatus.active;
+      case 'inactive':
+        return UserStatus.inactive;
+      case 'suspended':
+        return UserStatus.suspended;
+      case 'pending':
+        return UserStatus.pending;
+      default:
+        return UserStatus.pending;
     }
   }
 
   static EducationLevel? _parseEducationLevel(String? level) {
     switch (level) {
-      case 'bachelor': return EducationLevel.bachelor;
-      case 'master': return EducationLevel.master;
-      case 'phd': return EducationLevel.phd;
-      case 'professor': return EducationLevel.professor;
-      default: return null;
+      case 'bachelor':
+        return EducationLevel.bachelor;
+      case 'master':
+        return EducationLevel.master;
+      case 'phd':
+        return EducationLevel.phd;
+      case 'professor':
+        return EducationLevel.professor;
+      default:
+        return null;
     }
   }
 
   static Gender? _parseGender(String? gender) {
     switch (gender) {
-      case 'male': return Gender.male;
-      case 'female': return Gender.female;
-      case 'other': return Gender.other;
-      default: return null;
+      case 'male':
+        return Gender.male;
+      case 'female':
+        return Gender.female;
+      case 'other':
+        return Gender.other;
+      default:
+        return null;
     }
   }
 

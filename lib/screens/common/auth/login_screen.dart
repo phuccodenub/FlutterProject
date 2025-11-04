@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/auth/auth_state.dart';
-import '../../../core/data/demo_data.dart';
+
 import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
@@ -50,10 +50,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: AppSpacing.xl2),
                 _buildHeader(),
                 const SizedBox(height: AppSpacing.xl2),
-
-                // Demo Info Card
-                _buildDemoInfoCard(),
-                const SizedBox(height: AppSpacing.xl),
 
                 // Login Form
                 _buildLoginForm(),
@@ -123,49 +119,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildDemoInfoCard() {
-    return CustomCard(
-      backgroundColor: AppColors.infoContainer,
-      borderColor: AppColors.info.withValues(alpha: 0.3),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info_outline,
-            color: AppColors.info,
-            size: AppSizes.iconLg,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Chế độ Demo',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.info,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Sử dụng các tài khoản demo bên dưới để trải nghiệm hệ thống',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.infoDark,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          CustomButton(
-            onPressed: () => _showDemoAccounts(context),
-            text: 'Xem',
-            variant: ButtonVariant.ghost,
-            size: ButtonSize.small,
-            icon: Icons.visibility,
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildLoginForm() {
     return Form(
@@ -281,7 +235,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Text(
-                'Hoặc đăng nhập nhanh',
+                'Hoặc đăng nhập với tài khoản có sẵn',
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.grey500,
                 ),
@@ -293,24 +247,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         const SizedBox(height: AppSpacing.lg),
         _buildQuickLoginButton(
           'Tài khoản Sinh viên',
-          'student@demo.com',
-          'student123',
+          'student1@example.com',
+          'Student123!',
           Icons.school_outlined,
           AppColors.studentPrimary,
         ),
         const SizedBox(height: AppSpacing.sm),
         _buildQuickLoginButton(
           'Tài khoản Giảng viên',
-          'instructor@demo.com',
-          'instructor123',
+          'instructor1@example.com',
+          'Instructor123!',
           Icons.person_outlined,
           AppColors.teacherPrimary,
         ),
         const SizedBox(height: AppSpacing.sm),
         _buildQuickLoginButton(
           'Tài khoản Quản trị',
-          'admin@demo.com',
-          'admin123',
+          'admin@example.com',
+          'Admin123!',
           Icons.admin_panel_settings_outlined,
           AppColors.adminPrimary,
         ),
@@ -397,6 +351,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .login(emailCtrl.text.trim(), passCtrl.text);
       if (ok && mounted) {
         context.go('/dashboard');
+      } else if (!ok && mounted) {
+        // Login failed - show error from auth state
+        final authState = ref.read(authProvider);
+        final errorMessage =
+            authState.error ?? 'Đăng nhập thất bại. Vui lòng thử lại.';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -450,7 +418,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Không tìm thấy thông tin đăng nhập được lưu. Vui lòng đăng nhập thủ công lần đầu.'),
+                content: Text(
+                  'Không tìm thấy thông tin đăng nhập được lưu. Vui lòng đăng nhập thủ công lần đầu.',
+                ),
                 backgroundColor: Colors.blue,
               ),
             );
@@ -519,12 +489,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               _buildHelpItem(
                 icon: Icons.account_circle,
-                title: 'Tài khoản demo',
-                description: 'Sử dụng tài khoản demo để trải nghiệm hệ thống',
-                action: 'Xem tài khoản demo',
+                title: 'Tài khoản có sẵn',
+                description: 'Sử dụng các tài khoản có sẵn để đăng nhập nhanh',
+                action: 'Xem trong phần đăng nhập nhanh',
                 onTap: () {
                   Navigator.pop(context);
-                  _showDemoAccounts(context);
                 },
               ),
               const SizedBox(height: 16),
@@ -547,7 +516,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Bật sinh trắc học trong cài đặt điện thoại để sử dụng tính năng này'),
+                      content: Text(
+                        'Bật sinh trắc học trong cài đặt điện thoại để sử dụng tính năng này',
+                      ),
                     ),
                   );
                 },
@@ -608,7 +579,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Navigator.pop(context);
               // Contact support
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Liên hệ hỗ trợ: support@lms.edu.vn')),
+                const SnackBar(
+                  content: Text('Liên hệ hỗ trợ: support@lms.edu.vn'),
+                ),
               );
             },
             child: const Text('Liên hệ hỗ trợ'),
@@ -648,10 +621,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   Text(
                     description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -672,30 +642,5 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  void _showDemoAccounts(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Demo Accounts'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                DemoAccounts.getAccountInfo(),
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
+
 }

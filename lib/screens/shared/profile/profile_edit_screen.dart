@@ -5,14 +5,14 @@ import '../../../core/widgets/animated_buttons.dart';
 import '../../../core/animations/app_animations.dart';
 
 // Form validation provider
-final formValidationProvider = StateProvider.family<Map<String, String>, String>(
-  (ref, formId) => {},
-);
+final formValidationProvider =
+    StateProvider.family<Map<String, String>, String>((ref, formId) => {});
 
-// Form submission state provider  
-final formSubmissionProvider = StateProvider.family<FormSubmissionState, String>(
-  (ref, formId) => FormSubmissionState.idle,
-);
+// Form submission state provider
+final formSubmissionProvider =
+    StateProvider.family<FormSubmissionState, String>(
+      (ref, formId) => FormSubmissionState.idle,
+    );
 
 enum FormSubmissionState { idle, loading, success, error }
 
@@ -23,12 +23,11 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
 
-class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> 
+class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _pageController;
   final _formKey = GlobalKey<FormState>();
-  
+
   // Form controllers
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -38,7 +37,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
   final _addressController = TextEditingController();
   final _websiteController = TextEditingController();
   final _linkedinController = TextEditingController();
-  
+
   // Form values
   String _selectedGender = 'Nam';
   DateTime _selectedBirthDate = DateTime(1995, 1, 1);
@@ -51,15 +50,15 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animations
     _pageController = AnimationController(
       duration: AppAnimations.normal,
       vsync: this,
     );
-    
+
     _loadUserData();
-    
+
     // Start page animation
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pageController.forward();
@@ -73,7 +72,8 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
       _lastNameController.text = 'Văn An';
       _emailController.text = 'nguyenvanan@gmail.com';
       _phoneController.text = '0987654321';
-      _bioController.text = 'Lập trình viên Flutter với 3 năm kinh nghiệm. Đam mê phát triển mobile app và học hỏi công nghệ mới.';
+      _bioController.text =
+          'Lập trình viên Flutter với 3 năm kinh nghiệm. Đam mê phát triển mobile app và học hỏi công nghệ mới.';
       _addressController.text = '123 Đường ABC, Quận 1, TP.HCM';
       _websiteController.text = 'https://nguyenvanan.dev';
       _linkedinController.text = 'https://linkedin.com/in/nguyenvanan';
@@ -122,51 +122,60 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
                 child: Center(
                   child: Column(
                     children: [
-                    Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                          child: Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.1),
+                            child: Icon(
+                              Icons.person,
+                              size: 60,
                               color: Theme.of(context).colorScheme.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.camera_alt, color: Colors.white),
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Chức năng thay đổi ảnh đại diện')),
-                                );
-                              },
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Thay đổi ảnh đại diện',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Chức năng thay đổi ảnh đại diện',
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Text(
+                        'Thay đổi ảnh đại diện',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Personal Information
               FadeSlideAnimation(
                 delay: const Duration(milliseconds: 100),
@@ -174,183 +183,196 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
                   title: 'Thông tin cá nhân',
                   icon: Icons.person,
                   children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(
-                          controller: _firstNameController,
-                          label: 'Họ',
-                          validator: (value) {
-                            if (value?.isEmpty ?? true) {
-                              return 'Vui lòng nhập họ';
-                            }
-                            return null;
-                          },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _firstNameController,
+                            label: 'Họ',
+                            validator: (value) {
+                              if (value?.isEmpty ?? true) {
+                                return 'Vui lòng nhập họ';
+                              }
+                              return null;
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildTextField(
-                          controller: _lastNameController,
-                          label: 'Tên',
-                          validator: (value) {
-                            if (value?.isEmpty ?? true) {
-                              return 'Vui lòng nhập tên';
-                            }
-                            return null;
-                          },
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _lastNameController,
+                            label: 'Tên',
+                            validator: (value) {
+                              if (value?.isEmpty ?? true) {
+                                return 'Vui lòng nhập tên';
+                              }
+                              return null;
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildDateField(
-                    label: 'Ngày sinh',
-                    value: _selectedBirthDate,
-                    onChanged: (date) => setState(() => _selectedBirthDate = date),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildDropdown(
-                    label: 'Giới tính',
-                    value: _selectedGender,
-                    items: ['Nam', 'Nữ', 'Khác'],
-                    onChanged: (value) => setState(() => _selectedGender = value!),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    controller: _bioController,
-                    label: 'Giới thiệu bản thân',
-                    hint: 'Viết vài dòng về bản thân...',
-                    maxLines: 4,
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildDateField(
+                      label: 'Ngày sinh',
+                      value: _selectedBirthDate,
+                      onChanged: (date) =>
+                          setState(() => _selectedBirthDate = date),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildDropdown(
+                      label: 'Giới tính',
+                      value: _selectedGender,
+                      items: ['Nam', 'Nữ', 'Khác'],
+                      onChanged: (value) =>
+                          setState(() => _selectedGender = value!),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _bioController,
+                      label: 'Giới thiệu bản thân',
+                      hint: 'Viết vài dòng về bản thân...',
+                      maxLines: 4,
+                    ),
+                  ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Contact Information
               FadeSlideAnimation(
                 delay: const Duration(milliseconds: 200),
                 child: _buildSection(
                   title: 'Thông tin liên hệ',
                   icon: Icons.contact_phone,
-                children: [
-                  _buildTextField(
-                    controller: _emailController,
-                    label: 'Email',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Vui lòng nhập email';
-                      }
-                      if (!value!.contains('@')) {
-                        return 'Email không hợp lệ';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    controller: _phoneController,
-                    label: 'Số điện thoại',
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    controller: _addressController,
-                    label: 'Địa chỉ',
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildDropdown(
-                    label: 'Quốc gia',
-                    value: _selectedCountry,
-                    items: ['Vietnam', 'Singapore', 'Thailand', 'Malaysia', 'Other'],
-                    onChanged: (value) => setState(() => _selectedCountry = value!),
-                  ),
-                ],
+                  children: [
+                    _buildTextField(
+                      controller: _emailController,
+                      label: 'Email',
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Vui lòng nhập email';
+                        }
+                        if (!value!.contains('@')) {
+                          return 'Email không hợp lệ';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _phoneController,
+                      label: 'Số điện thoại',
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _addressController,
+                      label: 'Địa chỉ',
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildDropdown(
+                      label: 'Quốc gia',
+                      value: _selectedCountry,
+                      items: [
+                        'Vietnam',
+                        'Singapore',
+                        'Thailand',
+                        'Malaysia',
+                        'Other',
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _selectedCountry = value!),
+                    ),
+                  ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Social Links
               FadeSlideAnimation(
                 delay: const Duration(milliseconds: 300),
                 child: _buildSection(
                   title: 'Liên kết xã hội',
                   icon: Icons.link,
-                children: [
-                  _buildTextField(
-                    controller: _websiteController,
-                    label: 'Website/Portfolio',
-                    hint: 'https://yourwebsite.com',
-                    keyboardType: TextInputType.url,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    controller: _linkedinController,
-                    label: 'LinkedIn',
-                    hint: 'https://linkedin.com/in/yourprofile',
-                    keyboardType: TextInputType.url,
-                  ),
-                ],
+                  children: [
+                    _buildTextField(
+                      controller: _websiteController,
+                      label: 'Website/Portfolio',
+                      hint: 'https://yourwebsite.com',
+                      keyboardType: TextInputType.url,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _linkedinController,
+                      label: 'LinkedIn',
+                      hint: 'https://linkedin.com/in/yourprofile',
+                      keyboardType: TextInputType.url,
+                    ),
+                  ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Privacy Settings
               FadeSlideAnimation(
                 delay: const Duration(milliseconds: 400),
                 child: _buildSection(
                   title: 'Cài đặt riêng tư',
                   icon: Icons.privacy_tip,
-                children: [
-                  _buildSwitchTile(
-                    title: 'Hồ sơ công khai',
-                    subtitle: 'Cho phép người khác xem hồ sơ của bạn',
-                    value: _isPublicProfile,
-                    onChanged: (value) => setState(() => _isPublicProfile = value),
-                  ),
-                  _buildSwitchTile(
-                    title: 'Cho phép nhắn tin',
-                    subtitle: 'Người khác có thể gửi tin nhắn cho bạn',
-                    value: _allowMessages,
-                    onChanged: (value) => setState(() => _allowMessages = value),
-                  ),
-                ],
+                  children: [
+                    _buildSwitchTile(
+                      title: 'Hồ sơ công khai',
+                      subtitle: 'Cho phép người khác xem hồ sơ của bạn',
+                      value: _isPublicProfile,
+                      onChanged: (value) =>
+                          setState(() => _isPublicProfile = value),
+                    ),
+                    _buildSwitchTile(
+                      title: 'Cho phép nhắn tin',
+                      subtitle: 'Người khác có thể gửi tin nhắn cho bạn',
+                      value: _allowMessages,
+                      onChanged: (value) =>
+                          setState(() => _allowMessages = value),
+                    ),
+                  ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Notification Settings
               FadeSlideAnimation(
                 delay: const Duration(milliseconds: 500),
                 child: _buildSection(
                   title: 'Thông báo',
                   icon: Icons.notifications,
-                children: [
-                  _buildSwitchTile(
-                    title: 'Thông báo email',
-                    subtitle: 'Nhận thông báo qua email',
-                    value: _emailNotifications,
-                    onChanged: (value) => setState(() => _emailNotifications = value),
-                  ),
-                  _buildSwitchTile(
-                    title: 'Thông báo đẩy',
-                    subtitle: 'Nhận thông báo đẩy trên điện thoại',
-                    value: _pushNotifications,
-                    onChanged: (value) => setState(() => _pushNotifications = value),
-                  ),
-                ],
+                  children: [
+                    _buildSwitchTile(
+                      title: 'Thông báo email',
+                      subtitle: 'Nhận thông báo qua email',
+                      value: _emailNotifications,
+                      onChanged: (value) =>
+                          setState(() => _emailNotifications = value),
+                    ),
+                    _buildSwitchTile(
+                      title: 'Thông báo đẩy',
+                      subtitle: 'Nhận thông báo đẩy trên điện thoại',
+                      value: _pushNotifications,
+                      onChanged: (value) =>
+                          setState(() => _pushNotifications = value),
+                    ),
+                  ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Action Buttons
               FadeSlideAnimation(
                 delay: const Duration(milliseconds: 600),
@@ -374,15 +396,20 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
                       flex: 2,
                       child: Consumer(
                         builder: (context, ref, child) {
-                          final submissionState = ref.watch(formSubmissionProvider('profile'));
-                          
+                          final submissionState = ref.watch(
+                            formSubmissionProvider('profile'),
+                          );
+
                           return AnimatedFormSubmitButton(
                             text: 'Lưu thay đổi',
                             icon: Icons.save,
                             onPressed: _saveProfile,
-                            isLoading: submissionState == FormSubmissionState.loading,
-                            isSuccess: submissionState == FormSubmissionState.success,
-                            isError: submissionState == FormSubmissionState.error,
+                            isLoading:
+                                submissionState == FormSubmissionState.loading,
+                            isSuccess:
+                                submissionState == FormSubmissionState.success,
+                            isError:
+                                submissionState == FormSubmissionState.error,
                           );
                         },
                       ),
@@ -411,9 +438,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
             const SizedBox(width: 8),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -424,12 +451,12 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
-          child: Column(
-            children: children,
-          ),
+          child: Column(children: children),
         ),
       ],
     );
@@ -445,7 +472,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
   }) {
     final validationErrors = ref.watch(formValidationProvider('profile'));
     final fieldError = validationErrors[label];
-    
+
     return AnimatedTextField(
       controller: controller,
       labelText: label,
@@ -458,9 +485,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
       onChanged: (value) {
         // Clear error when user starts typing
         if (fieldError != null) {
-          ref.read(formValidationProvider('profile').notifier).update(
-            (state) => Map.from(state)..remove(label),
-          );
+          ref
+              .read(formValidationProvider('profile').notifier)
+              .update((state) => Map.from(state)..remove(label));
         }
       },
     );
@@ -526,40 +553,42 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
   void _saveProfile() async {
     // Clear previous errors
     ref.read(formValidationProvider('profile').notifier).state = {};
-    
+
     // Validate form
     final errors = <String, String>{};
-    
+
     if (_firstNameController.text.trim().isEmpty) {
       errors['Họ'] = 'Vui lòng nhập họ';
     }
-    
+
     if (_lastNameController.text.trim().isEmpty) {
       errors['Tên'] = 'Vui lòng nhập tên';
     }
-    
+
     if (_emailController.text.trim().isEmpty) {
       errors['Email'] = 'Vui lòng nhập email';
     } else if (!_emailController.text.contains('@')) {
       errors['Email'] = 'Email không hợp lệ';
     }
-    
+
     if (errors.isNotEmpty) {
       // Set errors to trigger animations
       ref.read(formValidationProvider('profile').notifier).state = errors;
       return;
     }
-    
+
     // Start loading
-    ref.read(formSubmissionProvider('profile').notifier).state = FormSubmissionState.loading;
-    
+    ref.read(formSubmissionProvider('profile').notifier).state =
+        FormSubmissionState.loading;
+
     try {
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
-      
+
       // Success state
-      ref.read(formSubmissionProvider('profile').notifier).state = FormSubmissionState.success;
-      
+      ref.read(formSubmissionProvider('profile').notifier).state =
+          FormSubmissionState.success;
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -568,19 +597,20 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
           ),
         );
       }
-      
+
       // Delay then pop
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
-          ref.read(formSubmissionProvider('profile').notifier).state = FormSubmissionState.idle;
+          ref.read(formSubmissionProvider('profile').notifier).state =
+              FormSubmissionState.idle;
           Navigator.pop(context);
         }
       });
-      
     } catch (e) {
       // Error state
-      ref.read(formSubmissionProvider('profile').notifier).state = FormSubmissionState.error;
-      
+      ref.read(formSubmissionProvider('profile').notifier).state =
+          FormSubmissionState.error;
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -589,11 +619,12 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen>
           ),
         );
       }
-      
+
       // Reset to idle after showing error
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
-          ref.read(formSubmissionProvider('profile').notifier).state = FormSubmissionState.idle;
+          ref.read(formSubmissionProvider('profile').notifier).state =
+              FormSubmissionState.idle;
         }
       });
     }

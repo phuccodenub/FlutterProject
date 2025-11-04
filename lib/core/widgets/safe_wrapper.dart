@@ -21,7 +21,10 @@ class SafeWrapper extends StatelessWidget {
 
     // Wrap với Material nếu cần thiết
     if (useMaterial) {
-      content = Material(color: backgroundColor ?? Colors.transparent, child: content);
+      content = Material(
+        color: backgroundColor ?? Colors.transparent,
+        child: content,
+      );
     }
 
     // Wrap với SafeArea nếu cần thiết
@@ -147,7 +150,13 @@ class SafeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(data, style: style, overflow: overflow, maxLines: maxLines, textAlign: textAlign);
+    return Text(
+      data,
+      style: style,
+      overflow: overflow,
+      maxLines: maxLines,
+      textAlign: textAlign,
+    );
   }
 }
 
@@ -188,7 +197,11 @@ class SafeContainer extends StatelessWidget {
         : null;
 
     final safeConstraints =
-        constraints ?? BoxConstraints(maxWidth: screenSize.width, maxHeight: screenSize.height);
+        constraints ??
+        BoxConstraints(
+          maxWidth: screenSize.width,
+          maxHeight: screenSize.height,
+        );
 
     return Container(
       width: safeWidth,

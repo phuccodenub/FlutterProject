@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import '../services/logger_service.dart';
 
 enum NetworkStatus { online, offline, unknown }
 
@@ -19,7 +20,11 @@ class ConnectivityState {
   bool get isOnline => status == NetworkStatus.online;
   bool get isOffline => status == NetworkStatus.offline;
 
-  ConnectivityState copyWith({NetworkStatus? status, bool? hasError, String? errorMessage}) {
+  ConnectivityState copyWith({
+    NetworkStatus? status,
+    bool? hasError,
+    String? errorMessage,
+  }) {
     return ConnectivityState(
       status: status ?? this.status,
       hasError: hasError ?? this.hasError,
@@ -53,7 +58,9 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
           result == ConnectivityResult.ethernet,
     );
 
-    state = state.copyWith(status: isConnected ? NetworkStatus.online : NetworkStatus.offline);
+    state = state.copyWith(
+      status: isConnected ? NetworkStatus.online : NetworkStatus.offline,
+    );
   }
 
   void setError(String message) {
@@ -71,15 +78,20 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
   }
 }
 
-final connectivityProvider = StateNotifierProvider<ConnectivityNotifier, ConnectivityState>(
-  (ref) => ConnectivityNotifier(),
-);
+final connectivityProvider =
+    StateNotifierProvider<ConnectivityNotifier, ConnectivityState>(
+      (ref) => ConnectivityNotifier(),
+    );
 
 // Timeout wrapper for API calls
 class ApiTimeout {
   static const defaultTimeout = Duration(seconds: 30);
 
-  static Future<T> wrap<T>(Future<T> future, {Duration? timeout, String? timeoutMessage}) async {
+  static Future<T> wrap<T>(
+    Future<T> future, {
+    Duration? timeout,
+    String? timeoutMessage,
+  }) async {
     try {
       return await future.timeout(
         timeout ?? defaultTimeout,
@@ -125,7 +137,9 @@ class ErrorHandler {
 
   static void showError(String message, {VoidCallback? onRetry}) {
     // This will be shown via overlay or snackbar
-    // TODO: Replace with proper logging framework
-    // print('Error: $message');
+    logger.error('Network error occurred', {
+      'message': message,
+      'hasRetry': onRetry != null,
+    });
   }
 }

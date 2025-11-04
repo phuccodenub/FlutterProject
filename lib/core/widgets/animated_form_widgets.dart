@@ -46,7 +46,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
   late AnimationController _errorController;
   late Animation<double> _errorShakeAnimation;
   late Animation<Color?> _borderColorAnimation;
-  
+
   FocusNode? _focusNode;
   bool _hasFocus = false;
   bool _hasError = false;
@@ -55,26 +55,20 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
   void initState() {
     super.initState();
     _focusNode = FocusNode();
-    
+
     _focusController = AnimationController(
       duration: AppAnimations.normal,
       vsync: this,
     );
-    
+
     _errorController = AnimationController(
       duration: AppAnimations.fast,
       vsync: this,
     );
 
-
-
-    _errorShakeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _errorController,
-      curve: Curves.elasticIn,
-    ));
+    _errorShakeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _errorController, curve: Curves.elasticIn),
+    );
 
     _borderColorAnimation = ColorTween(
       begin: Colors.grey,
@@ -104,7 +98,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
     setState(() {
       _hasFocus = _focusNode!.hasFocus;
     });
-    
+
     if (_hasFocus) {
       _focusController.forward();
     } else {
@@ -116,7 +110,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
     setState(() {
       _hasError = true;
     });
-    
+
     _errorController.forward().then((_) {
       _errorController.reverse().then((_) {
         setState(() {
@@ -132,8 +126,13 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
       animation: Listenable.merge([_focusController, _errorController]),
       builder: (context, child) {
         return Transform.translate(
-          offset: _hasError 
-              ? Offset(_errorShakeAnimation.value * 10 * (1 - _errorShakeAnimation.value * 2).sign, 0)
+          offset: _hasError
+              ? Offset(
+                  _errorShakeAnimation.value *
+                      10 *
+                      (1 - _errorShakeAnimation.value * 2).sign,
+                  0,
+                )
               : Offset.zero,
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -145,15 +144,17 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: _hasError 
-                          ? Colors.red 
+                      color: _hasError
+                          ? Colors.red
                           : _borderColorAnimation.value ?? Colors.grey,
                       width: _hasFocus ? 2 : 1,
                     ),
                     boxShadow: _hasFocus
                         ? [
                             BoxShadow(
-                              color: (_borderColorAnimation.value ?? Colors.grey).withValues(alpha: 0.3),
+                              color:
+                                  (_borderColorAnimation.value ?? Colors.grey)
+                                      .withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -178,8 +179,8 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
                       labelStyle: TextStyle(
-                        color: _hasFocus 
-                            ? Theme.of(context).primaryColor 
+                        color: _hasFocus
+                            ? Theme.of(context).primaryColor
                             : Colors.grey,
                       ),
                     ),
@@ -192,10 +193,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
                       padding: const EdgeInsets.only(top: 4, left: 16),
                       child: Text(
                         widget.errorText!,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 12,
-                        ),
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
                       ),
                     ),
                   ),
@@ -250,10 +248,7 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
       vsync: this,
     );
 
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
   @override
@@ -261,8 +256,6 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
     _controller.dispose();
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +280,9 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                   boxShadow: _isExpanded
                       ? [
                           BoxShadow(
-                            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -295,7 +290,8 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                       : [],
                 ),
                 child: DropdownButtonFormField<T>(
-                  initialValue: widget.value,
+                  // ignore: deprecated_member_use
+                  value: widget.value,
                   items: widget.items.map((T item) {
                     return DropdownMenuItem<T>(
                       value: item,
@@ -311,8 +307,8 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                     labelStyle: TextStyle(
-                      color: _isExpanded 
-                          ? Theme.of(context).primaryColor 
+                      color: _isExpanded
+                          ? Theme.of(context).primaryColor
                           : Colors.grey,
                     ),
                   ),
@@ -329,10 +325,7 @@ class _AnimatedDropdownState<T> extends State<AnimatedDropdown<T>>
                     padding: const EdgeInsets.only(top: 4, left: 16),
                     child: Text(
                       widget.errorText!,
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
                     ),
                   ),
                 ),
@@ -381,18 +374,12 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
     _checkAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     if (widget.value) {
       _controller.forward();
@@ -433,13 +420,14 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
                   height: 24,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: widget.value 
-                          ? (widget.activeColor ?? Theme.of(context).primaryColor)
+                      color: widget.value
+                          ? (widget.activeColor ??
+                                Theme.of(context).primaryColor)
                           : Colors.grey,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(4),
-                    color: widget.value 
+                    color: widget.value
                         ? (widget.activeColor ?? Theme.of(context).primaryColor)
                         : Colors.transparent,
                   ),
@@ -470,10 +458,7 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
                     if (widget.subtitle != null)
                       Text(
                         widget.subtitle!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                   ],
                 ),
@@ -505,7 +490,8 @@ class AnimatedFormSubmitButton extends StatefulWidget {
   });
 
   @override
-  State<AnimatedFormSubmitButton> createState() => _AnimatedFormSubmitButtonState();
+  State<AnimatedFormSubmitButton> createState() =>
+      _AnimatedFormSubmitButtonState();
 }
 
 class _AnimatedFormSubmitButtonState extends State<AnimatedFormSubmitButton>
@@ -531,24 +517,17 @@ class _AnimatedFormSubmitButtonState extends State<AnimatedFormSubmitButton>
     _widthAnimation = Tween<double>(
       begin: 1.0,
       end: 0.2,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    _successAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _successController,
-      curve: Curves.elasticOut,
-    ));
+    _successAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _successController, curve: Curves.elasticOut),
+    );
   }
 
   @override
   void didUpdateWidget(AnimatedFormSubmitButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.isLoading && !oldWidget.isLoading) {
       _controller.forward();
     } else if (!widget.isLoading && oldWidget.isLoading) {
@@ -575,11 +554,11 @@ class _AnimatedFormSubmitButtonState extends State<AnimatedFormSubmitButton>
       animation: Listenable.merge([_controller, _successController]),
       builder: (context, child) {
         return GlowButton(
-          glowColor: widget.isError 
-              ? Colors.red 
-              : widget.isSuccess 
-                  ? Colors.green 
-                  : Theme.of(context).primaryColor,
+          glowColor: widget.isError
+              ? Colors.red
+              : widget.isSuccess
+              ? Colors.green
+              : Theme.of(context).primaryColor,
           child: AnimatedContainer(
             duration: AppAnimations.normal,
             width: double.infinity * _widthAnimation.value.clamp(0.2, 1.0),
@@ -590,8 +569,8 @@ class _AnimatedFormSubmitButtonState extends State<AnimatedFormSubmitButton>
                 backgroundColor: widget.isError
                     ? Colors.red
                     : widget.isSuccess
-                        ? Colors.green
-                        : Theme.of(context).primaryColor,
+                    ? Colors.green
+                    : Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                     widget.isLoading ? 28 : 12,
@@ -608,30 +587,27 @@ class _AnimatedFormSubmitButtonState extends State<AnimatedFormSubmitButton>
                       ),
                     )
                   : widget.isSuccess
-                      ? Transform.scale(
-                          scale: _successAnimation.value,
-                          child: const Icon(
-                            Icons.check,
+                  ? Transform.scale(
+                      scale: _successAnimation.value,
+                      child: const Icon(Icons.check, color: Colors.white),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (widget.icon != null) ...[
+                          Icon(widget.icon),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(
+                          widget.text,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (widget.icon != null) ...[
-                              Icon(widget.icon),
-                              const SizedBox(width: 8),
-                            ],
-                            Text(
-                              widget.text,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
                         ),
+                      ],
+                    ),
             ),
           ),
         );

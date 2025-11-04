@@ -115,7 +115,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
     ];
 
     for (var event in mockEvents) {
-      final eventDate = DateTime.utc(event.date.year, event.date.month, event.date.day);
+      final eventDate = DateTime.utc(
+        event.date.year,
+        event.date.month,
+        event.date.day,
+      );
       if (_events[eventDate] == null) {
         _events[eventDate] = [];
       }
@@ -147,10 +151,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lịch học'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Lịch học'), elevation: 0),
       body: ListView(
         children: [
           // Calendar
@@ -168,7 +169,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             calendarStyle: CalendarStyle(
               outsideDaysVisible: false,
               todayDecoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha:0.3),
+                color: Colors.blue.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.blue, width: 2),
               ),
@@ -211,35 +212,34 @@ class _CalendarScreenState extends State<CalendarScreen> {
             builder: (context, events, _) {
               return events.isEmpty
                   ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.calendar_today,
-                            size: 64,
-                            color: Colors.grey[300],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Không có sự kiện nào',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey,
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 64,
+                              color: Colors.grey[300],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              'Không có sự kiện nào',
+                              style: Theme.of(context).textTheme.bodyLarge
+                                  ?.copyWith(color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
+                    )
                   : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      final event = events[index];
-                      return _buildEventCard(context, event);
-                    },
-                  );
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        final event = events[index];
+                        return _buildEventCard(context, event);
+                      },
+                    );
             },
           ),
           const SizedBox(height: 16),
@@ -274,9 +274,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 event.getTypeLabel(),
                 style: const TextStyle(fontSize: 12),
               ),
-              backgroundColor: event.color.withValues(alpha:0.2),
+              backgroundColor: event.color.withValues(alpha: 0.2),
               labelStyle: TextStyle(color: event.color),
-              side: BorderSide(color: event.color.withValues(alpha:0.5)),
+              side: BorderSide(color: event.color.withValues(alpha: 0.5)),
             ),
           ],
         ),

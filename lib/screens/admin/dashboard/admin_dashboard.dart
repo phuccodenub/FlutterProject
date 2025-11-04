@@ -226,32 +226,8 @@ class AdminDashboard extends ConsumerWidget {
             );
           },
         ),
-        QuickActionCard(
-          icon: Icons.assessment,
-          title: 'Báo cáo',
-          subtitle: 'Xem thống kê chi tiết',
-          color: Colors.purple,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Tính năng báo cáo sẽ được cập nhật sớm'),
-              ),
-            );
-          },
-        ),
-        QuickActionCard(
-          icon: Icons.security,
-          title: 'Cài đặt hệ thống',
-          subtitle: 'Cài đặt và giám sát',
-          color: Colors.red,
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const SystemSettingsScreen(),
-              ),
-            );
-          },
-        ),
+        // Removed non-essential features: Reports and System Settings
+        // Keep only core admin functions: User Management and Course Management
       ],
     );
   }

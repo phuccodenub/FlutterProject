@@ -47,7 +47,10 @@ class StatCard extends StatelessWidget {
                   const Spacer(),
                   if (trend != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: trendUp
                             ? Colors.green.withValues(alpha: 0.1)
@@ -94,7 +97,9 @@ class StatCard extends StatelessWidget {
               child: Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+                  color: theme.textTheme.bodySmall?.color?.withValues(
+                    alpha: 0.6,
+                  ),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

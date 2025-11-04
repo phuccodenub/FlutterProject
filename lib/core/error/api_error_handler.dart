@@ -17,18 +17,19 @@ class ApiErrorHandler {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return TimeoutException(
-          message: 'Connection timeout. Please check your internet connection.'
+          message: 'Connection timeout. Please check your internet connection.',
         );
 
       case DioExceptionType.connectionError:
         return NetworkException(
-          message: 'No internet connection. Please check your network settings.'
+          message:
+              'No internet connection. Please check your network settings.',
         );
 
       case DioExceptionType.cancel:
         return ApiException(
           message: 'Request was cancelled',
-          errorCode: 'REQUEST_CANCELLED'
+          errorCode: 'REQUEST_CANCELLED',
         );
 
       case DioExceptionType.badResponse:
@@ -37,7 +38,7 @@ class ApiErrorHandler {
       case DioExceptionType.unknown:
       default:
         return NetworkException(
-          message: 'Network error: ${e.message ?? 'Unknown error'}'
+          message: 'Network error: ${e.message ?? 'Unknown error'}',
         );
     }
   }
@@ -52,10 +53,11 @@ class ApiErrorHandler {
     String? errorCode;
 
     if (data is Map<String, dynamic>) {
-      errorMessage = data['message'] ?? 
-                    data['error'] ?? 
-                    data['detail'] ?? 
-                    'Request failed';
+      errorMessage =
+          data['message'] ??
+          data['error'] ??
+          data['detail'] ??
+          'Request failed';
       errorDetails = data['errors'] ?? data['details'];
       errorCode = data['code'] ?? data['error_code'];
     } else if (data is String) {
@@ -71,22 +73,26 @@ class ApiErrorHandler {
 
       case 401:
         return AuthenticationException(
-          message: errorMessage.isNotEmpty ? errorMessage : 'Authentication required'
+          message: errorMessage.isNotEmpty
+              ? errorMessage
+              : 'Authentication required',
         );
 
       case 403:
         return AuthorizationException(
-          message: errorMessage.isNotEmpty ? errorMessage : 'Access forbidden'
+          message: errorMessage.isNotEmpty ? errorMessage : 'Access forbidden',
         );
 
       case 404:
         return NotFoundException(
-          message: errorMessage.isNotEmpty ? errorMessage : 'Resource not found'
+          message: errorMessage.isNotEmpty
+              ? errorMessage
+              : 'Resource not found',
         );
 
       case 409:
         return ConflictException(
-          message: errorMessage.isNotEmpty ? errorMessage : 'Conflict occurred'
+          message: errorMessage.isNotEmpty ? errorMessage : 'Conflict occurred',
         );
 
       case 422:
@@ -108,12 +114,16 @@ class ApiErrorHandler {
       case 503:
       case 504:
         return ServerException(
-          message: errorMessage.isNotEmpty ? errorMessage : 'Server error occurred'
+          message: errorMessage.isNotEmpty
+              ? errorMessage
+              : 'Server error occurred',
         );
 
       default:
         return ApiException(
-          message: errorMessage.isNotEmpty ? errorMessage : 'Request failed with status $statusCode',
+          message: errorMessage.isNotEmpty
+              ? errorMessage
+              : 'Request failed with status $statusCode',
           statusCode: statusCode,
           errorCode: errorCode,
           details: errorDetails,
@@ -140,33 +150,35 @@ class ApiErrorHandler {
     switch (exception.errorCode) {
       case 'NETWORK_ERROR':
         return 'Please check your internet connection and try again.';
-      
+
       case 'AUTHENTICATION_ERROR':
         return 'Please log in again to continue.';
-      
+
       case 'AUTHORIZATION_ERROR':
         return 'You don\'t have permission to perform this action.';
-      
+
       case 'VALIDATION_ERROR':
         return _formatValidationError(exception);
-      
+
       case 'NOT_FOUND':
         return 'The requested item could not be found.';
-      
+
       case 'CONFLICT':
         return 'This action conflicts with current data. Please refresh and try again.';
-      
+
       case 'SERVER_ERROR':
         return 'Server is currently unavailable. Please try again later.';
-      
+
       case 'TIMEOUT_ERROR':
         return 'Request timed out. Please check your connection and try again.';
-      
+
       case 'RATE_LIMIT_EXCEEDED':
         return 'Too many requests. Please wait a moment before trying again.';
-      
+
       default:
-        return exception.message.isNotEmpty ? exception.message : 'An error occurred. Please try again.';
+        return exception.message.isNotEmpty
+            ? exception.message
+            : 'An error occurred. Please try again.';
     }
   }
 
@@ -180,13 +192,15 @@ class ApiErrorHandler {
           errors.add('• $messages');
         }
       });
-      
+
       if (errors.isNotEmpty) {
         return 'Please fix the following issues:\n${errors.join('\n')}';
       }
     }
-    
-    return exception.message.isNotEmpty ? exception.message : 'Please check your input and try again.';
+
+    return exception.message.isNotEmpty
+        ? exception.message
+        : 'Please check your input and try again.';
   }
 
   /// Check if error is recoverable (user can retry)
@@ -197,14 +211,14 @@ class ApiErrorHandler {
       case 'SERVER_ERROR':
       case 'REQUEST_CANCELLED':
         return true;
-      
+
       case 'AUTHENTICATION_ERROR':
       case 'AUTHORIZATION_ERROR':
       case 'VALIDATION_ERROR':
       case 'NOT_FOUND':
       case 'CONFLICT':
         return false;
-      
+
       default:
         return exception.statusCode != null && exception.statusCode! >= 500;
     }
@@ -212,7 +226,7 @@ class ApiErrorHandler {
 
   /// Check if error requires re-authentication
   static bool requiresReauth(ApiException exception) {
-    return exception.errorCode == 'AUTHENTICATION_ERROR' || 
-           exception.statusCode == 401;
+    return exception.errorCode == 'AUTHENTICATION_ERROR' ||
+        exception.statusCode == 401;
   }
 }

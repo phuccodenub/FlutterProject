@@ -135,9 +135,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
       attachmentName: attachmentName,
       attachmentSize: attachmentSize,
     );
-    final list = List<ChatMessage>.from(state.messagesByCourse[courseId] ?? const []);
+    final list = List<ChatMessage>.from(
+      state.messagesByCourse[courseId] ?? const [],
+    );
     list.add(msg);
-    state = state.copyWith(messagesByCourse: {...state.messagesByCourse, courseId: list});
+    state = state.copyWith(
+      messagesByCourse: {...state.messagesByCourse, courseId: list},
+    );
 
     // Clear typing indicator for this user
     setTyping(courseId, userId, false);
@@ -152,9 +156,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
         message: 'Thanks for your message!',
         timestamp: DateTime.now(),
       );
-      final l2 = List<ChatMessage>.from(state.messagesByCourse[courseId] ?? const []);
+      final l2 = List<ChatMessage>.from(
+        state.messagesByCourse[courseId] ?? const [],
+      );
       l2.add(reply);
-      state = state.copyWith(messagesByCourse: {...state.messagesByCourse, courseId: l2});
+      state = state.copyWith(
+        messagesByCourse: {...state.messagesByCourse, courseId: l2},
+      );
     });
   }
 
@@ -166,7 +174,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
     } else {
       currentTypers.remove(userId);
     }
-    state = state.copyWith(typingUsers: {...state.typingUsers, courseId: currentTypers});
+    state = state.copyWith(
+      typingUsers: {...state.typingUsers, courseId: currentTypers},
+    );
 
     // Auto-clear after timeout
     if (isTyping) {
@@ -187,7 +197,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   // Last seen per user
   void updateLastSeen(int userId) {
-    state = state.copyWith(lastSeenMap: {...state.lastSeenMap, userId: DateTime.now()});
+    state = state.copyWith(
+      lastSeenMap: {...state.lastSeenMap, userId: DateTime.now()},
+    );
   }
 
   DateTime? lastSeenOf(int userId) => state.lastSeenMap[userId];
@@ -203,7 +215,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
     return '${diff.inDays}d ago';
   }
 
-  void simulateOnlineUsers(String courseId, {String currentUserRole = 'student'}) {
+  void simulateOnlineUsers(
+    String courseId, {
+    String currentUserRole = 'student',
+  }) {
     final base = <OnlineUser>[
       OnlineUser(
         id: 1,
@@ -237,7 +252,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final list = currentUserRole == 'student'
         ? base
         : base.where((u) => u.role == 'student').toList();
-    state = state.copyWith(onlineUsersByCourse: {...state.onlineUsersByCourse, courseId: list});
+    state = state.copyWith(
+      onlineUsersByCourse: {...state.onlineUsersByCourse, courseId: list},
+    );
 
     // Update lastSeenMap
     final newLastSeen = {...state.lastSeenMap};
@@ -256,4 +273,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 }
 
-final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) => ChatNotifier());
+final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>(
+  (ref) => ChatNotifier(),
+);

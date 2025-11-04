@@ -20,7 +20,7 @@ class AnimationPerformance {
   /// Check if system reduce animations is enabled
   static bool _isReduceAnimationsEnabled() {
     return MediaQueryData.fromView(
-      WidgetsBinding.instance.platformDispatcher.views.first
+      WidgetsBinding.instance.platformDispatcher.views.first,
     ).disableAnimations;
   }
 
@@ -32,7 +32,9 @@ class AnimationPerformance {
     String? debugLabel,
   }) {
     return AnimationController(
-      duration: shouldEnableAnimations ? duration : const Duration(milliseconds: 1),
+      duration: shouldEnableAnimations
+          ? duration
+          : const Duration(milliseconds: 1),
       reverseDuration: reverseDuration,
       vsync: vsync,
       debugLabel: debugLabel,
@@ -89,7 +91,8 @@ mixin AnimationDisposalMixin<T extends StatefulWidget> on State<T> {
 
 /// Performance monitor for animations
 class AnimationPerformanceMonitor {
-  static final AnimationPerformanceMonitor _instance = AnimationPerformanceMonitor._internal();
+  static final AnimationPerformanceMonitor _instance =
+      AnimationPerformanceMonitor._internal();
   factory AnimationPerformanceMonitor() => _instance;
   AnimationPerformanceMonitor._internal();
 
@@ -108,10 +111,12 @@ class AnimationPerformanceMonitor {
 
   void _onFrame(Duration timestamp) {
     _totalFrames++;
-    final frameTime = timestamp.inMicroseconds / 1000.0; // Convert to milliseconds
+    final frameTime =
+        timestamp.inMicroseconds / 1000.0; // Convert to milliseconds
 
     _frameTimes.add(frameTime);
-    if (_frameTimes.length > 120) { // Keep last 2 seconds of frames
+    if (_frameTimes.length > 120) {
+      // Keep last 2 seconds of frames
       _frameTimes.removeAt(0);
     }
 
@@ -179,7 +184,7 @@ class _AnimationPreloaderState extends State<AnimationPreloader> {
     }
 
     await Future.delayed(widget.preloadDuration);
-    
+
     if (mounted) {
       setState(() {
         _isPreloaded = true;
@@ -216,10 +221,14 @@ class AdaptiveAnimation {
 
     if (fps < 30) {
       // Reduce animation duration for poor performance
-      return Duration(milliseconds: (baseDuration.inMilliseconds * 0.5).round());
+      return Duration(
+        milliseconds: (baseDuration.inMilliseconds * 0.5).round(),
+      );
     } else if (fps < 45) {
       // Slightly reduce duration
-      return Duration(milliseconds: (baseDuration.inMilliseconds * 0.75).round());
+      return Duration(
+        milliseconds: (baseDuration.inMilliseconds * 0.75).round(),
+      );
     }
 
     return baseDuration;

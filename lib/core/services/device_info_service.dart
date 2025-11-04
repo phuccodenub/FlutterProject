@@ -10,10 +10,10 @@ class DeviceInfoService {
   DeviceInfoService._internal();
 
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
-  
+
   AndroidDeviceInfo? _androidInfo;
   IosDeviceInfo? _iosInfo;
-  
+
   AndroidDeviceInfo? get androidInfo => _androidInfo;
   IosDeviceInfo? get iosInfo => _iosInfo;
 
@@ -22,10 +22,14 @@ class DeviceInfoService {
     try {
       if (Platform.isAndroid) {
         _androidInfo = await _deviceInfo.androidInfo;
-        debugPrint('✅ Android Device: ${_androidInfo?.brand} ${_androidInfo?.model}');
+        debugPrint(
+          '✅ Android Device: ${_androidInfo?.brand} ${_androidInfo?.model}',
+        );
       } else if (Platform.isIOS) {
         _iosInfo = await _deviceInfo.iosInfo;
-        debugPrint('✅ iOS Device: ${_iosInfo?.model} - ${_iosInfo?.systemVersion}');
+        debugPrint(
+          '✅ iOS Device: ${_iosInfo?.model} - ${_iosInfo?.systemVersion}',
+        );
       }
     } catch (e) {
       debugPrint('❌ Error initializing device info: $e');
@@ -117,7 +121,8 @@ class DeviceInfoService {
     // Simple heuristic: screen diagonal > 7 inches
     final data = WidgetsBinding.instance.platformDispatcher.views.first;
     final size = data.physicalSize / data.devicePixelRatio;
-    final diagonal = (size.width * size.width + size.height * size.height).squareRoot;
+    final diagonal =
+        (size.width * size.width + size.height * size.height).squareRoot;
     return diagonal > 600; // roughly 7 inches
   }
 
@@ -138,19 +143,21 @@ class DeviceInfoService {
     buffer.writeln('Device Model: ${getDeviceModel()}');
     buffer.writeln('OS Version: ${getOSVersion()}');
     buffer.writeln('Physical Device: ${isPhysicalDevice()}');
-    
+
     if (Platform.isAndroid && _androidInfo != null) {
       buffer.writeln('Android SDK: ${_androidInfo!.version.sdkInt}');
       buffer.writeln('Manufacturer: ${_androidInfo!.manufacturer}');
     } else if (Platform.isIOS && _iosInfo != null) {
       buffer.writeln('iOS Name: ${_iosInfo!.name}');
     }
-    
+
     return buffer.toString();
   }
 }
 
 // Extension on num for squareRoot
 extension NumExt on num {
-  double get squareRoot => this >= 0 ? toDouble() : throw ArgumentError('Cannot calculate square root of negative number');
+  double get squareRoot => this >= 0
+      ? toDouble()
+      : throw ArgumentError('Cannot calculate square root of negative number');
 }

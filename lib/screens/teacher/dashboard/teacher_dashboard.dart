@@ -7,7 +7,7 @@ import '../../../core/widgets/stat_card.dart';
 import '../../../core/widgets/progress_card.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/info_card.dart';
-import '../quiz/quiz_creation_screen.dart';
+
 
 class TeacherDashboard extends ConsumerWidget {
   const TeacherDashboard({super.key, required this.user});
@@ -158,38 +158,18 @@ class TeacherDashboard extends ConsumerWidget {
             crossAxisSpacing: 12,
             children: [
               QuickActionCard(
-                icon: Icons.videocam,
-                title: 'Live Stream',
-                subtitle: 'Bắt đầu buổi học trực tuyến',
-                color: Colors.red,
-                onTap: () {
-                  // TODO: Start livestream
-                },
+                icon: Icons.school,
+                title: 'Quản lý khóa học',
+                subtitle: 'Xem và chỉnh sửa khóa học',
+                color: Colors.blue,
+                onTap: () => context.go('/teacher/courses'),
               ),
               QuickActionCard(
                 icon: Icons.add_circle_outline,
-                title: 'Tạo thông báo',
-                subtitle: 'Gửi thông báo đến sinh viên',
-                color: Colors.orange,
-                onTap: () {
-                  // TODO: Create announcement
-                },
-              ),
-              QuickActionCard(
-                icon: Icons.quiz,
-                title: 'Tạo bài kiểm tra',
-                subtitle: 'Tạo quiz và bài tập',
-                color: Colors.purple,
-                onTap: () => _createQuiz(context),
-              ),
-              QuickActionCard(
-                icon: Icons.people,
-                title: 'Sinh viên',
-                subtitle: 'Xem danh sách sinh viên',
-                color: Colors.blue,
-                onTap: () {
-                  // TODO: View students
-                },
+                title: 'Tạo khóa học',
+                subtitle: 'Tạo khóa học mới',
+                color: Colors.green,
+                onTap: () => context.go('/create-course'),
               ),
             ],
           ),
@@ -356,9 +336,7 @@ class TeacherDashboard extends ConsumerWidget {
     );
   }
 
-  void _createQuiz(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const QuizCreationScreen()));
-  }
+  // Removed unused methods for non-core features:
+  // _startLivestream, _createAnnouncement, _viewStudents, _createQuiz
+  // These features are not part of the core LMS MVP
 }

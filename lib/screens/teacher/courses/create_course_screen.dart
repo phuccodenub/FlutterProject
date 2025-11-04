@@ -1,11 +1,15 @@
 import 'dart:io';
-import 'package:uuid/uuid.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/widgets/section_header.dart';
-import '../../../features/courses/course_model.dart';
+import '../../../core/utils/error_ui.dart';
+
+import '../../../features/courses/providers/course_provider.dart';
+import '../../../features/courses/services/course_service.dart';
+import '../../../features/auth/auth_state.dart';
 
 class CreateCourseScreen extends ConsumerStatefulWidget {
   const CreateCourseScreen({super.key});
@@ -20,16 +24,33 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
   final _descriptionController = TextEditingController();
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
+  final _priceController = TextEditingController(text: '0');
+  final _durationController = TextEditingController(text: '40');
 
   String? _selectedCategory;
+  String _selectedLevel = 'beginner';
+  bool _isFree = true;
   File? _pickedImage;
 
-  final List<String> _categories = [
-    'Lập trình di động',
-    'Phát triển Web',
-    'Khoa học dữ liệu',
-    'Thiết kế UI/UX',
+
+  final List<String> _levels = [
+    'beginner',
+    'intermediate', 
+    'advanced',
   ];
+
+  String _getLevelDisplayName(String level) {
+    switch (level) {
+      case 'beginner':
+        return 'Cơ bản';
+      case 'intermediate':
+        return 'Trung cấp';
+      case 'advanced':
+        return 'Nâng cao';
+      default:
+        return 'Cơ bản';
+    }
+  }
 
   @override
   void dispose() {
@@ -37,6 +58,8 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
     _descriptionController.dispose();
     _startDateController.dispose();
     _endDateController.dispose();
+    _priceController.dispose();
+    _durationController.dispose();
     super.dispose();
   }
 
@@ -77,7 +100,7 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     // if (_formKey.currentState!.validate()) {
     //   if (_pickedImage == null) {
     //     ScaffoldMessenger.of(context).showSnackBar(
@@ -106,49 +129,80 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
       return; // Dừng lại nếu form không hợp lệ
     }
     if (_pickedImage == null) {
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-  //         content: Text('Khóa học đã được tạo thành công!'),
-  //         backgroundColor: Colors.green,
-  //       ),
-  //     );
+          //         content: Text('Khóa học đã được tạo thành công!'),
+          //         backgroundColor: Colors.green,
+          //       ),
+          //     );
 
-  //     context.pop();
-  //   }
-  // }
-        content: Text('Vui lòng chọn ảnh bìa cho khóa học.'),
+          //     context.pop();
+          //   }
+          // }
+          content: Text('Vui lòng chọn ảnh bìa cho khóa học.'),
           backgroundColor: Colors.redAccent,
         ),
       );
       return;
-
     }
 
-    // 2. Tạo đối tượng Course từ dữ liệu đã nhập
-    final newCourse = Course(
-      id: const Uuid().v4(), // Tạo một ID ngẫu nhiên, duy nhất
-      title: _titleController.text,
-      description: _descriptionController.text,
-      imageFile: _pickedImage,
-      // Dữ liệu giả định cho các trường còn thiếu trong form
-      code: 'NEW101',
-      instructorName: 'Tên giáo viên', // Trong thực tế sẽ lấy từ provider user
+    // 2. Get current user info
+    final auth = ref.read(authProvider);
+    final currentUser = auth.user;
+
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng đăng nhập để tạo khóa học'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // 3. Create course data object
+    final price = _isFree ? 0.0 : double.tryParse(_priceController.text) ?? 0.0;
+    final duration = int.tryParse(_durationController.text) ?? 40;
+    
+    final courseData = CourseCreateData(
+      title: _titleController.text.trim(),
+      description: _descriptionController.text.trim(),
+      shortDescription: _descriptionController.text.trim().length > 100
+          ? '${_descriptionController.text.trim().substring(0, 100)}...'
+          : _descriptionController.text.trim(),
+      categoryId: _selectedCategory, // Add selected category
+      level: _selectedLevel,
+      language: 'vi',
+      price: price,
+      currency: 'VND',
+      isFree: _isFree,
+      isFeatured: false,
+      durationHours: duration,
+      prerequisites: [],
+      learningObjectives: [],
+      tags: _selectedCategory != null ? [_selectedCategory!] : [],
     );
 
-    // 3. Điều hướng đến màn hình chi tiết và gửi đối tượng Course
-    // Sử dụng context.push để có thể nhấn nút back quay lại
-    context.push(
-      '/teacher/courses/${newCourse.id}', // Điều hướng tới URL của khóa học mới
-      extra: newCourse, // <-- Đây là cách truyền đối tượng qua GoRouter
-    );
+    try {
+      // 4. Call CourseManagementService to create course
+      final courseManagement = ref.read(courseManagementProvider);
+      await courseManagement.createCourse(courseData);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Khóa học đã được tạo thành công!'),
-        backgroundColor: Colors.green,
-      ),
-    );
+      // 5. Refresh courses list
+      ref.invalidate(coursesProvider);
+
+      if (mounted) {
+        // 6. Show success message and navigate back
+        ErrorUI.showSuccessSnackBar(context, 'Khóa học đã được tạo thành công!');
+
+        // Navigate back to teacher courses screen
+        context.go('/teacher/courses');
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorUI.showErrorSnackBar(context, e);
+      }
+    }
   }
 
   @override
@@ -218,6 +272,18 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
         const SizedBox(height: 16),
         _buildDropdown(),
         const SizedBox(height: 12),
+        _buildLevelDropdown(),
+        const SizedBox(height: 12),
+        _buildTextField(
+          controller: _durationController,
+          label: 'Thời lượng (giờ)',
+          hint: 'Ví dụ: 40',
+          icon: Icons.access_time_outlined,
+          keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 12),
+        _buildPricingSection(),
+        const SizedBox(height: 12),
         _buildDatePickerField(
           controller: _startDateController,
           label: 'Ngày bắt đầu',
@@ -279,10 +345,12 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
     required String hint,
     required IconData icon,
     int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      keyboardType: keyboardType,
       decoration: _inputDecoration(label, hint, icon),
       validator: (value) =>
           value == null || value.isEmpty ? '$label không được để trống' : null,
@@ -290,23 +358,49 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
   }
 
   DropdownButtonFormField<String> _buildDropdown() {
-    return DropdownButtonFormField(
-      decoration: _inputDecoration(
-        'Danh mục',
-        'Chọn danh mục khóa học',
-        Icons.category_outlined,
+    final categoriesAsync = ref.watch(categoriesProvider);
+    return categoriesAsync.when(
+      data: (categories) {
+        final items = categories
+            .map(
+              (c) => DropdownMenuItem<String>(
+                value: c.slug ?? c.id,
+                child: Text(c.name),
+              ),
+            )
+            .toList();
+
+        return DropdownButtonFormField<String>(
+          decoration: _inputDecoration(
+            'Danh mục',
+            'Chọn danh mục khóa học',
+            Icons.category_outlined,
+          ),
+          // ignore: deprecated_member_use
+          value: _selectedCategory,
+          items: items,
+          onChanged: (newValue) => setState(() => _selectedCategory = newValue),
+          validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
+        );
+      },
+      loading: () => DropdownButtonFormField<String>(
+        decoration: _inputDecoration(
+          'Danh mục',
+          'Đang tải danh mục...',
+          Icons.category_outlined,
+        ),
+        items: const [],
+        onChanged: null,
       ),
-      initialValue: _selectedCategory,
-      items: _categories
-          .map(
-            (category) => DropdownMenuItem<String>(
-              value: category,
-              child: Text(category),
-            ),
-          )
-          .toList(),
-      onChanged: (newValue) => setState(() => _selectedCategory = newValue),
-      validator: (value) => value == null ? 'Vui lòng chọn danh mục' : null,
+      error: (error, stack) => DropdownButtonFormField<String>(
+        decoration: _inputDecoration(
+          'Danh mục',
+          'Không thể tải danh mục',
+          Icons.category_outlined,
+        ),
+        items: const [],
+        onChanged: null,
+      ),
     );
   }
 
@@ -386,4 +480,48 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
             ),
     );
   }
+
+  Widget _buildLevelDropdown() {
+    return DropdownButtonFormField<String>(
+      decoration: _inputDecoration('Cấp độ', 'Chọn cấp độ khóa học', Icons.school_outlined),
+      // ignore: deprecated_member_use
+      value: _selectedLevel,
+      items: _levels
+          .map(
+            (level) => DropdownMenuItem<String>(
+              value: level,
+              child: Text(_getLevelDisplayName(level)),
+            ),
+          )
+          .toList(),
+      onChanged: (newValue) => setState(() => _selectedLevel = newValue!),
+    );
+  }
+
+  Widget _buildPricingSection() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Checkbox(
+              value: _isFree,
+              onChanged: (value) => setState(() => _isFree = value!),
+            ),
+            const Text('Khóa học miễn phí'),
+          ],
+        ),
+        if (!_isFree) ...[
+          const SizedBox(height: 8),
+          _buildTextField(
+            controller: _priceController,
+            label: 'Giá khóa học (VND)',
+            hint: 'Ví dụ: 500000',
+            icon: Icons.attach_money_outlined,
+            keyboardType: TextInputType.number,
+          ),
+        ],
+      ],
+    );
+  }
+
 }

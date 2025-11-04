@@ -1,7 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatbotMessage {
-  const ChatbotMessage({required this.id, required this.type, required this.content});
+  const ChatbotMessage({
+    required this.id,
+    required this.type,
+    required this.content,
+  });
   final String id; // msg-xxx
   final String type; // user | bot
   final String content;
@@ -31,7 +35,9 @@ class ChatbotNotifier extends StateNotifier<ChatbotState> {
         type: 'bot',
         content: 'Bạn hỏi: "$text"\nĐây là phản hồi demo của trợ lý.',
       );
-      state = ChatbotState(messages: List<ChatbotMessage>.from(state.messages)..add(reply));
+      state = ChatbotState(
+        messages: List<ChatbotMessage>.from(state.messages)..add(reply),
+      );
     });
   }
 }

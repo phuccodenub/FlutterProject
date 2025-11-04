@@ -1,4 +1,15 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "apply": "Apply",
+    "close": "Close",
+    "save": "Save",
+    "create": "Create",
+    "clear": "Clear",
+    "reset": "Reset",
+    "ok": "OK"
+  },
   "home": {
     "title": "Real-Time LMS",
     "subtitle": "A modern learning management system with real-time chat, live streaming, and interactive quizzes. Perfect for engaging online education experiences.",
@@ -19,8 +30,135 @@
       "password": "Password",
       "submit": "Create Account"
     }
+  },
+  "systemSettings": {
+    "title": "System Settings",
+    "debugMode": "Debug Mode",
+    "allowRegistrationOn": "Registration enabled",
+    "allowRegistrationOff": "Registration disabled",
+    "debugModeOn": "Debug Mode enabled",
+    "debugModeOff": "Debug Mode disabled",
+    "maintenanceTitle": "Maintenance Mode",
+    "maintenanceMessage": "Are you sure you want to enable maintenance mode? All users will be unable to access the system.",
+    "enabledMaintenance": "Maintenance mode enabled",
+    "cancel": "Cancel",
+    "enable": "Enable"
+  },
+  "security": {
+    "title": "Account Security",
+    "changePassword": "Change Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "enterCurrentPassword": "Please enter your current password",
+    "enterNewPassword": "Please enter a new password",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "confirmNotMatch": "Confirmation does not match",
+    "updating": "Updating...",
+    "updatePassword": "Update password",
+    "changePasswordSuccess": "Password changed successfully",
+    "changePasswordFailed": "Failed to change password",
+    "biometricsTitle": "Sign in with biometrics",
+    "comingSoon": "Coming soon",
+    "twoFactor": "Two-Factor Authentication (2FA)",
+    "activeSessions": "Active Sessions",
+    "refresh": "Refresh",
+    "noSessions": "No active sessions",
+    "current": "Current",
+    "logout": "Log out",
+    "loadSessionsError": "Failed to load sessions: {0}",
+    "sessionsErrorSnack": "Error loading sessions: {0}",
+    "logoutSuccess": "Session has been logged out",
+    "logoutFailed": "Cannot log out session: {0}",
+    "relative": {
+      "now": "Just now",
+      "minutesAgo": "{0} minutes ago",
+      "hoursAgo": "{0} hours ago",
+      "daysAgo": "{0} days ago"
+    }
+  },
+  "chat": {
+    "menu": {
+      "copy": "Copy",
+      "copied": "Message copied",
+      "reply": "Reply",
+      "markAsRead": "Mark as read"
+    },
+    "download": {
+      "downloading": "Downloading {file}...",
+      "failed": "Failed to download file: {error}",
+      "dialogTitle": "Downloading",
+      "progress": "{percent}%",
+      "openFailed": "Could not open file"
+    }
+  },
+  "admin": {
+    
+    "filters": {
+      "active": "Filtering: {0}",
+      "applied": "Filters applied",
+      "cleared": "Filters cleared"
+    },
+    "users": {
+      "title": "User Management",
+      "tabs": {
+        "student": "Students",
+        "instructor": "Instructors",
+        "admin": "Administrators"
+      },
+      "menu": {
+        "export": "Export list",
+        "import": "Import from file",
+        "settings": "Settings",
+        "view": "View details",
+        "edit": "Edit",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "reset_password": "Reset password",
+        "delete": "Delete"
+      },
+      "exporting": "Exporting users...",
+      "openSettings": "Opening user management settings...",
+      "passwordResetSent": "A new password has been emailed",
+      "deleted": "User deleted",
+      "created": "User created successfully",
+      "updated": "User updated",
+      "activated": "Account activated",
+      "deactivated": "Account deactivated",
+      "importComingSoon": "Import feature coming soon"
+    },
+    "courses": {
+      "title": "Course Management",
+      "tabs": {
+        "active": "Active",
+        "pending": "Pending Approval",
+        "suspended": "Suspended"
+      },
+      "menu": {
+        "export": "Export report",
+        "categories": "Manage categories",
+        "settings": "Settings",
+        "view": "View details",
+        "edit": "Edit",
+        "analytics": "Analytics",
+        "suspend": "Suspend",
+        "delete": "Delete",
+        "approve": "Approve",
+        "reject": "Reject",
+        "feedback": "Send feedback",
+        "restore": "Restore",
+        "delete_permanent": "Delete permanently"
+      },
+      "exporting": "Exporting course report...",
+      "openCategoryManager": "Opening category manager...",
+      "openCourseSettings": "Opening course settings...",
+      "openAnalytics": "Opening course analytics...",
+      "restored": "Course restored",
+      "approved": "Course approved",
+      "rejected": "Course rejected",
+      "paused": "Course paused",
+      "deleted": "Course deleted",
+      "goToDetail": "Go to course detail"
+    }
   }
 }
-
-
-

@@ -73,7 +73,8 @@ class AnimatedThemeWidget extends ConsumerStatefulWidget {
   const AnimatedThemeWidget({super.key, required this.child});
 
   @override
-  ConsumerState<AnimatedThemeWidget> createState() => _AnimatedThemeWidgetState();
+  ConsumerState<AnimatedThemeWidget> createState() =>
+      _AnimatedThemeWidgetState();
 }
 
 class _AnimatedThemeWidgetState extends ConsumerState<AnimatedThemeWidget>
@@ -85,7 +86,7 @@ class _AnimatedThemeWidgetState extends ConsumerState<AnimatedThemeWidget>
   @override
   void initState() {
     super.initState();
-    
+
     _colorController = AnimationController(
       duration: AppAnimations.normal,
       vsync: this,
@@ -100,8 +101,6 @@ class _AnimatedThemeWidgetState extends ConsumerState<AnimatedThemeWidget>
       parent: _colorController,
       curve: Curves.easeInOut,
     );
-
-
   }
 
   @override
@@ -133,8 +132,12 @@ class _AnimatedThemeWidgetState extends ConsumerState<AnimatedThemeWidget>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.1 * _colorAnimation.value),
-                      Colors.white.withValues(alpha: 0.1 * _colorAnimation.value),
+                      Colors.black.withValues(
+                        alpha: 0.1 * _colorAnimation.value,
+                      ),
+                      Colors.white.withValues(
+                        alpha: 0.1 * _colorAnimation.value,
+                      ),
                     ],
                   )
                 : null,
@@ -173,7 +176,7 @@ class _ThemeToggleButtonState extends ConsumerState<ThemeToggleButton>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -187,18 +190,11 @@ class _ThemeToggleButtonState extends ConsumerState<ThemeToggleButton>
     _rotationAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
+    );
 
     _colorAnimation = ColorTween(
       begin: Colors.orange,
@@ -239,13 +235,18 @@ class _ThemeToggleButtonState extends ConsumerState<ThemeToggleButton>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      (_colorAnimation.value ?? Colors.orange).withValues(alpha: 0.2),
-                      (_colorAnimation.value ?? Colors.orange).withValues(alpha: 0.05),
+                      (_colorAnimation.value ?? Colors.orange).withValues(
+                        alpha: 0.2,
+                      ),
+                      (_colorAnimation.value ?? Colors.orange).withValues(
+                        alpha: 0.05,
+                      ),
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (_colorAnimation.value ?? Colors.orange).withValues(alpha: 0.3),
+                      color: (_colorAnimation.value ?? Colors.orange)
+                          .withValues(alpha: 0.3),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),
@@ -254,8 +255,9 @@ class _ThemeToggleButtonState extends ConsumerState<ThemeToggleButton>
                 child: Icon(
                   themeState.isDark ? Icons.light_mode : Icons.dark_mode,
                   size: widget.size,
-                  color: _colorAnimation.value ?? 
-                         (themeState.isDark ? Colors.orange : Colors.blue),
+                  color:
+                      _colorAnimation.value ??
+                      (themeState.isDark ? Colors.orange : Colors.blue),
                 ),
               ),
             ),
@@ -297,10 +299,7 @@ class _AnimatedIconThemeState extends ConsumerState<AnimatedIconTheme>
       vsync: this,
     );
 
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
   @override
@@ -341,7 +340,7 @@ class _AnimatedIconThemeState extends ConsumerState<AnimatedIconTheme>
                 ),
               ),
             ),
-            
+
             // Dark icon
             Transform.scale(
               scale: _animation.value,
@@ -367,7 +366,8 @@ class ThemeTransitionOverlay extends ConsumerStatefulWidget {
   const ThemeTransitionOverlay({super.key, required this.child});
 
   @override
-  ConsumerState<ThemeTransitionOverlay> createState() => _ThemeTransitionOverlayState();
+  ConsumerState<ThemeTransitionOverlay> createState() =>
+      _ThemeTransitionOverlayState();
 }
 
 class _ThemeTransitionOverlayState extends ConsumerState<ThemeTransitionOverlay>
@@ -411,7 +411,7 @@ class _ThemeTransitionOverlayState extends ConsumerState<ThemeTransitionOverlay>
     return Stack(
       children: [
         widget.child,
-        
+
         // Transition overlay
         if (themeState.isTransitioning)
           AnimatedBuilder(
@@ -434,10 +434,12 @@ class AnimatedBackgroundGradient extends ConsumerStatefulWidget {
   const AnimatedBackgroundGradient({super.key, required this.child});
 
   @override
-  ConsumerState<AnimatedBackgroundGradient> createState() => _AnimatedBackgroundGradientState();
+  ConsumerState<AnimatedBackgroundGradient> createState() =>
+      _AnimatedBackgroundGradientState();
 }
 
-class _AnimatedBackgroundGradientState extends ConsumerState<AnimatedBackgroundGradient>
+class _AnimatedBackgroundGradientState
+    extends ConsumerState<AnimatedBackgroundGradient>
     with SingleTickerProviderStateMixin {
   late AnimationController _gradientController;
   late Animation<double> _gradientAnimation;

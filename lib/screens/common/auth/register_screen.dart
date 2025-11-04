@@ -1,9 +1,9 @@
-// ignore_for_file: deprecated_member_use
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/auth/auth_state.dart';
+import '../../../features/auth/models/user_model.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
@@ -397,11 +397,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   _selectedRole = value;
                 });
               },
-              child: Radio<String>(
-                value: value,
-                groupValue: _selectedRole,
-                onChanged: (_) {},
-                activeColor: color,
+              child: Icon(
+                _selectedRole == value
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                color: _selectedRole == value ? color : AppColors.grey500,
               ),
             ),
           ],
@@ -451,24 +451,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Parse name into first and last name
+      final fullName = _nameController.text.trim();
+      final nameParts = fullName.split(' ');
+      final firstName = nameParts.first;
+      final lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : '';
 
-      // TODO: Implement actual registration API call
-      // final success = await AuthService.register({
-      //   'name': _nameController.text.trim(),
-      //   'email': _emailController.text.trim(),
-      //   'password': _passwordController.text,
-      //   'phone': _phoneController.text.trim(),
-      //   'role': _selectedRole,
-      // });
+      // Convert role string to UserRole enum
+      UserRole userRole;
+      switch (_selectedRole) {
+        case 'instructor':
+          userRole = UserRole.instructor;
+          break;
+        case 'admin':
+          userRole = UserRole.admin;
+          break;
+        case 'student':
+        default:
+          userRole = UserRole.student;
+          break;
+      }
 
-      // Demo: Auto login after registration
-      await ref
+      // Call real registration API
+      final success = await ref
           .read(authProvider.notifier)
-          .login(_emailController.text.trim(), _passwordController.text);
+          .register(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+            firstName: firstName,
+            lastName: lastName,
+            role: userRole,
+          );
 
-      if (mounted) {
+      if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -484,6 +501,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         );
 
         context.go('/dashboard');
+      } else if (!success && mounted) {
+        // Registration failed - show error from auth state
+        final authState = ref.read(authProvider);
+        final errorMessage =
+            authState.error ?? 'Đăng ký thất bại. Vui lòng thử lại.';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              errorMessage,
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.white),
+            ),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+          ),
+        );
       }
     } catch (e) {
       setState(() => _isLoading = false);

@@ -2,14 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../animations/app_animations.dart';
 
-enum PageTransitionType {
-  slide,
-  fade,
-  scale,
-  slideUp,
-  slideDown,
-  rotateScale,
-}
+enum PageTransitionType { slide, fade, scale, slideUp, slideDown, rotateScale }
 
 class CustomPageTransition {
   static CustomTransitionPage buildTransition({
@@ -74,38 +67,20 @@ class CustomPageTransition {
         );
 
       case PageTransitionType.fade:
-        return FadeTransition(
-          opacity: curvedAnimation,
-          child: child,
-        );
+        return FadeTransition(opacity: curvedAnimation, child: child);
 
       case PageTransitionType.scale:
         return ScaleTransition(
-          scale: Tween<double>(
-            begin: 0.8,
-            end: 1.0,
-          ).animate(curvedAnimation),
-          child: FadeTransition(
-            opacity: curvedAnimation,
-            child: child,
-          ),
+          scale: Tween<double>(begin: 0.8, end: 1.0).animate(curvedAnimation),
+          child: FadeTransition(opacity: curvedAnimation, child: child),
         );
 
       case PageTransitionType.rotateScale:
         return RotationTransition(
-          turns: Tween<double>(
-            begin: 0.1,
-            end: 0.0,
-          ).animate(curvedAnimation),
+          turns: Tween<double>(begin: 0.1, end: 0.0).animate(curvedAnimation),
           child: ScaleTransition(
-            scale: Tween<double>(
-              begin: 0.8,
-              end: 1.0,
-            ).animate(curvedAnimation),
-            child: FadeTransition(
-              opacity: curvedAnimation,
-              child: child,
-            ),
+            scale: Tween<double>(begin: 0.8, end: 1.0).animate(curvedAnimation),
+            child: FadeTransition(opacity: curvedAnimation, child: child),
           ),
         );
     }
@@ -187,10 +162,7 @@ class CustomPageTransition {
       child: heroTag != null
           ? Hero(
               tag: heroTag,
-              child: Material(
-                type: MaterialType.transparency,
-                child: child,
-              ),
+              child: Material(type: MaterialType.transparency, child: child),
             )
           : child,
       state: state,

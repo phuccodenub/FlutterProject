@@ -21,5 +21,6 @@ class Course {
   final String? thumbnailUrl; // Dùng cho ảnh từ server
   final int enrollmentCount;
   final File? imageFile; // Dùng cho ảnh vừa chọn từ máy
-  final String? category; // Danh mục khóa học (Programming, Design, Business, etc.)
+  final String?
+  category; // Danh mục khóa học (Programming, Design, Business, etc.)
 }

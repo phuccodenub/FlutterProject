@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,11 +27,13 @@ class SettingsScreen extends ConsumerWidget {
           const ListTile(title: Text('Language')),
           ListTile(
             title: const Text('Tiếng Việt'),
-            onTap: () => context.setLocale(const Locale('vi')),
+            onTap: () =>
+                EasyLocalization.of(context)?.setLocale(const Locale('vi')),
           ),
           ListTile(
             title: const Text('English'),
-            onTap: () => context.setLocale(const Locale('en')),
+            onTap: () =>
+                EasyLocalization.of(context)?.setLocale(const Locale('en')),
           ),
         ],
       ),
@@ -50,10 +51,13 @@ class SettingsScreen extends ConsumerWidget {
       title: Text(label),
       leading: GestureDetector(
         onTap: () => ref.read(appThemeProvider.notifier).setMode(value),
-        child: Radio<ThemeMode>(
-          value: value,
-          groupValue: theme.mode,
-          onChanged: (_) {},
+        child: Icon(
+          theme.mode == value
+              ? Icons.radio_button_checked
+              : Icons.radio_button_unchecked,
+          color: theme.mode == value
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
         ),
       ),
       onTap: () => ref.read(appThemeProvider.notifier).setMode(value),

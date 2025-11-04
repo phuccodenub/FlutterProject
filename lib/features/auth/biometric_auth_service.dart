@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 /// Biometric Authentication Service
 /// Handles fingerprint and face recognition login
 class BiometricAuthService {
-  static final BiometricAuthService _instance = BiometricAuthService._internal();
-  
+  static final BiometricAuthService _instance =
+      BiometricAuthService._internal();
+
   factory BiometricAuthService() => _instance;
   BiometricAuthService._internal();
 
   final LocalAuthentication _auth = LocalAuthentication();
-  
+
   /// Check if device supports biometric authentication
   Future<bool> canUseBiometric() async {
     try {
@@ -22,7 +23,7 @@ class BiometricAuthService {
       return false;
     }
   }
-  
+
   /// Authenticate using biometrics
   Future<bool> authenticate({
     String reason = 'Vui lòng xác thực',
@@ -43,20 +44,20 @@ class BiometricAuthService {
           useErrorDialogs: true,
         ),
       );
-      
+
       if (isAuthenticated) {
         debugPrint('✅ Biometric authentication successful');
       } else {
         debugPrint('❌ Biometric authentication failed');
       }
-      
+
       return isAuthenticated;
     } catch (e) {
       debugPrint('❌ Biometric authentication error: $e');
       return false;
     }
   }
-  
+
   /// Get available biometric types
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
@@ -66,13 +67,13 @@ class BiometricAuthService {
       return [];
     }
   }
-  
+
   /// Check if biometric is available and get type
   Future<String?> getBiometricType() async {
     try {
       final biometrics = await getAvailableBiometrics();
       if (biometrics.isEmpty) return null;
-      
+
       if (biometrics.contains(BiometricType.face)) {
         return 'face_recognition';
       } else if (biometrics.contains(BiometricType.fingerprint)) {
@@ -80,13 +81,13 @@ class BiometricAuthService {
       } else if (biometrics.contains(BiometricType.iris)) {
         return 'iris';
       }
-      
+
       return biometrics.first.toString();
     } catch (e) {
       return null;
     }
   }
-  
+
   /// Stop any ongoing authentication
   Future<void> stopAuthentication() async {
     try {

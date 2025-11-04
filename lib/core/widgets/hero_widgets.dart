@@ -34,13 +34,9 @@ class _AnimatedHeroState extends State<AnimatedHero>
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -109,7 +105,9 @@ class ProfileHero extends StatelessWidget {
         ),
         child: CircleAvatar(
           radius: radius,
-          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+          backgroundColor: Theme.of(
+            context,
+          ).primaryColor.withValues(alpha: 0.1),
           backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
           child: imageUrl == null
               ? Icon(
@@ -151,9 +149,7 @@ class CourseCardHero extends StatelessWidget {
       onTap: onTap,
       child: Card(
         elevation: elevation,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
@@ -191,28 +187,27 @@ class CourseCardHero extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                 ],
-                
+
                 Row(
                   children: [
                     Expanded(
                       child: Text(
                         title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                     if (trailing != null) trailing!,
                   ],
                 ),
-                
+
                 if (description != null) ...[
                   const SizedBox(height: 8),
                   Text(
                     description!,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -253,9 +248,7 @@ class StudentCardHero extends StatelessWidget {
       onTap: onTap,
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -266,9 +259,9 @@ class StudentCardHero extends StatelessWidget {
                 name: name,
                 radius: 24,
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,14 +275,14 @@ class StudentCardHero extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       email,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ),
-              
+
               if (status != null) ...[
                 const SizedBox(width: 12),
                 Container(
@@ -311,13 +304,9 @@ class StudentCardHero extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey[400],
-              ),
+              Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
             ],
           ),
         ),
@@ -334,9 +323,7 @@ class HeroPageTransition<T> extends PageRouteBuilder<T> {
     super.transitionDuration = const Duration(milliseconds: 400),
     super.reverseTransitionDuration = const Duration(milliseconds: 300),
     super.settings,
-  }) : super(
-          pageBuilder: (context, animation, secondaryAnimation) => child,
-        );
+  }) : super(pageBuilder: (context, animation, secondaryAnimation) => child);
 
   @override
   Widget buildTransitions(
@@ -346,18 +333,12 @@ class HeroPageTransition<T> extends PageRouteBuilder<T> {
     Widget child,
   ) {
     return FadeTransition(
-      opacity: CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeInOut,
-      ),
+      opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
       child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0.3, 0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        )),
+        position: Tween<Offset>(begin: const Offset(0.3, 0), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+            ),
         child: child,
       ),
     );
@@ -367,9 +348,7 @@ class HeroPageTransition<T> extends PageRouteBuilder<T> {
 // Helper extension for navigation with Hero animations
 extension HeroNavigation on BuildContext {
   Future<T?> pushHeroRoute<T extends Object?>(Widget page) {
-    return Navigator.of(this).push(
-      HeroPageTransition(child: page),
-    );
+    return Navigator.of(this).push(HeroPageTransition(child: page));
   }
 }
 
@@ -388,7 +367,8 @@ class SharedAxisHeroTransition extends StatefulWidget {
   });
 
   @override
-  State<SharedAxisHeroTransition> createState() => _SharedAxisHeroTransitionState();
+  State<SharedAxisHeroTransition> createState() =>
+      _SharedAxisHeroTransitionState();
 }
 
 class _SharedAxisHeroTransitionState extends State<SharedAxisHeroTransition>
@@ -399,15 +379,9 @@ class _SharedAxisHeroTransitionState extends State<SharedAxisHeroTransition>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    );
+    _controller = AnimationController(duration: widget.duration, vsync: this);
 
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
     _controller.forward();
   }
@@ -429,10 +403,7 @@ class _SharedAxisHeroTransitionState extends State<SharedAxisHeroTransition>
             offset: widget.axis == Axis.horizontal
                 ? Offset(50 * (1 - _animation.value), 0)
                 : Offset(0, 50 * (1 - _animation.value)),
-            child: Opacity(
-              opacity: _animation.value,
-              child: widget.child,
-            ),
+            child: Opacity(opacity: _animation.value, child: widget.child),
           ),
         );
       },

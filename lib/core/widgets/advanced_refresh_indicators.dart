@@ -26,19 +26,15 @@ class _WaveRefreshIndicatorState extends State<WaveRefreshIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _waveController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
-    _waveAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _waveController,
-      curve: Curves.easeInOut,
-    ));
+    _waveAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _waveController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -95,13 +91,14 @@ class WavePainter extends CustomPainter {
     final waveLength = size.width;
 
     path.moveTo(0, 0);
-    
+
     for (double x = 0; x <= waveLength; x += 1) {
-      final y = waveHeight * 
+      final y =
+          waveHeight *
           math.sin((x / waveLength * 2 * math.pi) + (progress * 2 * math.pi));
       path.lineTo(x, y);
     }
-    
+
     path.lineTo(size.width, 0);
     path.close();
 
@@ -138,19 +135,15 @@ class _SpringRefreshIndicatorState extends State<SpringRefreshIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _springController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
-    _springAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _springController,
-      curve: Curves.elasticInOut,
-    ));
+    _springAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _springController, curve: Curves.elasticInOut),
+    );
   }
 
   @override
@@ -164,7 +157,7 @@ class _SpringRefreshIndicatorState extends State<SpringRefreshIndicator>
     return RefreshIndicator(
       onRefresh: () async {
         HapticFeedback.heavyImpact();
-        
+
         // Spring animation
         _springController.forward().then((_) {
           _springController.reverse();
@@ -210,19 +203,15 @@ class _RippleRefreshIndicatorState extends State<RippleRefreshIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _rippleController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    _rippleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _rippleController,
-      curve: Curves.easeOut,
-    ));
+    _rippleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _rippleController, curve: Curves.easeOut),
+    );
   }
 
   @override
@@ -236,7 +225,7 @@ class _RippleRefreshIndicatorState extends State<RippleRefreshIndicator>
     return RefreshIndicator(
       onRefresh: () async {
         HapticFeedback.lightImpact();
-        
+
         // Ripple animation
         _rippleController.forward().then((_) {
           _rippleController.reset();
@@ -280,19 +269,19 @@ class RipplePainter extends CustomPainter {
     final radius = progress * 100;
 
     canvas.drawCircle(center, radius, paint);
-    
+
     // Multiple ripples
     if (progress > 0.3) {
       canvas.drawCircle(
-        center, 
+        center,
         (progress - 0.3) * 80,
         paint..color = color.withValues(alpha: (1.0 - progress + 0.3) * 0.2),
       );
     }
-    
+
     if (progress > 0.6) {
       canvas.drawCircle(
-        center, 
+        center,
         (progress - 0.6) * 60,
         paint..color = color.withValues(alpha: (1.0 - progress + 0.6) * 0.1),
       );

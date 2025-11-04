@@ -1,42 +1,67 @@
-import '../../features/auth/auth_state.dart';
+import '../../features/auth/models/user_model.dart';
 import '../../features/courses/course_model.dart';
 
-/// Demo Accounts for Testing
+/// Demo Accounts for Testing (Real Backend Users)
 class DemoAccounts {
   static const List<Map<String, dynamic>> accounts = [
     {
-      'email': 'student@demo.com',
-      'password': 'student123',
-      'id': 1001,
-      'fullName': 'Nguyễn Văn An',
+      'email': 'student1@example.com',
+      'password': 'Student123!',
+      'id': '00000000-0000-0000-0000-000000000011',
+      'firstName': 'Student',
+      'lastName': 'One',
+      'fullName': 'Student One',
       'role': 'student',
     },
     {
-      'email': 'instructor@demo.com',
-      'password': 'instructor123',
-      'id': 2001,
-      'fullName': 'TS. Trần Thị Bình',
-      'role': 'instructor',
+      'email': 'admin@example.com',
+      'password': 'Admin123!',
+      'id': '00000000-0000-0000-0000-000000000002',
+      'firstName': 'System',
+      'lastName': 'Admin',
+      'fullName': 'System Admin',
+      'role': 'admin',
     },
     {
-      'email': 'admin@demo.com',
-      'password': 'admin123',
-      'id': 3001,
-      'fullName': 'Administrator',
-      'role': 'admin',
+      'email': 'instructor1@example.com',
+      'password': 'Instructor123!',
+      'id': '00000000-0000-0000-0000-000000000021',
+      'firstName': 'Instructor',
+      'lastName': 'One',
+      'fullName': 'Instructor One',
+      'role': 'instructor',
     },
   ];
 
-  static User? authenticate(String email, String password) {
+  static UserModel? authenticate(String email, String password) {
     try {
       final account = accounts.firstWhere(
         (acc) => acc['email'] == email && acc['password'] == password,
       );
-      return User(
-        id: account['id'] as int,
+
+      UserRole role;
+      switch (account['role'] as String) {
+        case 'instructor':
+          role = UserRole.instructor;
+          break;
+        case 'admin':
+          role = UserRole.admin;
+          break;
+        case 'student':
+        default:
+          role = UserRole.student;
+          break;
+      }
+
+      return UserModel(
+        id: account['id'] as String,
         email: account['email'] as String,
-        fullName: account['fullName'] as String,
-        role: account['role'] as String,
+        firstName: account['firstName'] as String,
+        lastName: account['lastName'] as String,
+        role: role,
+        status: UserStatus.active,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
     } catch (e) {
       return null;
@@ -76,7 +101,8 @@ class DemoCourses {
         id: 'course-1',
         code: 'FLT101',
         title: 'Introduction to Flutter Development',
-        description: 'Learn Flutter from scratch and build beautiful cross-platform apps',
+        description:
+            'Learn Flutter from scratch and build beautiful cross-platform apps',
         instructorName: 'TS. Trần Thị Bình',
         thumbnailUrl: null,
         enrollmentCount: 245,
@@ -85,7 +111,8 @@ class DemoCourses {
         id: 'course-2',
         code: 'RCT201',
         title: 'Advanced React & TypeScript',
-        description: 'Master modern React patterns and TypeScript for production apps',
+        description:
+            'Master modern React patterns and TypeScript for production apps',
         instructorName: 'Dr. John Smith',
         thumbnailUrl: null,
         enrollmentCount: 189,
@@ -94,7 +121,8 @@ class DemoCourses {
         id: 'course-3',
         code: 'DS101',
         title: 'Data Science with Python',
-        description: 'Comprehensive guide to data analysis and machine learning',
+        description:
+            'Comprehensive guide to data analysis and machine learning',
         instructorName: 'Prof. Sarah Johnson',
         thumbnailUrl: null,
         enrollmentCount: 312,
@@ -112,7 +140,8 @@ class DemoCourses {
         id: 'course-5',
         code: 'AWS201',
         title: 'Cloud Architecture with AWS',
-        description: 'Build scalable cloud infrastructure on Amazon Web Services',
+        description:
+            'Build scalable cloud infrastructure on Amazon Web Services',
         instructorName: 'Michael Chen',
         thumbnailUrl: null,
         enrollmentCount: 156,
@@ -126,7 +155,8 @@ class DemoCourses {
         id: 'course-1',
         code: 'FLT101',
         title: 'Introduction to Flutter Development',
-        description: 'Learn Flutter from scratch and build beautiful cross-platform apps',
+        description:
+            'Learn Flutter from scratch and build beautiful cross-platform apps',
         instructorName: 'TS. Trần Thị Bình',
         thumbnailUrl: null,
         enrollmentCount: 245,
@@ -135,7 +165,8 @@ class DemoCourses {
         id: 'course-6',
         code: 'FLT301',
         title: 'Advanced Mobile Architecture',
-        description: 'Master clean architecture and advanced patterns in mobile development',
+        description:
+            'Master clean architecture and advanced patterns in mobile development',
         instructorName: 'TS. Trần Thị Bình',
         thumbnailUrl: null,
         enrollmentCount: 89,
@@ -170,15 +201,20 @@ class DemoChatData {
         'userId': 1001,
         'userName': 'Nguyễn Văn An',
         'message': 'Cảm ơn thầy! Em rất hào hứng được học Flutter.',
-        'timestamp': DateTime.now().subtract(const Duration(hours: 1, minutes: 45)),
+        'timestamp': DateTime.now().subtract(
+          const Duration(hours: 1, minutes: 45),
+        ),
       },
       {
         'id': 'msg-3',
         'courseId': courseId,
         'userId': 1002,
         'userName': 'Lê Thị Bình',
-        'message': 'Thầy có thể giải thích về StatefulWidget và StatelessWidget không ạ?',
-        'timestamp': DateTime.now().subtract(const Duration(hours: 1, minutes: 30)),
+        'message':
+            'Thầy có thể giải thích về StatefulWidget và StatelessWidget không ạ?',
+        'timestamp': DateTime.now().subtract(
+          const Duration(hours: 1, minutes: 30),
+        ),
       },
       {
         'id': 'msg-4',
@@ -187,7 +223,9 @@ class DemoChatData {
         'userName': 'TS. Trần Thị Bình',
         'message':
             'StatelessWidget dùng cho UI không thay đổi, còn StatefulWidget có thể cập nhật state. Mình sẽ demo chi tiết trong bài học tiếp theo.',
-        'timestamp': DateTime.now().subtract(const Duration(hours: 1, minutes: 15)),
+        'timestamp': DateTime.now().subtract(
+          const Duration(hours: 1, minutes: 15),
+        ),
       },
     ];
   }
@@ -267,7 +305,8 @@ class DemoQuizData {
         },
         {
           'id': 'q4',
-          'question': 'Giải thích sự khác biệt giữa hot reload và hot restart trong Flutter',
+          'question':
+              'Giải thích sự khác biệt giữa hot reload và hot restart trong Flutter',
           'type': 'essay',
           'points': 5,
         },

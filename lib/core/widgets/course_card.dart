@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../theme/app_dimensions.dart';
+import '../../features/courses/models/course_model.dart';
 import 'custom_cards.dart';
 
 class CourseCard extends StatelessWidget {
-  final dynamic course;
+  final CourseModel course;
   final VoidCallback? onTap;
   final bool isEnrolled;
   final bool showProgress;
@@ -39,7 +40,7 @@ class CourseCard extends StatelessWidget {
 
                 // Course Title
                 Text(
-                  course.title ?? 'Untitled Course',
+                  course.title,
                   style: AppTypography.h6,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -48,8 +49,10 @@ class CourseCard extends StatelessWidget {
 
                 // Course Description
                 Text(
-                  course.description ?? 'No description available',
-                  style: AppTypography.bodyMedium.copyWith(color: AppColors.grey600),
+                  course.shortDescription ?? course.description,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.grey600,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -67,11 +70,17 @@ class CourseCard extends StatelessWidget {
                     // Enrollment Count
                     Row(
                       children: [
-                        Icon(Icons.people, size: AppSizes.iconSm, color: AppColors.grey600),
+                        Icon(
+                          Icons.people,
+                          size: AppSizes.iconSm,
+                          color: AppColors.grey600,
+                        ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          '${course.enrollmentCount ?? 0}',
-                          style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
+                          '${course.totalStudents}',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.grey600,
+                          ),
                         ),
                       ],
                     ),
@@ -80,11 +89,17 @@ class CourseCard extends StatelessWidget {
                     // Rating
                     Row(
                       children: [
-                        Icon(Icons.star, size: AppSizes.iconSm, color: AppColors.warning),
+                        Icon(
+                          Icons.star,
+                          size: AppSizes.iconSm,
+                          color: AppColors.warning,
+                        ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
                           '${_getRating()}',
-                          style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.grey600,
+                          ),
                         ),
                       ],
                     ),
@@ -117,14 +132,14 @@ class CourseCard extends StatelessWidget {
       child: Stack(
         children: [
           // Placeholder or Network Image
-          if (course.imageUrl != null && course.imageUrl!.isNotEmpty)
+          if (course.thumbnailUrl != null && course.thumbnailUrl!.isNotEmpty)
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(AppRadius.md),
                 topRight: Radius.circular(AppRadius.md),
               ),
               child: Image.network(
-                course.imageUrl!,
+                course.thumbnailUrl!,
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
@@ -137,15 +152,27 @@ class CourseCard extends StatelessWidget {
             _buildPlaceholderImage(),
 
           // Category Badge
-          Positioned(top: AppSpacing.sm, left: AppSpacing.sm, child: _buildCategoryBadge()),
+          Positioned(
+            top: AppSpacing.sm,
+            left: AppSpacing.sm,
+            child: _buildCategoryBadge(),
+          ),
 
           // Favorite Button (if not enrolled)
           if (!isEnrolled)
-            Positioned(top: AppSpacing.sm, right: AppSpacing.sm, child: _buildFavoriteButton()),
+            Positioned(
+              top: AppSpacing.sm,
+              right: AppSpacing.sm,
+              child: _buildFavoriteButton(),
+            ),
 
           // Progress Badge (if enrolled)
           if (isEnrolled)
-            Positioned(top: AppSpacing.sm, right: AppSpacing.sm, child: _buildProgressBadge()),
+            Positioned(
+              top: AppSpacing.sm,
+              right: AppSpacing.sm,
+              child: _buildProgressBadge(),
+            ),
         ],
       ),
     );
@@ -172,13 +199,16 @@ class CourseCard extends StatelessWidget {
 
   Widget _buildCategoryBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       child: Text(
-        course.category ?? 'General',
+        course.categoryName ?? 'General',
         style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
       ),
     );
@@ -191,14 +221,21 @@ class CourseCard extends StatelessWidget {
         color: AppColors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
-      child: Icon(Icons.favorite_border, size: AppSizes.iconSm, color: AppColors.grey700),
+      child: Icon(
+        Icons.favorite_border,
+        size: AppSizes.iconSm,
+        color: AppColors.grey700,
+      ),
     );
   }
 
   Widget _buildProgressBadge() {
     final progress = _getProgress();
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.success.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -216,10 +253,14 @@ class CourseCard extends StatelessWidget {
   Widget _buildCourseMetadata() {
     return Row(
       children: [
-        Icon(Icons.play_circle_outline, size: AppSizes.iconSm, color: AppColors.grey600),
+        Icon(
+          Icons.play_circle_outline,
+          size: AppSizes.iconSm,
+          color: AppColors.grey600,
+        ),
         const SizedBox(width: AppSpacing.xs),
         Text(
-          '${course.duration ?? '30'} phút',
+          '${course.durationHours ?? 2}h',
           style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
         ),
         const SizedBox(width: AppSpacing.md),
@@ -297,7 +338,10 @@ class CourseCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: chipColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -310,7 +354,10 @@ class CourseCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Text(
             statusText,
-            style: AppTypography.bodySmall.copyWith(color: chipColor, fontWeight: FontWeight.w600),
+            style: AppTypography.bodySmall.copyWith(
+              color: chipColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -318,11 +365,13 @@ class CourseCard extends StatelessWidget {
   }
 
   Widget _buildPriceChip() {
-    final price = course.price ?? 0.0;
-    final isFree = price == 0.0;
+    final isFree = course.isFree;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: isFree
             ? AppColors.success.withValues(alpha: 0.1)
@@ -335,7 +384,7 @@ class CourseCard extends StatelessWidget {
         ),
       ),
       child: Text(
-        isFree ? 'Miễn phí' : '${price.toStringAsFixed(0)} VNĐ',
+        course.formattedPrice,
         style: AppTypography.bodySmall.copyWith(
           color: isFree ? AppColors.success : AppColors.primary,
           fontWeight: FontWeight.w600,
@@ -345,7 +394,7 @@ class CourseCard extends StatelessWidget {
   }
 
   LinearGradient _getCategoryGradient() {
-    final category = course.category?.toLowerCase() ?? 'general';
+    final category = course.categoryName?.toLowerCase() ?? 'general';
 
     switch (category) {
       case 'programming':
@@ -388,7 +437,7 @@ class CourseCard extends StatelessWidget {
   }
 
   IconData _getCategoryIcon() {
-    final category = course.category?.toLowerCase() ?? 'general';
+    final category = course.categoryName?.toLowerCase() ?? 'general';
 
     switch (category) {
       case 'programming':
@@ -407,26 +456,16 @@ class CourseCard extends StatelessWidget {
   }
 
   String _getDifficultyText() {
-    final difficulty = course.difficulty?.toLowerCase() ?? 'beginner';
-
-    switch (difficulty) {
-      case 'beginner':
-        return 'Cơ bản';
-      case 'intermediate':
-        return 'Trung cấp';
-      case 'advanced':
-        return 'Nâng cao';
-      default:
-        return 'Cơ bản';
-    }
+    return course.levelDisplay;
   }
 
   double _getRating() {
-    return course.rating?.toDouble() ?? 4.5;
+    return course.rating;
   }
 
   double _getProgress() {
-    if (!isEnrolled) return 0.0;
-    return course.progress?.toDouble() ?? 0.0;
+    // Progress should be handled by enrollment data, not course data
+    // This is just a placeholder - actual progress will come from enrollment
+    return 0.0;
   }
 }

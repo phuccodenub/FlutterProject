@@ -3,7 +3,7 @@ import 'calendar_screen.dart';
 
 class EventDetailScreen extends StatelessWidget {
   const EventDetailScreen({super.key, required this.event});
-  
+
   final CalendarEvent event;
 
   @override
@@ -23,9 +23,9 @@ class EventDetailScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chia sẻ sự kiện')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Chia sẻ sự kiện')));
             },
           ),
         ],
@@ -40,7 +40,10 @@ class EventDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [event.color.withValues(alpha: 0.1), event.color.withValues(alpha: 0.05)],
+                  colors: [
+                    event.color.withValues(alpha: 0.1),
+                    event.color.withValues(alpha: 0.05),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -59,9 +62,12 @@ class EventDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
-                          event.type == 'assignment' ? Icons.assignment
-                              : event.type == 'exam' ? Icons.quiz
-                              : event.type == 'lecture' ? Icons.school
+                          event.type == 'assignment'
+                              ? Icons.assignment
+                              : event.type == 'exam'
+                              ? Icons.quiz
+                              : event.type == 'lecture'
+                              ? Icons.school
                               : Icons.event,
                           color: Colors.white,
                         ),
@@ -73,17 +79,17 @@ class EventDetailScreen extends StatelessWidget {
                           children: [
                             Text(
                               event.title,
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               _formatEventType(event.type),
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: event.color,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: event.color,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                           ],
                         ),
@@ -105,15 +111,15 @@ class EventDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Description Section
             Text(
               'Mô tả',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Container(
@@ -122,7 +128,9 @@ class EventDetailScreen extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
               child: Text(
@@ -130,16 +138,16 @@ class EventDetailScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Location Section (if applicable)
             if (event.type == 'lecture' || event.type == 'exam') ...[
               Text(
                 'Địa điểm',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Container(
@@ -148,7 +156,9 @@ class EventDetailScreen extends StatelessWidget {
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -164,7 +174,7 @@ class EventDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
             ],
-            
+
             // Action Buttons
             Row(
               children: [
@@ -172,7 +182,9 @@ class EventDetailScreen extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đã thêm vào lịch cá nhân')),
+                        const SnackBar(
+                          content: Text('Đã thêm vào lịch cá nhân'),
+                        ),
                       );
                     },
                     icon: const Icon(Icons.calendar_today),
@@ -198,33 +210,41 @@ class EventDetailScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   String _formatEventType(String type) {
     switch (type) {
-      case 'assignment': return 'Bài tập';
-      case 'exam': return 'Kiểm tra';
-      case 'lecture': return 'Bài giảng';
-      default: return 'Sự kiện';
+      case 'assignment':
+        return 'Bài tập';
+      case 'exam':
+        return 'Kiểm tra';
+      case 'lecture':
+        return 'Bài giảng';
+      default:
+        return 'Sự kiện';
     }
   }
-  
+
   String _formatEventDateTime() {
     final date = event.date;
     final weekdays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
     final weekday = weekdays[date.weekday % 7];
-    
+
     return '$weekday, ${date.day}/${date.month}/${date.year} • ${_getEventTime()}';
   }
-  
+
   String _getEventTime() {
     switch (event.type) {
-      case 'assignment': return 'Hạn nộp: 23:59';
-      case 'exam': return '09:00 - 10:30';
-      case 'lecture': return '13:30 - 15:30';
-      default: return 'Cả ngày';
+      case 'assignment':
+        return 'Hạn nộp: 23:59';
+      case 'exam':
+        return '09:00 - 10:30';
+      case 'lecture':
+        return '13:30 - 15:30';
+      default:
+        return 'Cả ngày';
     }
   }
-  
+
   String _getEventDescription() {
     switch (event.type) {
       case 'assignment':
@@ -237,12 +257,15 @@ class EventDetailScreen extends StatelessWidget {
         return 'Chi tiết về sự kiện ${event.title}. Vui lòng kiểm tra thông tin cập nhật từ giảng viên hoặc bộ môn phụ trách.';
     }
   }
-  
+
   String _getEventLocation() {
     switch (event.type) {
-      case 'exam': return 'Phòng B101 - Tòa nhà B';
-      case 'lecture': return 'Phòng A205 - Tòa nhà A';
-      default: return 'Online / LMS Platform';
+      case 'exam':
+        return 'Phòng B101 - Tòa nhà B';
+      case 'lecture':
+        return 'Phòng A205 - Tòa nhà A';
+      default:
+        return 'Online / LMS Platform';
     }
   }
 }

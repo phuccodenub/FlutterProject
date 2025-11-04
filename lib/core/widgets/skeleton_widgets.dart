@@ -36,20 +36,13 @@ class SkeletonAvatar extends StatelessWidget {
   final double radius;
   final EdgeInsetsGeometry? margin;
 
-  const SkeletonAvatar({
-    super.key,
-    this.radius = 20,
-    this.margin,
-  });
+  const SkeletonAvatar({super.key, this.radius = 20, this.margin});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
-      child: CircleAvatar(
-        radius: radius,
-        backgroundColor: Colors.white,
-      ),
+      child: CircleAvatar(radius: radius, backgroundColor: Colors.white),
     );
   }
 }
@@ -59,12 +52,7 @@ class SkeletonText extends StatelessWidget {
   final double height;
   final EdgeInsetsGeometry? margin;
 
-  const SkeletonText({
-    super.key,
-    this.width,
-    this.height = 14,
-    this.margin,
-  });
+  const SkeletonText({super.key, this.width, this.height = 14, this.margin});
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +72,7 @@ class StudentCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ShimmerLoading(
       child: Card(
-        margin: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 4.0,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
         child: ListTile(
           leading: const SkeletonAvatar(radius: 25),
           title: const SkeletonText(width: 120, height: 16),

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../config/api_config.dart';
 import '../error/error_handling.dart';
 import '../services/api_services.dart';
+import '../utils/app_logger.dart';
 
 class ApiTestService {
   late final AuthApiService _authService;
@@ -23,8 +24,8 @@ class ApiTestService {
     };
 
     if (kDebugMode) {
-      print('🧪 Starting API Integration Tests...');
-      print('📍 Base URL: ${ApiConfig.baseUrl}');
+      AppLogger.info('🧪 Starting API Integration Tests...');
+      AppLogger.info('📍 Base URL: ${ApiConfig.baseUrl}');
     }
 
     // Test 1: Authentication Tests
@@ -41,10 +42,7 @@ class ApiTestService {
     try {
       results['tests']['user_api'] = await _testUserApi();
     } catch (e) {
-      results['tests']['user_api'] = {
-        'success': false,
-        'error': e.toString(),
-      };
+      results['tests']['user_api'] = {'success': false, 'error': e.toString()};
     }
 
     // Test 3: Course API Tests
@@ -76,12 +74,15 @@ class ApiTestService {
       'total': totalTests,
       'passed': passedTests,
       'failed': totalTests - passedTests,
-      'success_rate': '${((passedTests / totalTests) * 100).toStringAsFixed(1)}%',
+      'success_rate':
+          '${((passedTests / totalTests) * 100).toStringAsFixed(1)}%',
     };
 
     if (kDebugMode) {
-      print('✅ API Tests Completed');
-      print('📊 Results: $passedTests/$totalTests passed (${results['summary']['success_rate']})');
+      AppLogger.info('✅ API Tests Completed');
+      AppLogger.info(
+        '📊 Results: $passedTests/$totalTests passed (${results['summary']['success_rate']})',
+      );
     }
 
     return results;
@@ -126,7 +127,9 @@ class ApiTestService {
           };
 
           if (kDebugMode) {
-            print('✅ Token verification: ${testResults['verify_token']['success']}');
+            print(
+              '✅ Token verification: ${testResults['verify_token']['success']}',
+            );
           }
         } catch (e) {
           testResults['verify_token'] = {
@@ -135,12 +138,8 @@ class ApiTestService {
           };
         }
       }
-
     } catch (e) {
-      testResults['login'] = {
-        'success': false,
-        'error': e.toString(),
-      };
+      testResults['login'] = {'success': false, 'error': e.toString()};
 
       if (kDebugMode) {
         print('❌ Login test failed: $e');
@@ -149,7 +148,8 @@ class ApiTestService {
 
     // Test 3: Register new user (with unique email)
     try {
-      final uniqueEmail = 'test_${DateTime.now().millisecondsSinceEpoch}@test.com';
+      final uniqueEmail =
+          'test_${DateTime.now().millisecondsSinceEpoch}@test.com';
       final registerResponse = await _authService.register(
         email: uniqueEmail,
         password: 'Test123!',
@@ -166,10 +166,7 @@ class ApiTestService {
         print('✅ Register test: ${testResults['register']['success']}');
       }
     } catch (e) {
-      testResults['register'] = {
-        'success': false,
-        'error': e.toString(),
-      };
+      testResults['register'] = {'success': false, 'error': e.toString()};
 
       if (kDebugMode) {
         print('❌ Register test failed: $e');
@@ -209,10 +206,7 @@ class ApiTestService {
         print('✅ Get profile: ${testResults['get_profile']['success']}');
       }
     } catch (e) {
-      testResults['get_profile'] = {
-        'success': false,
-        'error': e.toString(),
-      };
+      testResults['get_profile'] = {'success': false, 'error': e.toString()};
 
       if (kDebugMode) {
         print('❌ Get profile failed: $e');
@@ -234,10 +228,7 @@ class ApiTestService {
         print('✅ Update profile: ${testResults['update_profile']['success']}');
       }
     } catch (e) {
-      testResults['update_profile'] = {
-        'success': false,
-        'error': e.toString(),
-      };
+      testResults['update_profile'] = {'success': false, 'error': e.toString()};
 
       if (kDebugMode) {
         print('❌ Update profile failed: $e');
@@ -256,10 +247,7 @@ class ApiTestService {
         print('✅ Get sessions: ${testResults['get_sessions']['success']}');
       }
     } catch (e) {
-      testResults['get_sessions'] = {
-        'success': false,
-        'error': e.toString(),
-      };
+      testResults['get_sessions'] = {'success': false, 'error': e.toString()};
 
       if (kDebugMode) {
         print('❌ Get sessions failed: $e');
@@ -303,14 +291,18 @@ class ApiTestService {
       };
 
       if (kDebugMode) {
-        print('✅ Get all courses: ${coursesResponse.items.length} courses found');
+        print(
+          '✅ Get all courses: ${coursesResponse.items.length} courses found',
+        );
       }
 
       // Test 2: Get Course by ID (if courses available)
       if (coursesResponse.items.isNotEmpty) {
         try {
           final firstCourse = coursesResponse.items.first;
-          final courseResponse = await _courseService.getCourseById(firstCourse.id);
+          final courseResponse = await _courseService.getCourseById(
+            firstCourse.id,
+          );
 
           testResults['get_course_by_id'] = {
             'success': courseResponse.success,
@@ -319,7 +311,9 @@ class ApiTestService {
           };
 
           if (kDebugMode) {
-            print('✅ Get course by ID: ${testResults['get_course_by_id']['success']}');
+            print(
+              '✅ Get course by ID: ${testResults['get_course_by_id']['success']}',
+            );
           }
         } catch (e) {
           testResults['get_course_by_id'] = {
@@ -328,7 +322,6 @@ class ApiTestService {
           };
         }
       }
-
     } catch (e) {
       testResults['get_all_courses'] = {
         'success': false,
@@ -349,7 +342,9 @@ class ApiTestService {
       };
 
       if (kDebugMode) {
-        print('✅ Get enrolled courses: ${enrolledResponse.items.length} courses');
+        print(
+          '✅ Get enrolled courses: ${enrolledResponse.items.length} courses',
+        );
       }
     } catch (e) {
       testResults['get_enrolled_courses'] = {
@@ -378,10 +373,7 @@ class ApiTestService {
         print('✅ Search courses: ${searchResponse.items.length} results');
       }
     } catch (e) {
-      testResults['search_courses'] = {
-        'success': false,
-        'error': e.toString(),
-      };
+      testResults['search_courses'] = {'success': false, 'error': e.toString()};
 
       if (kDebugMode) {
         print('❌ Search courses failed: $e');
@@ -411,7 +403,10 @@ class ApiTestService {
     // Test 1: Invalid Login (401)
     try {
       await _authService.login('invalid@email.com', 'wrongpassword');
-      testResults['invalid_login'] = {'success': false, 'error': 'Should have thrown exception'};
+      testResults['invalid_login'] = {
+        'success': false,
+        'error': 'Should have thrown exception',
+      };
     } catch (e) {
       final isAuthError = e is AuthenticationException;
       testResults['invalid_login'] = {
@@ -428,7 +423,10 @@ class ApiTestService {
     // Test 2: Non-existent Course (404)
     try {
       await _courseService.getCourseById('non-existent-id');
-      testResults['non_existent_course'] = {'success': false, 'error': 'Should have thrown exception'};
+      testResults['non_existent_course'] = {
+        'success': false,
+        'error': 'Should have thrown exception',
+      };
     } catch (e) {
       final isNotFoundError = e is NotFoundException;
       testResults['non_existent_course'] = {
@@ -447,9 +445,15 @@ class ApiTestService {
       final testService = CourseApiService();
       // This should cause a network error
       await testService.getCourseById('test');
-      testResults['network_error'] = {'success': false, 'error': 'Should have thrown exception'};
+      testResults['network_error'] = {
+        'success': false,
+        'error': 'Should have thrown exception',
+      };
     } catch (e) {
-      final isNetworkError = e is NetworkException || e.toString().contains('network') || e.toString().contains('connection');
+      final isNetworkError =
+          e is NetworkException ||
+          e.toString().contains('network') ||
+          e.toString().contains('connection');
       testResults['network_error'] = {
         'success': true, // Any network-related error is expected
         'error_handled': true,
@@ -490,11 +494,11 @@ class ApiTestService {
       }
 
       await _courseService.getAllCourses(limit: 1);
-      
+
       if (kDebugMode) {
         print('✅ API connectivity: OK');
       }
-      
+
       return true;
     } catch (e) {
       if (kDebugMode) {

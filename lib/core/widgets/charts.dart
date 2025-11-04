@@ -86,7 +86,9 @@ class SimpleBarChart extends StatelessWidget {
                             end: Alignment.topCenter,
                             colors: [
                               item.color ?? primaryColor,
-                              (item.color ?? primaryColor).withValues(alpha: 0.7),
+                              (item.color ?? primaryColor).withValues(
+                                alpha: 0.7,
+                              ),
                             ],
                           ),
                         ),
@@ -94,7 +96,9 @@ class SimpleBarChart extends StatelessWidget {
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         item.label,
-                        style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.grey600,
+                        ),
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -136,14 +140,18 @@ class SimpleLineChart extends StatefulWidget {
   State<SimpleLineChart> createState() => _SimpleLineChartState();
 }
 
-class _SimpleLineChartState extends State<SimpleLineChart> with SingleTickerProviderStateMixin {
+class _SimpleLineChartState extends State<SimpleLineChart>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
     if (widget.animated) {
@@ -221,15 +229,22 @@ class SimplePieChart extends StatefulWidget {
   State<SimplePieChart> createState() => _SimplePieChartState();
 }
 
-class _SimplePieChartState extends State<SimplePieChart> with SingleTickerProviderStateMixin {
+class _SimplePieChartState extends State<SimplePieChart>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 1200), vsync: this);
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
 
     if (widget.animated) {
       _controller.forward();
@@ -281,7 +296,9 @@ class _SimplePieChartState extends State<SimplePieChart> with SingleTickerProvid
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: widget.data.map((item) {
-                  final percentage = (item.value / total * 100).toStringAsFixed(1);
+                  final percentage = (item.value / total * 100).toStringAsFixed(
+                    1,
+                  );
                   return Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: Row(
@@ -295,11 +312,18 @@ class _SimplePieChartState extends State<SimplePieChart> with SingleTickerProvid
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        Expanded(child: Text(item.label, style: AppTypography.bodySmall)),
+                        Expanded(
+                          child: Text(
+                            item.label,
+                            style: AppTypography.bodySmall,
+                          ),
+                        ),
                         if (widget.showPercentages)
                           Text(
                             '$percentage%',
-                            style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                            style: AppTypography.bodySmall.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                       ],
                     ),
@@ -321,7 +345,12 @@ class ChartData {
   final Color? color;
   final String? displayValue;
 
-  ChartData({required this.label, required this.value, this.color, this.displayValue});
+  ChartData({
+    required this.label,
+    required this.value,
+    this.color,
+    this.displayValue,
+  });
 }
 
 /// Line chart painter
@@ -369,7 +398,8 @@ class LineChartPainter extends CustomPainter {
     final points = <Offset>[];
     for (int i = 0; i < data.length; i++) {
       final x = size.width * i / (data.length - 1);
-      final normalizedValue = (data[i].value - minValue) / (maxValue - minValue);
+      final normalizedValue =
+          (data[i].value - minValue) / (maxValue - minValue);
       final y = size.height * (1 - normalizedValue);
       points.add(Offset(x, y));
     }
@@ -388,7 +418,11 @@ class LineChartPainter extends CustomPainter {
         final progress = (points.length * animationValue) - animatedLength;
         final currentPoint = points[animatedLength - 1];
         final nextPoint = points[animatedLength];
-        final interpolatedPoint = Offset.lerp(currentPoint, nextPoint, progress)!;
+        final interpolatedPoint = Offset.lerp(
+          currentPoint,
+          nextPoint,
+          progress,
+        )!;
         path.lineTo(interpolatedPoint.dx, interpolatedPoint.dy);
       }
 
@@ -425,7 +459,11 @@ class PieChartPainter extends CustomPainter {
   final double total;
   final double animationValue;
 
-  PieChartPainter({required this.data, required this.total, required this.animationValue});
+  PieChartPainter({
+    required this.data,
+    required this.total,
+    required this.animationValue,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -521,15 +559,24 @@ class StatChartCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: AppTypography.bodyMedium.copyWith(color: AppColors.grey600),
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.grey600,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(value, style: AppTypography.h5.copyWith(fontWeight: FontWeight.bold)),
+                      Text(
+                        value,
+                        style: AppTypography.h5.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       if (subtitle != null) ...[
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           subtitle!,
-                          style: AppTypography.bodySmall.copyWith(color: AppColors.success),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.success,
+                          ),
                         ),
                       ],
                     ],

@@ -6,10 +6,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chính sách bảo mật'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Chính sách bảo mật'), elevation: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -21,8 +18,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -44,16 +45,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Chính sách bảo mật',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Cập nhật lần cuối: 30/10/2024',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.grey[600]),
                             ),
                           ],
                         ),
@@ -68,9 +67,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // 1. Thông tin thu thập
             _buildSection(
               context,
@@ -91,9 +90,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ]),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 2. Mục đích sử dụng
             _buildSection(
               context,
@@ -114,9 +113,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ]),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 3. Chia sẻ thông tin
             _buildSection(
               context,
@@ -137,9 +136,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ]),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 4. Bảo mật dữ liệu
             _buildSection(
               context,
@@ -160,25 +159,45 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ]),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 5. Quyền của người dùng
             _buildSection(
               context,
               icon: Icons.account_circle_outlined,
               title: '5. Quyền của bạn',
               content: [
-                _buildRightItem(Icons.visibility, 'Truy cập', 'Xem thông tin cá nhân chúng tôi lưu trữ'),
-                _buildRightItem(Icons.edit, 'Chỉnh sửa', 'Cập nhật hoặc sửa đổi thông tin cá nhân'),
-                _buildRightItem(Icons.delete, 'Xóa bỏ', 'Yêu cầu xóa tài khoản và dữ liệu'),
-                _buildRightItem(Icons.download, 'Xuất dữ liệu', 'Tải về bản sao dữ liệu cá nhân'),
-                _buildRightItem(Icons.block, 'Phản đối', 'Từ chối xử lý dữ liệu cho mục đích cụ thể'),
+                _buildRightItem(
+                  Icons.visibility,
+                  'Truy cập',
+                  'Xem thông tin cá nhân chúng tôi lưu trữ',
+                ),
+                _buildRightItem(
+                  Icons.edit,
+                  'Chỉnh sửa',
+                  'Cập nhật hoặc sửa đổi thông tin cá nhân',
+                ),
+                _buildRightItem(
+                  Icons.delete,
+                  'Xóa bỏ',
+                  'Yêu cầu xóa tài khoản và dữ liệu',
+                ),
+                _buildRightItem(
+                  Icons.download,
+                  'Xuất dữ liệu',
+                  'Tải về bản sao dữ liệu cá nhân',
+                ),
+                _buildRightItem(
+                  Icons.block,
+                  'Phản đối',
+                  'Từ chối xử lý dữ liệu cho mục đích cụ thể',
+                ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 6. Cookie và theo dõi
             _buildSection(
               context,
@@ -204,9 +223,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 7. Lưu trữ dữ liệu
             _buildSection(
               context,
@@ -223,9 +242,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ]),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // 8. Liên hệ
             _buildSection(
               context,
@@ -235,10 +254,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Column(
@@ -282,9 +305,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Footer actions
             Row(
               children: [
@@ -292,7 +315,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đã tải xuống bản PDF chính sách bảo mật')),
+                        const SnackBar(
+                          content: Text(
+                            'Đã tải xuống bản PDF chính sách bảo mật',
+                          ),
+                        ),
                       );
                     },
                     icon: const Icon(Icons.download),
@@ -331,9 +358,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -345,7 +372,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -361,10 +390,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         _buildBulletList(items),
         const SizedBox(height: 12),
@@ -405,7 +431,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(color: color.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: color.withValues(alpha: 0.8),
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

@@ -21,8 +21,8 @@ class ApiResponse<T> {
     return ApiResponse<T>(
       success: json['success'] ?? false,
       message: json['message'] ?? '',
-      data: json['data'] != null && fromJsonT != null 
-          ? fromJsonT(json['data']) 
+      data: json['data'] != null && fromJsonT != null
+          ? fromJsonT(json['data'])
           : json['data'],
       errors: json['errors'],
       metadata: json['metadata'],
@@ -86,10 +86,7 @@ class PaginatedResponse<T> {
   final List<T> items;
   final PaginationMeta pagination;
 
-  PaginatedResponse({
-    required this.items,
-    required this.pagination,
-  });
+  PaginatedResponse({required this.items, required this.pagination});
 
   factory PaginatedResponse.fromJson(
     Map<String, dynamic> json,
@@ -97,7 +94,9 @@ class PaginatedResponse<T> {
   ) {
     final List<dynamic> itemsJson = json['items'] ?? json['data'] ?? [];
     return PaginatedResponse<T>(
-      items: itemsJson.map((item) => fromJsonT(item as Map<String, dynamic>)).toList(),
+      items: itemsJson
+          .map((item) => fromJsonT(item as Map<String, dynamic>))
+          .toList(),
       pagination: PaginationMeta.fromJson(json['pagination'] ?? {}),
     );
   }
@@ -110,12 +109,7 @@ class ApiError {
   final Map<String, dynamic>? details;
   final int? statusCode;
 
-  ApiError({
-    required this.message,
-    this.code,
-    this.details,
-    this.statusCode,
-  });
+  ApiError({required this.message, this.code, this.details, this.statusCode});
 
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(

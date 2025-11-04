@@ -25,12 +25,19 @@ class FileService {
     return items;
   }
 
-  Future<List<CourseFile>> searchFiles(String courseId, {String? term, String? category}) async {
+  Future<List<CourseFile>> searchFiles(
+    String courseId, {
+    String? term,
+    String? category,
+  }) async {
     final all = await getFilesByCourse(courseId);
     return all.where((f) {
       final okTerm =
-          term == null || term.isEmpty || f.originalName.toLowerCase().contains(term.toLowerCase());
-      final okCat = category == null || category == 'all' || f.category == category;
+          term == null ||
+          term.isEmpty ||
+          f.originalName.toLowerCase().contains(term.toLowerCase());
+      final okCat =
+          category == null || category == 'all' || f.category == category;
       return okTerm && okCat;
     }).toList();
   }
@@ -44,13 +51,17 @@ class FileService {
     return null;
   }
 
-  Future<CourseFile?> pickAndUpload(String courseId, {String category = 'document'}) async {
+  Future<CourseFile?> pickAndUpload(
+    String courseId, {
+    String category = 'document',
+  }) async {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return null;
     final file = result.files.single;
 
     final tmpDir = await getApplicationDocumentsDirectory();
-    final destPath = '${tmpDir.path}/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
+    final destPath =
+        '${tmpDir.path}/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
     if (file.path != null) {
       await File(file.path!).copy(destPath);
     } else if (file.bytes != null) {
@@ -63,12 +74,16 @@ class FileService {
       id: 'file-${DateTime.now().millisecondsSinceEpoch}',
       courseId: courseId,
       originalName: file.name,
-      mimeType: file.extension != null ? _mimeFromExt(file.extension!) : 'application/octet-stream',
+      mimeType: file.extension != null
+          ? _mimeFromExt(file.extension!)
+          : 'application/octet-stream',
       size: file.size,
       uploadedAt: DateTime.now(),
       category: category,
       localPath: destPath,
-      previewable: _isPreviewable(file.extension != null ? _mimeFromExt(file.extension!) : ''),
+      previewable: _isPreviewable(
+        file.extension != null ? _mimeFromExt(file.extension!) : '',
+      ),
     );
     await _save(cf);
     return cf;

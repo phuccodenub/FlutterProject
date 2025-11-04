@@ -5,38 +5,22 @@ import '../../../core/animations/app_animations.dart';
 import '../../../core/widgets/animated_buttons.dart';
 import '../../../core/widgets/custom_refresh_indicator.dart';
 import '../../../core/widgets/hero_widgets.dart';
-import 'student_filter_dialog.dart';
+import '../../../features/students/providers/student_provider.dart';
 
-// Simple state management cho loading
-final studentLoadingProvider = StateProvider<bool>((ref) => true);
+import 'student_filter_dialog.dart';
 
 class StudentManagementScreen extends ConsumerStatefulWidget {
   final String courseId;
 
-  const StudentManagementScreen({
-    super.key,
-    required this.courseId,
-  });
+  const StudentManagementScreen({super.key, required this.courseId});
 
   @override
-  ConsumerState<StudentManagementScreen> createState() => _StudentManagementScreenState();
+  ConsumerState<StudentManagementScreen> createState() =>
+      _StudentManagementScreenState();
 }
 
-class _StudentManagementScreenState extends ConsumerState<StudentManagementScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Simulate loading data
-    _loadStudentData();
-  }
-
-  void _loadStudentData() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      ref.read(studentLoadingProvider.notifier).state = false;
-    }
-  }
+class _StudentManagementScreenState
+    extends ConsumerState<StudentManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
@@ -98,11 +82,20 @@ class _StudentManagementScreenState extends ConsumerState<StudentManagementScree
   }
 
   Future<void> _refreshStudentList() async {
-    ref.read(studentLoadingProvider.notifier).state = true;
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      ref.read(studentLoadingProvider.notifier).state = false;
+    // Store scaffold messenger before async operation
+    final scaffold = ScaffoldMessenger.of(context);
+    
+    try {
+      await ref.read(courseStudentsProvider(widget.courseId).notifier).refreshStudents();
+    } catch (e) {
+      if (mounted) {
+        scaffold.showSnackBar(
+          SnackBar(
+            content: Text('Lỗi khi tải danh sách học viên: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -110,11 +103,26 @@ class _StudentManagementScreenState extends ConsumerState<StudentManagementScree
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: TextField(
+        onChanged: (query) {
+          ref.read(studentSearchQueryProvider.notifier).state = query;
+        },
         decoration: InputDecoration(
           hintText: 'Tìm kiếm học viên...',
           prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+          suffixIcon: Consumer(
+            builder: (context, ref, child) {
+              final query = ref.watch(studentSearchQueryProvider);
+              if (query.isNotEmpty) {
+                return IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    ref.read(studentSearchQueryProvider.notifier).state = '';
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ),
       ),
@@ -125,68 +133,140 @@ class _StudentManagementScreenState extends ConsumerState<StudentManagementScree
     return Container(
       height: 50,
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          FilterChip(
-            label: const Text('Tất cả'),
-            selected: false,
-            onSelected: (selected) {},
-          ),
-          const SizedBox(width: 8),
-          FilterChip(
-            label: const Text('Đang học'),
-            selected: false,
-            onSelected: (selected) {},
-          ),
-          const SizedBox(width: 8),
-          FilterChip(
-            label: const Text('Hoàn thành'),
-            selected: false,
-            onSelected: (selected) {},
-          ),
-        ],
+      child: Consumer(
+        builder: (context, ref, child) {
+          final currentFilter = ref.watch(studentStatusFilterProvider);
+          
+          return ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              FilterChip(
+                label: const Text('Tất cả'),
+                selected: currentFilter == 'all',
+                onSelected: (selected) {
+                  if (selected) {
+                    ref.read(studentStatusFilterProvider.notifier).state = 'all';
+                  }
+                },
+              ),
+              const SizedBox(width: 8),
+              FilterChip(
+                label: const Text('Hoạt động'),
+                selected: currentFilter == 'active',
+                onSelected: (selected) {
+                  if (selected) {
+                    ref.read(studentStatusFilterProvider.notifier).state = 'active';
+                  }
+                },
+              ),
+              const SizedBox(width: 8),
+              FilterChip(
+                label: const Text('Tạm dừng'),
+                selected: currentFilter == 'suspended',
+                onSelected: (selected) {
+                  if (selected) {
+                    ref.read(studentStatusFilterProvider.notifier).state = 'suspended';
+                  }
+                },
+              ),
+              const SizedBox(width: 8),
+              FilterChip(
+                label: const Text('Ngưng học'),
+                selected: currentFilter == 'inactive',
+                onSelected: (selected) {
+                  if (selected) {
+                    ref.read(studentStatusFilterProvider.notifier).state = 'inactive';
+                  }
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildStudentList() {
-    final isLoading = ref.watch(studentLoadingProvider);
-    
-    if (isLoading) {
-      return StaggeredLoadingList(
+    final studentsAsync = ref.watch(statusFilteredStudentsProvider(widget.courseId));
+
+    return studentsAsync.when(
+      data: (students) {
+        if (students.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.school_outlined, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'Chưa có học viên nào',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Thêm học viên để bắt đầu quản lý lớp học',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return AnimatedListBuilder(
+          itemCount: students.length,
+          animationDuration: AppAnimations.normal,
+          staggerDelay: const Duration(milliseconds: 100),
+          itemBuilder: (context, index) {
+            final student = students[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: StudentCardHero(
+                heroTag: 'student-${student.id}',
+                name: student.name,
+                email: student.email,
+                avatarUrl: student.avatar,
+                status: student.statusDisplayName,
+                statusColor: _getStatusColor(student.status),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StudentDetailScreen(studentId: student.id),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      loading: () => StaggeredLoadingList(
         skeletonBuilder: () => const StudentCardSkeleton(),
         itemCount: 6,
         staggerDelay: const Duration(milliseconds: 150),
-      );
-    }
-
-    final students = _getMockStudents();
-    
-    return AnimatedListBuilder(
-      itemCount: students.length,
-      animationDuration: AppAnimations.normal,
-      staggerDelay: const Duration(milliseconds: 100),
-      itemBuilder: (context, index) {
-        final student = students[index];
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          child: StudentCardHero(
-            heroTag: 'student-${student['id']}',
-            name: student['name'],
-            email: student['email'],
-            avatarUrl: student['avatar'],
-            status: student['status'],
-            statusColor: _getStatusColor(student['status']),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => StudentDetailScreen(studentId: student['id']),
-              ),
+      ),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Lỗi khi tải danh sách học viên',
+              style: TextStyle(fontSize: 18, color: Colors.red[700]),
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 8),
+            Text(
+              error.toString(),
+              style: const TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => ref.read(courseStudentsProvider(widget.courseId).notifier).loadStudents(),
+              child: const Text('Thử lại'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -214,49 +294,79 @@ class _StudentManagementScreenState extends ConsumerState<StudentManagementScree
   }
 
   void _showAddStudentDialog(BuildContext context) {
+    final emailController = TextEditingController();
+    
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Thêm học viên'),
-        content: const Text('Chức năng thêm học viên sẽ được cập nhật sau.'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Nhập email của học viên để thêm vào khóa học:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email học viên',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email),
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+          ],
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final email = emailController.text.trim();
+              if (email.isNotEmpty) {
+                Navigator.pop(dialogContext);
+                
+                // Store scaffold messenger before async operation
+                final scaffold = ScaffoldMessenger.of(context);
+                
+                try {
+                  final success = await ref
+                      .read(courseStudentsProvider(widget.courseId).notifier)
+                      .addStudent(email);
+                  
+                  if (mounted) {
+                    scaffold.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success 
+                              ? 'Đã thêm học viên thành công'
+                              : 'Không thể thêm học viên. Vui lòng thử lại.',
+                        ),
+                        backgroundColor: success ? Colors.green : Colors.red,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    scaffold.showSnackBar(
+                      SnackBar(
+                        content: Text('Lỗi khi thêm học viên: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              }
+            },
+            child: const Text('Thêm'),
           ),
         ],
       ),
     );
   }
 
-  List<Map<String, dynamic>> _getMockStudents() {
-    return [
-      {
-        'id': '1',
-        'name': 'Nguyễn Văn A',
-        'email': 'nguyenvana@email.com',
-        'avatar': 'https://via.placeholder.com/50',
-        'status': 'Đang học',
-        'progress': 75,
-      },
-      {
-        'id': '2',
-        'name': 'Trần Thị B',
-        'email': 'tranthib@email.com',
-        'avatar': 'https://via.placeholder.com/50',
-        'status': 'Hoàn thành',
-        'progress': 100,
-      },
-      {
-        'id': '3',
-        'name': 'Lê Văn C',
-        'email': 'levanc@email.com',
-        'avatar': 'https://via.placeholder.com/50',
-        'status': 'Tạm dừng',
-        'progress': 45,
-      },
-    ];
-  }
+
 }
 
 // Temporary StudentDetailScreen class
@@ -268,12 +378,8 @@ class StudentDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chi tiết học viên'),
-      ),
-      body: Center(
-        child: Text('Student ID: $studentId'),
-      ),
+      appBar: AppBar(title: const Text('Chi tiết học viên')),
+      body: Center(child: Text('Student ID: $studentId')),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class StudentDetailScreen extends StatefulWidget {
   const StudentDetailScreen({super.key, required this.studentId});
-  
+
   final String studentId;
 
   @override
@@ -59,7 +59,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
             icon: const Icon(Icons.edit),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chức năng chỉnh sửa thông tin sinh viên')),
+                const SnackBar(
+                  content: Text('Chức năng chỉnh sửa thông tin sinh viên'),
+                ),
               );
             },
           ),
@@ -159,9 +161,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
                     children: [
                       Text(
                         _studentData['name'],
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -175,11 +176,16 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                              border: Border.all(
+                                color: Colors.green.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Text(
                               _studentData['status'],
@@ -193,9 +199,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
                           const SizedBox(width: 12),
                           Text(
                             'GPA: ${_studentData['gpa']}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -205,7 +210,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
               ],
             ),
           ),
-          
+
           // Tab Bar
           TabBar(
             controller: _tabController,
@@ -216,7 +221,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
               Tab(text: 'Hoạt động'),
             ],
           ),
-          
+
           // Tab Views
           Expanded(
             child: TabBarView(
@@ -254,8 +259,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
           const SizedBox(height: 20),
           _buildInfoSection('Học tập', [
             _buildInfoRow('GPA', '${_studentData['gpa']}/10'),
-            _buildInfoRow('Tổng tín chỉ', '${_studentData['totalCredits']} tín chỉ'),
-            _buildInfoRow('Tín chỉ hoàn thành', '${_studentData['completedCredits']} tín chỉ'),
+            _buildInfoRow(
+              'Tổng tín chỉ',
+              '${_studentData['totalCredits']} tín chỉ',
+            ),
+            _buildInfoRow(
+              'Tín chỉ hoàn thành',
+              '${_studentData['completedCredits']} tín chỉ',
+            ),
           ]),
         ],
       ),
@@ -268,18 +279,33 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
       itemCount: 3, // Mock courses
       itemBuilder: (context, index) {
         final courses = [
-          {'name': 'Flutter Development', 'code': 'CS301', 'status': 'Đang học', 'grade': null},
-          {'name': 'React Native', 'code': 'CS302', 'status': 'Hoàn thành', 'grade': 8.5},
-          {'name': 'Mobile UI/UX', 'code': 'CS303', 'status': 'Hoàn thành', 'grade': 9.0},
+          {
+            'name': 'Flutter Development',
+            'code': 'CS301',
+            'status': 'Đang học',
+            'grade': null,
+          },
+          {
+            'name': 'React Native',
+            'code': 'CS302',
+            'status': 'Hoàn thành',
+            'grade': 8.5,
+          },
+          {
+            'name': 'Mobile UI/UX',
+            'code': 'CS303',
+            'status': 'Hoàn thành',
+            'grade': 9.0,
+          },
         ];
-        
+
         final course = courses[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: course['status'] == 'Hoàn thành' 
-                  ? Colors.green 
+              backgroundColor: course['status'] == 'Hoàn thành'
+                  ? Colors.green
                   : Theme.of(context).colorScheme.primary,
               child: Text((course['code'] as String).substring(2)),
             ),
@@ -287,7 +313,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
             subtitle: Text('Mã: ${course['code']} • ${course['status']}'),
             trailing: course['grade'] != null
                 ? Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -327,17 +356,21 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Recent Grades
           ...List.generate(5, (index) {
             final grades = [
-              {'course': 'Flutter Development', 'grade': 9.0, 'date': '15/10/2024'},
+              {
+                'course': 'Flutter Development',
+                'grade': 9.0,
+                'date': '15/10/2024',
+              },
               {'course': 'React Native', 'grade': 8.5, 'date': '10/10/2024'},
               {'course': 'Mobile UI/UX', 'grade': 9.0, 'date': '05/10/2024'},
               {'course': 'Database Design', 'grade': 8.0, 'date': '01/10/2024'},
               {'course': 'Web Development', 'grade': 8.7, 'date': '25/09/2024'},
             ];
-            
+
             final grade = grades[index];
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
@@ -345,9 +378,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
                 title: Text(grade['course'] as String),
                 subtitle: Text(grade['date'] as String),
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: _getGradeColor(grade['grade'] as double).withValues(alpha: 0.1),
+                    color: _getGradeColor(
+                      grade['grade'] as double,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -372,16 +410,48 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
       itemCount: 8, // Mock activities
       itemBuilder: (context, index) {
         final activities = [
-          {'action': 'Nộp bài tập', 'course': 'Flutter Development', 'time': '2 giờ trước'},
-          {'action': 'Tham gia lớp học', 'course': 'React Native', 'time': '1 ngày trước'},
-          {'action': 'Hoàn thành quiz', 'course': 'Mobile UI/UX', 'time': '2 ngày trước'},
-          {'action': 'Xem video bài giảng', 'course': 'Flutter Development', 'time': '3 ngày trước'},
-          {'action': 'Tham gia thảo luận', 'course': 'React Native', 'time': '3 ngày trước'},
-          {'action': 'Nộp project', 'course': 'Database Design', 'time': '1 tuần trước'},
-          {'action': 'Làm bài kiểm tra', 'course': 'Web Development', 'time': '1 tuần trước'},
-          {'action': 'Đăng ký khóa học', 'course': 'Flutter Development', 'time': '2 tuần trước'},
+          {
+            'action': 'Nộp bài tập',
+            'course': 'Flutter Development',
+            'time': '2 giờ trước',
+          },
+          {
+            'action': 'Tham gia lớp học',
+            'course': 'React Native',
+            'time': '1 ngày trước',
+          },
+          {
+            'action': 'Hoàn thành quiz',
+            'course': 'Mobile UI/UX',
+            'time': '2 ngày trước',
+          },
+          {
+            'action': 'Xem video bài giảng',
+            'course': 'Flutter Development',
+            'time': '3 ngày trước',
+          },
+          {
+            'action': 'Tham gia thảo luận',
+            'course': 'React Native',
+            'time': '3 ngày trước',
+          },
+          {
+            'action': 'Nộp project',
+            'course': 'Database Design',
+            'time': '1 tuần trước',
+          },
+          {
+            'action': 'Làm bài kiểm tra',
+            'course': 'Web Development',
+            'time': '1 tuần trước',
+          },
+          {
+            'action': 'Đăng ký khóa học',
+            'course': 'Flutter Development',
+            'time': '2 tuần trước',
+          },
         ];
-        
+
         final activity = activities[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
@@ -412,9 +482,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Container(
@@ -423,7 +493,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(children: children),
@@ -442,17 +514,17 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
             width: 120,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -472,10 +544,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -489,27 +558,43 @@ class _StudentDetailScreenState extends State<StudentDetailScreen>
 
   Color _getActivityColor(String action) {
     switch (action) {
-      case 'Nộp bài tập': return Colors.green;
-      case 'Tham gia lớp học': return Colors.blue;
-      case 'Hoàn thành quiz': return Colors.purple;
-      case 'Xem video bài giảng': return Colors.orange;
-      case 'Tham gia thảo luận': return Colors.teal;
-      case 'Nộp project': return Colors.indigo;
-      case 'Làm bài kiểm tra': return Colors.red;
-      default: return Colors.grey;
+      case 'Nộp bài tập':
+        return Colors.green;
+      case 'Tham gia lớp học':
+        return Colors.blue;
+      case 'Hoàn thành quiz':
+        return Colors.purple;
+      case 'Xem video bài giảng':
+        return Colors.orange;
+      case 'Tham gia thảo luận':
+        return Colors.teal;
+      case 'Nộp project':
+        return Colors.indigo;
+      case 'Làm bài kiểm tra':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   IconData _getActivityIcon(String action) {
     switch (action) {
-      case 'Nộp bài tập': return Icons.assignment_turned_in;
-      case 'Tham gia lớp học': return Icons.school;
-      case 'Hoàn thành quiz': return Icons.quiz;
-      case 'Xem video bài giảng': return Icons.play_circle;
-      case 'Tham gia thảo luận': return Icons.forum;
-      case 'Nộp project': return Icons.folder;
-      case 'Làm bài kiểm tra': return Icons.task;
-      default: return Icons.access_time;
+      case 'Nộp bài tập':
+        return Icons.assignment_turned_in;
+      case 'Tham gia lớp học':
+        return Icons.school;
+      case 'Hoàn thành quiz':
+        return Icons.quiz;
+      case 'Xem video bài giảng':
+        return Icons.play_circle;
+      case 'Tham gia thảo luận':
+        return Icons.forum;
+      case 'Nộp project':
+        return Icons.folder;
+      case 'Làm bài kiểm tra':
+        return Icons.task;
+      default:
+        return Icons.access_time;
     }
   }
 

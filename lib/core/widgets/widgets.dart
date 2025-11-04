@@ -4,6 +4,7 @@ export 'custom_text_field.dart';
 export 'custom_cards.dart';
 export 'loading_indicators.dart';
 export 'course_card.dart';
+export 'enrollment_card.dart';
 
 // Advanced Components
 export 'charts.dart';

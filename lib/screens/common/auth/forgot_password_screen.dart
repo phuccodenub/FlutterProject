@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../features/auth/auth_state.dart';
+import '../../../features/auth/models/auth_requests.dart';
+import '../../../core/services/logger_service.dart';
 
-class ForgotPasswordScreen extends StatefulWidget {
+class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _isLoading = false;
@@ -248,11 +253,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Call forgot password API
+      final authService = ref.read(authServiceProvider);
+      final request = ForgotPasswordRequest(
+        email: _emailController.text.trim(),
+      );
 
-      // TODO: Implement actual forgot password API call
-      // final success = await AuthService.sendPasswordResetEmail(_emailController.text);
+      await authService.forgotPassword(request);
+
+      LoggerService.instance.info(
+        'Forgot password email sent successfully for: ${_emailController.text}',
+      );
 
       setState(() {
         _emailSent = true;
@@ -276,13 +287,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         );
       }
     } catch (e) {
+      LoggerService.instance.error('Forgot password failed', e);
+
       setState(() => _isLoading = false);
 
       if (mounted) {
+        String errorMessage = 'Có lỗi xảy ra. Vui lòng thử lại sau.';
+
+        // Handle specific API error messages
+        if (e.toString().contains('not found') ||
+            e.toString().contains('404')) {
+          errorMessage = 'Email không tồn tại trong hệ thống.';
+        } else if (e.toString().contains('network') ||
+            e.toString().contains('connection')) {
+          errorMessage =
+              'Lỗi kết nối mạng. Vui lòng kiểm tra internet và thử lại.';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Có lỗi xảy ra. Vui lòng thử lại sau.',
+              errorMessage,
               style: AppTypography.bodyMedium.copyWith(color: AppColors.white),
             ),
             backgroundColor: AppColors.error,
@@ -308,9 +333,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               size: 28,
             ),
             const SizedBox(width: 12),
-            const Expanded(
-              child: Text('Hỗ trợ khách hàng'),
-            ),
+            const Expanded(child: Text('Hỗ trợ khách hàng')),
           ],
         ),
         content: SingleChildScrollView(
@@ -327,7 +350,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Navigator.pop(context);
                   // Simulate email compose
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã mở ứng dụng email với địa chỉ support@lms.edu.vn')),
+                    const SnackBar(
+                      content: Text(
+                        'Đã mở ứng dụng email với địa chỉ support@lms.edu.vn',
+                      ),
+                    ),
                   );
                 },
               ),
@@ -353,7 +380,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đang kết nối với nhân viên hỗ trợ...')),
+                    const SnackBar(
+                      content: Text('Đang kết nối với nhân viên hỗ trợ...'),
+                    ),
                   );
                 },
               ),
@@ -361,12 +390,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               _buildSupportItem(
                 icon: Icons.help_center,
                 title: 'Câu hỏi thường gặp',
-                description: 'Tìm câu trả lời nhanh chóng cho các vấn đề phổ biến',
+                description:
+                    'Tìm câu trả lời nhanh chóng cho các vấn đề phổ biến',
                 action: 'Xem FAQ',
                 onTap: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đang mở trang Câu hỏi thường gặp...')),
+                    const SnackBar(
+                      content: Text('Đang mở trang Câu hỏi thường gặp...'),
+                    ),
                   );
                 },
               ),
@@ -376,7 +408,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,7 +466,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
@@ -453,10 +489,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 2),
                   Text(
                     description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
               ),

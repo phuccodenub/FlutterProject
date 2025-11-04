@@ -95,7 +95,9 @@ class ChatMessagePayload {
       attachmentPath: json['attachmentPath'] as String?,
       attachmentName: json['attachmentName'] as String?,
       attachmentSize: json['attachmentSize'] as int?,
-      timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp'] as String) : null,
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'] as String)
+          : null,
     );
   }
 }
@@ -153,7 +155,8 @@ class LivestreamEvents {
   static const String receiveOffer = 'livestream:receive-offer';
   static const String receiveAnswer = 'livestream:receive-answer';
   static const String receiveIceCandidate = 'livestream:receive-ice-candidate';
-  static const String participantMediaChanged = 'livestream:participant-media-changed';
+  static const String participantMediaChanged =
+      'livestream:participant-media-changed';
 }
 
 /// Livestream join payload
@@ -373,7 +376,8 @@ class NotificationPayload {
   final int userId;
   final String title;
   final String body;
-  final String type; // 'chat' | 'quiz' | 'livestream' | 'announcement' | 'grade'
+  final String
+  type; // 'chat' | 'quiz' | 'livestream' | 'announcement' | 'grade'
   final Map<String, dynamic>? data;
   final String priority; // 'low' | 'normal' | 'high'
 

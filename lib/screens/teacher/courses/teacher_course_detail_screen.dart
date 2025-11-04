@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-// ignore: unused_import
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // TODO: Convert to ConsumerStatefulWidget for state management
-// ignore: unused_import
-import '../../../features/courses/courses_service.dart'; // TODO: Replace mock data with real service calls
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/services/logger_service.dart';
 import '../../../features/courses/course_model.dart';
 
 // Mock data model for course content
@@ -19,19 +18,22 @@ class CourseSection {
   CourseSection({required this.title, required this.lectures});
 }
 
-class TeacherCourseDetailScreen extends StatefulWidget {
+class TeacherCourseDetailScreen extends ConsumerStatefulWidget {
   final Course course;
 
   const TeacherCourseDetailScreen({super.key, required this.course});
 
   @override
-  State<TeacherCourseDetailScreen> createState() =>
+  ConsumerState<TeacherCourseDetailScreen> createState() =>
       _TeacherCourseDetailScreenState();
 }
 
-class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
+class _TeacherCourseDetailScreenState
+    extends ConsumerState<TeacherCourseDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
 
   // Mock data for the curriculum - In a real app, this would be fetched or empty
   final List<CourseSection> _courseContent = [
@@ -51,6 +53,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _titleController = TextEditingController(text: widget.course.title);
+    _descriptionController = TextEditingController(text: widget.course.description);
     // Add listener to update FAB visibility
     _tabController.addListener(() {
       setState(() {});
@@ -60,6 +64,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -122,9 +128,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
           _tabController.index ==
               1 // Chỉ hiện ở tab "Nội dung"
           ? FloatingActionButton.extended(
-              onPressed: () {
-                // TODO: Hiển thị dialog để thêm chương hoặc bài giảng
-              },
+              onPressed: () => _showAddContentDialog(context),
               label: const Text('Thêm nội dung'),
               icon: const Icon(Icons.add),
             )
@@ -196,9 +200,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
                 title: Text(lecture.title),
                 subtitle: Text(lecture.duration),
                 trailing: const Icon(Icons.drag_handle),
-                onTap: () {
-                  /* TODO: Điều hướng đến màn hình sửa bài giảng */
-                },
+                onTap: () => _editLesson(context, lecture),
               );
             }).toList(),
           ),
@@ -218,12 +220,12 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
       padding: const EdgeInsets.all(16),
       children: [
         TextFormField(
-          initialValue: widget.course.title,
+          controller: _titleController,
           decoration: const InputDecoration(labelText: 'Tên khóa học'),
         ),
         const SizedBox(height: 16),
         TextFormField(
-          initialValue: widget.course.description,
+          controller: _descriptionController,
           decoration: const InputDecoration(labelText: 'Mô tả'),
           maxLines: 4,
         ),
@@ -264,5 +266,105 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
         Text(label, style: const TextStyle(color: Colors.grey)),
       ],
     );
+  }
+
+  /// Show dialog to add new content (chapter or lesson)
+  void _showAddContentDialog(BuildContext context) {
+    LoggerService.instance.info(
+      'Showing add content dialog for course: ${widget.course.id}',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Thêm nội dung mới'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.folder_outlined),
+              title: const Text('Thêm chương mới'),
+              subtitle: const Text('Tạo chương để nhóm các bài giảng'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _addChapter(context);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.play_circle_outline),
+              title: const Text('Thêm bài giảng'),
+              subtitle: const Text('Video, bài đọc, quiz...'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _addLesson(context);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Add new chapter to course
+  void _addChapter(BuildContext context) {
+    LoggerService.instance.info(
+      'Adding new chapter to course: ${widget.course.id}',
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Tính năng thêm chương đang được phát triển'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+
+    // Future: Navigate to chapter creation screen when implemented
+    // Will require: ChapterCreationScreen, chapter model, and API endpoints
+    // context.push('/teacher/courses/${widget.course.id}/chapters/create');
+  }
+
+  /// Add new lesson to course
+  void _addLesson(BuildContext context) {
+    LoggerService.instance.info(
+      'Adding new lesson to course: ${widget.course.id}',
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Tính năng thêm bài giảng đang được phát triển'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+
+    // Future: Navigate to lesson creation screen when implemented
+    // Will require: LessonCreationScreen, lesson model, and API endpoints
+    // context.push('/teacher/courses/${widget.course.id}/lessons/create');
+  }
+
+  /// Edit existing lesson
+  void _editLesson(BuildContext context, Lecture lecture) {
+    LoggerService.instance.info(
+      'Editing lesson: ${lecture.title} in course: ${widget.course.id}',
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Chỉnh sửa bài giảng "${lecture.title}" - Tính năng đang được phát triển',
+        ),
+        backgroundColor: Colors.orange,
+      ),
+    );
+
+    // Future: Navigate to lesson editor screen when implemented
+    // Will require: LessonEditorScreen, lesson update API, and content editor
+    // context.push('/teacher/courses/${widget.course.id}/lessons/${lecture.id}/edit');
   }
 }

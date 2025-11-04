@@ -15,13 +15,32 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
   RangeValues attendanceRange = const RangeValues(0, 100);
   bool showOnlyProblematic = false;
   String searchText = '';
-  
+
   final TextEditingController _searchController = TextEditingController();
 
   // Sample data for dropdowns
-  final List<String> courses = ['Tất cả khóa học', 'Toán cao cấp', 'Lập trình Java', 'Cơ sở dữ liệu', 'Mạng máy tính'];
-  final List<String> statuses = ['Tất cả trạng thái', 'Đang học', 'Tạm dừng', 'Hoàn thành', 'Bỏ học'];
-  final List<String> gradeRanges = ['Tất cả điểm', 'Xuất sắc (9-10)', 'Giỏi (8-8.9)', 'Khá (7-7.9)', 'Trung bình (5-6.9)', 'Yếu (<5)'];
+  final List<String> courses = [
+    'Tất cả khóa học',
+    'Toán cao cấp',
+    'Lập trình Java',
+    'Cơ sở dữ liệu',
+    'Mạng máy tính',
+  ];
+  final List<String> statuses = [
+    'Tất cả trạng thái',
+    'Đang học',
+    'Tạm dừng',
+    'Hoàn thành',
+    'Bỏ học',
+  ];
+  final List<String> gradeRanges = [
+    'Tất cả điểm',
+    'Xuất sắc (9-10)',
+    'Giỏi (8-8.9)',
+    'Khá (7-7.9)',
+    'Trung bình (5-6.9)',
+    'Yếu (<5)',
+  ];
 
   @override
   void initState() {
@@ -48,9 +67,7 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
             size: 28,
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Lọc sinh viên'),
-          ),
+          const Expanded(child: Text('Lọc sinh viên')),
         ],
       ),
       content: SizedBox(
@@ -90,24 +107,22 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Course filter
               _buildSection(
                 title: 'Khóa học',
                 child: DropdownButtonFormField<String>(
-                  initialValue: selectedCourse,
+                  // ignore: deprecated_member_use
+                  value: selectedCourse,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   items: courses.map((course) {
-                    return DropdownMenuItem(
-                      value: course,
-                      child: Text(course),
-                    );
+                    return DropdownMenuItem(value: course, child: Text(course));
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
@@ -116,14 +131,15 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Status filter
               _buildSection(
                 title: 'Trạng thái',
                 child: DropdownButtonFormField<String>(
-                  initialValue: selectedStatus,
+                  // ignore: deprecated_member_use
+                  value: selectedStatus,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -155,24 +171,22 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Grade range filter
               _buildSection(
                 title: 'Khoảng điểm',
                 child: DropdownButtonFormField<String>(
-                  initialValue: selectedGradeRange,
+                  // ignore: deprecated_member_use
+                  value: selectedGradeRange,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   items: gradeRanges.map((range) {
-                    return DropdownMenuItem(
-                      value: range,
-                      child: Text(range),
-                    );
+                    return DropdownMenuItem(value: range, child: Text(range));
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
@@ -181,12 +195,13 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Attendance range
               _buildSection(
-                title: 'Tỷ lệ tham gia (${attendanceRange.start.round()}% - ${attendanceRange.end.round()}%)',
+                title:
+                    'Tỷ lệ tham gia (${attendanceRange.start.round()}% - ${attendanceRange.end.round()}%)',
                 child: RangeSlider(
                   values: attendanceRange,
                   min: 0,
@@ -203,9 +218,9 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Special filters
               _buildSection(
                 title: 'Bộ lọc đặc biệt',
@@ -217,14 +232,16 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
                     });
                   },
                   title: const Text('Chỉ hiển thị sinh viên có vấn đề'),
-                  subtitle: const Text('Điểm thấp, vắng nhiều, hoặc chưa nộp bài tập'),
+                  subtitle: const Text(
+                    'Điểm thấp, vắng nhiều, hoặc chưa nộp bài tập',
+                  ),
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Quick filters
               _buildSection(
                 title: 'Bộ lọc nhanh',
@@ -232,10 +249,22 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _buildQuickFilter('Sinh viên giỏi', Icons.star, Colors.orange),
+                    _buildQuickFilter(
+                      'Sinh viên giỏi',
+                      Icons.star,
+                      Colors.orange,
+                    ),
                     _buildQuickFilter('Cần hỗ trợ', Icons.help, Colors.red),
-                    _buildQuickFilter('Hoạt động tích cực', Icons.thumb_up, Colors.green),
-                    _buildQuickFilter('Mới tham gia', Icons.new_releases, Colors.blue),
+                    _buildQuickFilter(
+                      'Hoạt động tích cực',
+                      Icons.thumb_up,
+                      Colors.green,
+                    ),
+                    _buildQuickFilter(
+                      'Mới tham gia',
+                      Icons.new_releases,
+                      Colors.blue,
+                    ),
                   ],
                 ),
               ),
@@ -244,18 +273,12 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: _resetFilters,
-          child: const Text('Đặt lại'),
-        ),
+        TextButton(onPressed: _resetFilters, child: const Text('Đặt lại')),
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Hủy'),
         ),
-        ElevatedButton(
-          onPressed: _applyFilters,
-          child: const Text('Áp dụng'),
-        ),
+        ElevatedButton(onPressed: _applyFilters, child: const Text('Áp dụng')),
       ],
     );
   }
@@ -266,10 +289,7 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         const SizedBox(height: 6),
         child,
@@ -289,9 +309,9 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
       ),
       onSelected: (selected) {
         // Handle quick filter selection
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Đã áp dụng bộ lọc: $label')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Đã áp dụng bộ lọc: $label')));
       },
     );
   }
@@ -326,7 +346,7 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
   void _applyFilters() {
     // Simulate applying filters
     Navigator.pop(context);
-    
+
     final filterSummary = _buildFilterSummary();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -343,31 +363,35 @@ class _StudentFilterDialogState extends State<StudentFilterDialog> {
 
   String _buildFilterSummary() {
     List<String> activeFilers = [];
-    
+
     if (searchText.isNotEmpty) {
       activeFilers.add('Tìm kiếm: "$searchText"');
     }
-    
+
     if (selectedCourse != courses[0]) {
       activeFilers.add('Khóa học: $selectedCourse');
     }
-    
+
     if (selectedStatus != statuses[0]) {
       activeFilers.add('Trạng thái: $selectedStatus');
     }
-    
+
     if (selectedGradeRange != gradeRanges[0]) {
       activeFilers.add('Điểm: $selectedGradeRange');
     }
-    
+
     if (attendanceRange.start != 0 || attendanceRange.end != 100) {
-      activeFilers.add('Tham gia: ${attendanceRange.start.round()}-${attendanceRange.end.round()}%');
+      activeFilers.add(
+        'Tham gia: ${attendanceRange.start.round()}-${attendanceRange.end.round()}%',
+      );
     }
-    
+
     if (showOnlyProblematic) {
       activeFilers.add('Sinh viên có vấn đề');
     }
-    
-    return activeFilers.isEmpty ? 'Không có bộ lọc nào' : activeFilers.join(', ');
+
+    return activeFilers.isEmpty
+        ? 'Không có bộ lọc nào'
+        : activeFilers.join(', ');
   }
 }

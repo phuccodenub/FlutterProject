@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../features/admin/system/system_settings_provider.dart';
+import '../../../core/services/snackbar_service.dart';
 
 class SystemSettingsScreen extends ConsumerWidget {
   const SystemSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(systemSettingsProvider);
+    final notifier = ref.read(systemSettingsProvider.notifier);
     return Scaffold(
-      appBar: AppBar(title: const Text('Cài đặt hệ thống')),
+      appBar: AppBar(title: Text(tr('systemSettings.title'))),
       body: ListView(
         children: [
-          _buildGeneralSettings(context),
-          _buildSecuritySettings(context),
-          _buildEmailSettings(context),
+          _buildGeneralSettings(context, settings, notifier),
+          _buildSecuritySettings(context, settings, notifier),
+          _buildEmailSettings(context, settings, notifier),
           _buildStorageSettings(context),
           _buildBackupSettings(context),
-          _buildMaintenanceSettings(context),
+          _buildMaintenanceSettings(context, settings, notifier),
         ],
       ),
     );
   }
 
-  Widget _buildGeneralSettings(BuildContext context) {
+  Widget _buildGeneralSettings(
+    BuildContext context,
+    SystemSettings settings,
+    SystemSettingsNotifier notifier,
+  ) {
     return _buildSettingsSection(context, 'Cài đặt chung', Icons.settings, [
       ListTile(
         leading: const Icon(Icons.info),
@@ -48,15 +57,26 @@ class SystemSettingsScreen extends ConsumerWidget {
         secondary: const Icon(Icons.person_add),
         title: const Text('Cho phép đăng ký mới'),
         subtitle: const Text('Người dùng có thể tự đăng ký tài khoản'),
-        value: true,
+        value: settings.allowRegistration,
         onChanged: (value) {
-          // TODO: Update setting
+          notifier.setAllowRegistration(value);
+          SnackbarService.showInfo(
+            context,
+            value
+                ? tr('systemSettings.allowRegistrationOn')
+                : tr('systemSettings.allowRegistrationOff'),
+            duration: const Duration(seconds: 1),
+          );
         },
       ),
     ]);
   }
 
-  Widget _buildSecuritySettings(BuildContext context) {
+  Widget _buildSecuritySettings(
+    BuildContext context,
+    SystemSettings settings,
+    SystemSettingsNotifier notifier,
+  ) {
     return _buildSettingsSection(context, 'Bảo mật', Icons.security, [
       ListTile(
         leading: const Icon(Icons.lock),
@@ -69,9 +89,15 @@ class SystemSettingsScreen extends ConsumerWidget {
         secondary: const Icon(Icons.verified_user),
         title: const Text('Xác thực 2 bước'),
         subtitle: const Text('Bắt buộc cho tài khoản admin'),
-        value: true,
-        onChanged: (value) {
-          // TODO: Update setting
+        value: settings.twoFactorForAdmin,
+        onChanged: (value) async {
+          await notifier.setTwoFactorForAdmin(value);
+          if (!context.mounted) return;
+          SnackbarService.showInfo(
+            context,
+            value ? 'Bật 2FA cho Admin' : 'Tắt 2FA cho Admin',
+            duration: const Duration(seconds: 1),
+          );
         },
       ),
       ListTile(
@@ -91,7 +117,11 @@ class SystemSettingsScreen extends ConsumerWidget {
     ]);
   }
 
-  Widget _buildEmailSettings(BuildContext context) {
+  Widget _buildEmailSettings(
+    BuildContext context,
+    SystemSettings settings,
+    SystemSettingsNotifier notifier,
+  ) {
     return _buildSettingsSection(context, 'Email', Icons.email, [
       ListTile(
         leading: const Icon(Icons.mail_outline),
@@ -111,24 +141,27 @@ class SystemSettingsScreen extends ConsumerWidget {
         secondary: const Icon(Icons.notifications_active),
         title: const Text('Thông báo tự động'),
         subtitle: const Text('Gửi email khi có hoạt động quan trọng'),
-        value: true,
-        onChanged: (value) {
-          // TODO: Update setting
+        value: settings.autoEmailNotifications,
+        onChanged: (value) async {
+          await notifier.setAutoEmailNotifications(value);
         },
       ),
     ]);
   }
 
   Widget _buildStorageSettings(BuildContext context) {
-    return _buildSettingsSection(context, 'Lưu trữ', Icons.storage, [
+    return _buildSettingsSection(context, tr('systemSettings.storage'), Icons.storage, [
       ListTile(
         leading: const Icon(Icons.folder),
         title: const Text('Dung lượng đã sử dụng'),
         subtitle: const Text('156 GB / 500 GB (31%)'),
-        trailing: LinearProgressIndicator(
-          value: 0.31,
-          backgroundColor: Colors.grey.shade300,
-          minHeight: 6,
+        trailing: SizedBox(
+          width: 100,
+          child: LinearProgressIndicator(
+            value: 0.31,
+            backgroundColor: Colors.grey.shade300,
+            minHeight: 6,
+          ),
         ),
       ),
       ListTile(
@@ -141,7 +174,7 @@ class SystemSettingsScreen extends ConsumerWidget {
       ListTile(
         leading: const Icon(Icons.cleaning_services),
         title: const Text('Dọn dẹp tự động'),
-        subtitle: const Text('Xóa file tạm thời định kỳ'),
+        subtitle: Text(tr('systemSettings.autoCleanup')),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () => _showCleanupSettings(context),
       ),
@@ -174,14 +207,23 @@ class SystemSettingsScreen extends ConsumerWidget {
     ]);
   }
 
-  Widget _buildMaintenanceSettings(BuildContext context) {
+  Widget _buildMaintenanceSettings(
+    BuildContext context,
+    SystemSettings settings,
+    SystemSettingsNotifier notifier,
+  ) {
     return _buildSettingsSection(context, 'Bảo trì', Icons.build, [
       SwitchListTile(
         secondary: const Icon(Icons.construction),
         title: const Text('Chế độ bảo trì'),
         subtitle: const Text('Tạm dừng truy cập hệ thống'),
-        value: false,
-        onChanged: (value) => _showMaintenanceConfirmation(context, value),
+        value: settings.maintenanceMode,
+        onChanged: (value) => _showMaintenanceConfirmation(
+          context,
+          value,
+          onConfirm: () => notifier.setMaintenanceMode(value),
+          onCancel: () => notifier.setMaintenanceMode(false),
+        ),
       ),
       ListTile(
         leading: const Icon(Icons.update),
@@ -192,12 +234,20 @@ class SystemSettingsScreen extends ConsumerWidget {
       ),
       ListTile(
         leading: const Icon(Icons.bug_report),
-        title: const Text('Debug Mode'),
+        title: Text(tr('systemSettings.debugMode')),
         subtitle: const Text('Bật log chi tiết cho dev'),
         trailing: Switch(
-          value: false,
-          onChanged: (value) {
-            // TODO: Toggle debug mode
+          value: settings.debugMode,
+          onChanged: (value) async {
+            await notifier.setDebugMode(value);
+            if (!context.mounted) return;
+            SnackbarService.showInfo(
+              context,
+              value
+                  ? tr('systemSettings.debugModeOn')
+                  : tr('systemSettings.debugModeOff'),
+              duration: const Duration(seconds: 1),
+            );
           },
         ),
       ),
@@ -264,7 +314,7 @@ class SystemSettingsScreen extends ConsumerWidget {
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Đóng'),
+            child: Text(tr('common.close')),
           ),
         ],
       ),
@@ -272,69 +322,91 @@ class SystemSettingsScreen extends ConsumerWidget {
   }
 
   void _showLanguageSettings(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở cài đặt ngôn ngữ...')));
+      'Mở cài đặt ngôn ngữ...',
+      duration: const Duration(seconds: 4),
+    );
   }
 
   void _showTimezoneSettings(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở cài đặt múi giờ...')));
+      'Mở cài đặt múi giờ...',
+      duration: const Duration(seconds: 4),
+    );
   }
 
   void _showPasswordPolicy(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở chính sách mật khẩu...')));
+      'Mở chính sách mật khẩu...',
+      duration: const Duration(seconds: 4),
+    );
   }
 
   void _showSessionSettings(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mở cài đặt phiên đăng nhập...')),
+    SnackbarService.showInfo(
+      context,
+      'Mở cài đặt phiên đăng nhập...',
+      duration: const Duration(seconds: 4),
     );
   }
 
   void _showSecurityLogs(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở nhật ký bảo mật...')));
+      'Mở nhật ký bảo mật...',
+      duration: const Duration(seconds: 4),
+    );
   }
 
   void _showEmailConfig(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở cấu hình email...')));
+      'Mở cấu hình email...',
+      duration: const Duration(seconds: 4),
+    );
   }
 
   void _showEmailTemplates(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mở quản lý template email...')),
+    SnackbarService.showInfo(
+      context,
+      'Mở quản lý template email...',
+      duration: const Duration(seconds: 4),
     );
   }
 
   void _showCloudConfig(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mở cấu hình cloud storage...')),
+    SnackbarService.showInfo(
+      context,
+      'Mở cấu hình cloud storage...',
+      duration: const Duration(seconds: 4),
     );
   }
 
   void _showCleanupSettings(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mở cài đặt dọn dẹp tự động...')),
+    SnackbarService.showInfo(
+      context,
+      'Mở cài đặt dọn dẹp tự động...',
+      duration: const Duration(seconds: 4),
     );
   }
 
   void _showBackupSchedule(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở lịch trình sao lưu...')));
+      'Mở lịch trình sao lưu...',
+      duration: const Duration(seconds: 4),
+    );
   }
 
   void _showBackupHistory(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở lịch sử sao lưu...')));
+      'Mở lịch sử sao lưu...',
+      duration: const Duration(seconds: 4),
+    );
   }
 
   void _performBackup(BuildContext context) {
@@ -349,16 +421,15 @@ class SystemSettingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Hủy'),
+            child: Text(tr('common.cancel')),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Đang thực hiện sao lưu...'),
-                  duration: Duration(seconds: 3),
-                ),
+              SnackbarService.showInfo(
+                context,
+                'Đang thực hiện sao lưu...',
+                duration: const Duration(seconds: 3),
               );
             },
             child: const Text('Bắt đầu'),
@@ -368,31 +439,39 @@ class SystemSettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showMaintenanceConfirmation(BuildContext context, bool enabled) {
-    if (!enabled) return;
+  void _showMaintenanceConfirmation(
+    BuildContext context,
+    bool enabled, {
+    required VoidCallback onConfirm,
+    required VoidCallback onCancel,
+  }) {
+    if (!enabled) {
+      onCancel();
+      return;
+    }
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Chế độ bảo trì'),
-        content: const Text(
-          'Bạn có chắc chắn muốn bật chế độ bảo trì? '
-          'Tất cả người dùng sẽ không thể truy cập hệ thống.',
-        ),
+        title: Text(tr('systemSettings.maintenanceTitle')),
+        content: Text(tr('systemSettings.maintenanceMessage')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Hủy'),
+            child: Text(tr('systemSettings.cancel')),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã bật chế độ bảo trì')),
+              onConfirm();
+              SnackbarService.showInfo(
+                context,
+                tr('systemSettings.enabledMaintenance'),
+                duration: const Duration(seconds: 4),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child: const Text('Bật'),
+            child: Text(tr('systemSettings.enable')),
           ),
         ],
       ),
@@ -400,11 +479,10 @@ class SystemSettingsScreen extends ConsumerWidget {
   }
 
   void _checkForUpdates(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đang kiểm tra cập nhật...'),
-        duration: Duration(seconds: 2),
-      ),
+    SnackbarService.showInfo(
+      context,
+      'Đang kiểm tra cập nhật...',
+      duration: const Duration(seconds: 2),
     );
 
     // Simulate update check - use a safer approach
@@ -415,8 +493,10 @@ class SystemSettingsScreen extends ConsumerWidget {
   }
 
   void _showPerformanceAnalytics(BuildContext context) {
-    ScaffoldMessenger.of(
+    SnackbarService.showInfo(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Mở phân tích hiệu suất...')));
+      'Mở phân tích hiệu suất...',
+      duration: const Duration(seconds: 4),
+    );
   }
 }

@@ -9,10 +9,7 @@ class UrlLauncherService {
     try {
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
-        return await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
+        return await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
       return false;
     } catch (e) {
@@ -26,10 +23,7 @@ class UrlLauncherService {
     try {
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
-        return await launchUrl(
-          uri,
-          mode: LaunchMode.inAppWebView,
-        );
+        return await launchUrl(uri, mode: LaunchMode.inAppWebView);
       }
       return false;
     } catch (e) {
@@ -53,7 +47,7 @@ class UrlLauncherService {
           if (body != null) 'body': body,
         },
       );
-      
+
       if (await canLaunchUrl(uri)) {
         return await launchUrl(uri);
       }
@@ -87,11 +81,9 @@ class UrlLauncherService {
       final uri = Uri(
         scheme: 'sms',
         path: phoneNumber,
-        queryParameters: {
-          if (message != null) 'body': message,
-        },
+        queryParameters: {if (message != null) 'body': message},
       );
-      
+
       if (await canLaunchUrl(uri)) {
         return await launchUrl(uri);
       }
@@ -117,7 +109,7 @@ class UrlLauncherService {
       } else {
         return false;
       }
-      
+
       if (await canLaunchUrl(uri)) {
         return await launchUrl(uri);
       }
@@ -137,7 +129,7 @@ class UrlLauncherService {
       final url = isIOS
           ? 'https://apps.apple.com/app/id$appId'
           : 'https://play.google.com/store/apps/details?id=$appId';
-      
+
       return await openUrl(url);
     } catch (e) {
       debugPrint('❌ Error opening store: $e');
@@ -151,7 +143,8 @@ class UrlLauncherService {
     String? message,
   }) async {
     try {
-      final url = 'https://wa.me/$phoneNumber${message != null ? '?text=${Uri.encodeComponent(message)}' : ''}';
+      final url =
+          'https://wa.me/$phoneNumber${message != null ? '?text=${Uri.encodeComponent(message)}' : ''}';
       return await openUrl(url);
     } catch (e) {
       debugPrint('❌ Error opening WhatsApp: $e');
@@ -186,7 +179,7 @@ class UrlLauncherService {
         default:
           return false;
       }
-      
+
       return await openUrl(url);
     } catch (e) {
       debugPrint('❌ Error opening social media: $e');

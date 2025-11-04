@@ -145,7 +145,13 @@ class LayoutHelper {
     TextOverflow overflow = TextOverflow.ellipsis,
     TextAlign? textAlign,
   }) {
-    return Text(text, style: style, maxLines: maxLines, overflow: overflow, textAlign: textAlign);
+    return Text(
+      text,
+      style: style,
+      maxLines: maxLines,
+      overflow: overflow,
+      textAlign: textAlign,
+    );
   }
 
   /// Container với constraints an toàn
@@ -169,10 +175,13 @@ class LayoutHelper {
             : MediaQuery.of(context).size.height;
 
         final safeWidth = width != null && width > maxWidth ? maxWidth : width;
-        final safeHeight = height != null && height > maxHeight ? maxHeight : height;
+        final safeHeight = height != null && height > maxHeight
+            ? maxHeight
+            : height;
 
         final safeConstraints =
-            constraints ?? BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight);
+            constraints ??
+            BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight);
 
         return Container(
           width: safeWidth,
@@ -210,7 +219,10 @@ class LayoutDebugger extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: color ?? Colors.red.withValues(alpha: 0.5), width: 1),
+        border: Border.all(
+          color: color ?? Colors.red.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
       child: Stack(
         children: [
@@ -241,6 +253,11 @@ class LayoutDebugger extends StatelessWidget {
 /// Extension để debug layout
 extension LayoutDebugExtension on Widget {
   Widget debugLayout({bool show = true, Color? color, String? label}) {
-    return LayoutDebugger(showBounds: show, color: color, label: label, child: this);
+    return LayoutDebugger(
+      showBounds: show,
+      color: color,
+      label: label,
+      child: this,
+    );
   }
 }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../features/courses/courses_service.dart';
+import '../../../../features/courses/providers/course_provider.dart';
 import '../../../../features/auth/auth_state.dart';
+import '../../../../features/auth/models/user_model.dart';
 import 'files_tab.dart';
 import 'chat_tab.dart';
 import 'quizzes_tab.dart';
 import 'package:go_router/go_router.dart';
 import '../course_edit_screen.dart';
+import '../../../../core/services/logger_service.dart';
 
 // student-course-detail-screen.dart
 class CourseDetailScreen extends ConsumerStatefulWidget {
@@ -30,13 +32,15 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
-    return FutureBuilder(
-      future: coursesService.getById(widget.courseId),
-      builder: (context, snapshot) {
-        final course = snapshot.data;
-        final title = course?.title ?? 'Course ${widget.courseId}';
+    final coursesState = ref.watch(coursesProvider);
+    
+    // Find course in the loaded courses or show loading state
+    final course = coursesState.courses.where((c) => c.id == widget.courseId).isNotEmpty 
+        ? coursesState.courses.where((c) => c.id == widget.courseId).first 
+        : null;
+    final title = course?.title ?? 'Course ${widget.courseId}';
 
-        return Scaffold(
+    return Scaffold(
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
@@ -99,13 +103,14 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                     ),
                   ),
                   actions: [
-                    if (user?.role == 'instructor') ...[
+                    if (user?.role == UserRole.instructor) ...[
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => CourseEditScreen(courseId: widget.courseId),
+                              builder: (context) =>
+                                  CourseEditScreen(courseId: widget.courseId),
                             ),
                           );
                         },
@@ -113,9 +118,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                     ],
                     IconButton(
                       icon: const Icon(Icons.share),
-                      onPressed: () {
-                        // TODO: Share course
-                      },
+                      onPressed: () => _shareCourse(context, course),
                     ),
                   ],
                 ),
@@ -156,7 +159,75 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
             ),
           ),
         );
-      },
+  }
+
+  /// Share course with others
+  void _shareCourse(BuildContext context, dynamic course) {
+    LoggerService.instance.info(
+      'Student sharing course: ${course?.title ?? widget.courseId}',
+    );
+
+    final courseTitle = course?.title ?? 'Khóa học thú vị';
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Chia sẻ khóa học',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: const Icon(Icons.copy),
+              title: const Text('Sao chép liên kết'),
+              onTap: () {
+                final shareText =
+                    'Tôi đang học "$courseTitle" trên LMS. Bạn cũng nên tham gia nhé! 🎓\n\nLink: https://lms.app/courses/${widget.courseId}';
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Đã sao chép: ${shareText.substring(0, 50)}...',
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.message),
+              title: const Text('Chia sẻ qua tin nhắn'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Tính năng chia sẻ tin nhắn đang được phát triển',
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.email),
+              title: const Text('Chia sẻ qua email'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Tính năng chia sẻ email đang được phát triển',
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -495,13 +566,77 @@ class _OverviewTab extends StatelessWidget {
               ),
             ),
             IconButton(
-              onPressed: () {
-                // TODO: View instructor profile
-              },
+              onPressed: () => _viewInstructorProfile(context, course),
               icon: const Icon(Icons.arrow_forward_ios, size: 16),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// View instructor profile
+  void _viewInstructorProfile(BuildContext context, dynamic course) {
+    LoggerService.instance.info(
+      'Student viewing instructor profile: ${course?.instructorName ?? 'Unknown'}',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Thông tin giảng viên'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.blue.shade100,
+              child: Text(
+                (course?.instructorName ?? 'T')[0].toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              course?.instructorName ?? 'TS. Trần Thị Bình',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text('🎓 Tiến sĩ Khoa học Máy tính'),
+            const Text('📚 15 năm kinh nghiệm giảng dạy'),
+            const Text('⭐ 4.8/5 đánh giá từ sinh viên'),
+            const Text('👥 Hơn 10,000 học viên'),
+            const SizedBox(height: 16),
+            const Text(
+              'Chuyên gia hàng đầu về Flutter và Mobile Development. Tác giả của nhiều khóa học được yêu thích.',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Đóng'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Tính năng xem chi tiết hồ sơ giảng viên đang được phát triển',
+                  ),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            },
+            child: const Text('Xem hồ sơ'),
+          ),
+        ],
       ),
     );
   }

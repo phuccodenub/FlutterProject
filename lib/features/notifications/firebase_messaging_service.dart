@@ -1,16 +1,23 @@
+import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/network/dio_provider.dart';
+import '../../core/services/navigation_service.dart';
+import '../../core/services/logger_service.dart';
 import 'local_notification_service.dart';
 
 /// Firebase Cloud Messaging Service
 /// Handles push notifications from server
 class FirebaseMessagingService {
-  static final FirebaseMessagingService _instance = FirebaseMessagingService._internal();
+  static final FirebaseMessagingService _instance =
+      FirebaseMessagingService._internal();
   factory FirebaseMessagingService() => _instance;
   FirebaseMessagingService._internal();
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final LocalNotificationService _localNotificationService = LocalNotificationService();
+  final LocalNotificationService _localNotificationService =
+      LocalNotificationService();
 
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
@@ -37,7 +44,7 @@ class FirebaseMessagingService {
         _firebaseMessaging.onTokenRefresh.listen((newToken) {
           _fcmToken = newToken;
           debugPrint('🔄 FCM Token refreshed: $newToken');
-          // TODO: Send new token to backend
+          // Send new token to backend automatically
           _sendTokenToBackend(newToken);
         });
 
@@ -45,7 +52,9 @@ class FirebaseMessagingService {
         FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
         // Handle background message tap
-        FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessageTap);
+        FirebaseMessaging.onMessageOpenedApp.listen(
+          _handleBackgroundMessageTap,
+        );
 
         // Check if app opened from terminated state via notification
         final initialMessage = await _firebaseMessaging.getInitialMessage();
@@ -64,7 +73,7 @@ class FirebaseMessagingService {
   }
 
   /// Handle foreground message (app is open)
-  void _handleForegroundMessage(RemoteMessage message) {
+  Future<void> _handleForegroundMessage(RemoteMessage message) async {
     debugPrint('📬 FCM Foreground Message: ${message.notification?.title}');
 
     // Show local notification
@@ -78,45 +87,108 @@ class FirebaseMessagingService {
     }
 
     // Handle data payload
-    _handleMessageData(message.data);
+    await _handleMessageData(message.data);
   }
 
   /// Handle background/terminated message tap
-  void _handleBackgroundMessageTap(RemoteMessage message) {
+  Future<void> _handleBackgroundMessageTap(RemoteMessage message) async {
     debugPrint('👆 FCM Message Tapped: ${message.notification?.title}');
-    _handleMessageData(message.data);
+    await _handleMessageData(message.data);
   }
 
   /// Handle message data and route to appropriate screen
-  void _handleMessageData(Map<String, dynamic> data) {
+  Future<void> _handleMessageData(Map<String, dynamic> data) async {
     final type = data['type'] as String?;
-    
+
     switch (type) {
       case 'assignment':
         final courseId = data['course_id'] as String?;
         final assignmentId = data['assignment_id'] as String?;
-        debugPrint('📝 Navigate to Assignment: $assignmentId in Course: $courseId');
-        // TODO: Navigate to assignment detail
+        debugPrint(
+          '📝 Navigate to Assignment: $assignmentId in Course: $courseId',
+        );
+        if (courseId != null && assignmentId != null) {
+          try {
+            await NavigationService.instance.navigateToAssignment(
+              courseId,
+              assignmentId,
+            );
+            LoggerService.instance.info(
+              'Navigated to assignment: $assignmentId via Firebase notification',
+            );
+          } catch (e) {
+            LoggerService.instance.error(
+              'Failed to navigate to assignment via Firebase notification',
+              e,
+            );
+          }
+        }
         break;
-        
+
       case 'livestream':
+        final courseId = data['course_id'] as String?;
         final streamId = data['stream_id'] as String?;
         debugPrint('📹 Navigate to Livestream: $streamId');
-        // TODO: Navigate to livestream
+        if (courseId != null && streamId != null) {
+          try {
+            await NavigationService.instance.navigateToLivestream(
+              courseId,
+              streamId,
+            );
+            LoggerService.instance.info(
+              'Navigated to livestream: $streamId via Firebase notification',
+            );
+          } catch (e) {
+            LoggerService.instance.error(
+              'Failed to navigate to livestream via Firebase notification',
+              e,
+            );
+          }
+        }
         break;
-        
+
       case 'grade':
+        final courseId = data['course_id'] as String?;
         final quizId = data['quiz_id'] as String?;
+        final attemptId = data['attempt_id'] as String?;
         debugPrint('📊 Navigate to Grade: $quizId');
-        // TODO: Navigate to quiz result
+        if (courseId != null && quizId != null && attemptId != null) {
+          try {
+            await NavigationService.instance.navigateToQuizResult(
+              courseId,
+              quizId,
+              attemptId,
+            );
+            LoggerService.instance.info(
+              'Navigated to quiz result: $quizId/$attemptId via Firebase notification',
+            );
+          } catch (e) {
+            LoggerService.instance.error(
+              'Failed to navigate to quiz result via Firebase notification',
+              e,
+            );
+          }
+        }
         break;
-        
+
       case 'chat':
         final courseId = data['course_id'] as String?;
         debugPrint('💬 Navigate to Chat: $courseId');
-        // TODO: Navigate to chat
+        if (courseId != null) {
+          try {
+            await NavigationService.instance.navigateToChat(courseId);
+            LoggerService.instance.info(
+              'Navigated to chat: $courseId via Firebase notification',
+            );
+          } catch (e) {
+            LoggerService.instance.error(
+              'Failed to navigate to chat via Firebase notification',
+              e,
+            );
+          }
+        }
         break;
-        
+
       default:
         debugPrint('ℹ️ Unknown notification type: $type');
     }
@@ -125,14 +197,20 @@ class FirebaseMessagingService {
   /// Send FCM token to backend
   Future<void> _sendTokenToBackend(String token) async {
     try {
-      // TODO: Implement API call to send token to backend
       debugPrint('📤 Sending FCM token to backend: $token');
       
-      // Example:
-      // await dio.post('/api/fcm/register', data: {
-      //   'token': token,
-      //   'device_type': Platform.isIOS ? 'ios' : 'android',
-      // });
+      // Get Dio instance from provider container
+      final container = ProviderContainer();
+      final dio = container.read(dioProvider);
+      
+      await dio.post('/api/fcm/register', data: {
+        'token': token,
+        'device_type': Platform.isIOS ? 'ios' : 'android',
+        'app_version': '1.0.0', // Could be dynamic
+      });
+      
+      debugPrint('✅ FCM token registered successfully');
+      container.dispose();
     } catch (e) {
       debugPrint('❌ Error sending FCM token: $e');
     }

@@ -20,25 +20,25 @@ class ApiException implements Exception {
 
 class NetworkException extends ApiException {
   NetworkException({required super.message})
-      : super(errorCode: 'NETWORK_ERROR');
+    : super(errorCode: 'NETWORK_ERROR');
 }
 
 class AuthenticationException extends ApiException {
-  AuthenticationException({String? message}) 
-      : super(
-          message: message ?? 'Authentication failed',
-          statusCode: 401,
-          errorCode: 'AUTHENTICATION_ERROR',
-        );
+  AuthenticationException({String? message})
+    : super(
+        message: message ?? 'Authentication failed',
+        statusCode: 401,
+        errorCode: 'AUTHENTICATION_ERROR',
+      );
 }
 
 class AuthorizationException extends ApiException {
-  AuthorizationException({String? message}) 
-      : super(
-          message: message ?? 'Access forbidden',
-          statusCode: 403,
-          errorCode: 'AUTHORIZATION_ERROR',
-        );
+  AuthorizationException({String? message})
+    : super(
+        message: message ?? 'Access forbidden',
+        statusCode: 403,
+        errorCode: 'AUTHORIZATION_ERROR',
+      );
 }
 
 class ValidationException extends ApiException {
@@ -46,41 +46,32 @@ class ValidationException extends ApiException {
     required super.message,
     Map<String, dynamic>? validationErrors,
   }) : super(
-          statusCode: 422,
-          errorCode: 'VALIDATION_ERROR',
-          details: validationErrors,
-        );
+         statusCode: 422,
+         errorCode: 'VALIDATION_ERROR',
+         details: validationErrors,
+       );
 }
 
 class NotFoundException extends ApiException {
-  NotFoundException({required super.message}) 
-      : super(
-          statusCode: 404,
-          errorCode: 'NOT_FOUND',
-        );
+  NotFoundException({required super.message})
+    : super(statusCode: 404, errorCode: 'NOT_FOUND');
 }
 
 class ConflictException extends ApiException {
-  ConflictException({required super.message}) 
-      : super(
-          statusCode: 409,
-          errorCode: 'CONFLICT',
-        );
+  ConflictException({required super.message})
+    : super(statusCode: 409, errorCode: 'CONFLICT');
 }
 
 class ServerException extends ApiException {
-  ServerException({String? message}) 
-      : super(
-          message: message ?? 'Internal server error',
-          statusCode: 500,
-          errorCode: 'SERVER_ERROR',
-        );
+  ServerException({String? message})
+    : super(
+        message: message ?? 'Internal server error',
+        statusCode: 500,
+        errorCode: 'SERVER_ERROR',
+      );
 }
 
 class TimeoutException extends ApiException {
-  TimeoutException({String? message}) 
-      : super(
-          message: message ?? 'Request timeout',
-          errorCode: 'TIMEOUT_ERROR',
-        );
+  TimeoutException({String? message})
+    : super(message: message ?? 'Request timeout', errorCode: 'TIMEOUT_ERROR');
 }

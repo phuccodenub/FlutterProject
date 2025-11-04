@@ -23,13 +23,15 @@ class FileSaverService {
         ext: _getFileExtension(fileName),
         mimeType: mimeType != null ? _parseMimeType(mimeType) : MimeType.other,
       );
-      
+
       if (path.isNotEmpty) {
         debugPrint('✅ File saved: $path');
         return path;
       }
 
-      debugPrint('⚠️ FileSaver returned an empty path while saving "$fileName"');
+      debugPrint(
+        '⚠️ FileSaver returned an empty path while saving "$fileName"',
+      );
       return null;
     } catch (e) {
       debugPrint('❌ Error saving file: $e');
@@ -45,11 +47,8 @@ class FileSaverService {
     try {
       final bytes = await file.readAsBytes();
       final fileName = customName ?? file.path.split('/').last;
-      
-      return await saveFile(
-        bytes: bytes,
-        fileName: fileName,
-      );
+
+      return await saveFile(bytes: bytes, fileName: fileName);
     } catch (e) {
       debugPrint('❌ Error saving from file: $e');
       return null;
@@ -64,7 +63,7 @@ class FileSaverService {
   }) async {
     try {
       debugPrint('📥 Downloading: $url');
-      
+
       // Download file
       final response = await _dio.get(
         url,
@@ -80,13 +79,10 @@ class FileSaverService {
 
       if (response.statusCode == 200) {
         final bytes = Uint8List.fromList(response.data);
-        
+
         // Save file
-        final path = await saveFile(
-          bytes: bytes,
-          fileName: fileName,
-        );
-        
+        final path = await saveFile(bytes: bytes, fileName: fileName);
+
         return path;
       }
       return null;
@@ -132,10 +128,7 @@ class FileSaverService {
       } else if (Platform.isIOS) {
         // iOS doesn't have direct Downloads folder access
         // Use FileSaver which handles platform-specific location
-        return await saveFile(
-          bytes: bytes,
-          fileName: fileName,
-        );
+        return await saveFile(bytes: bytes, fileName: fileName);
       }
       return null;
     } catch (e) {
@@ -152,7 +145,7 @@ class FileSaverService {
     try {
       final extension = _getFileExtension(fileName);
       MimeType mimeType;
-      
+
       switch (extension.toLowerCase()) {
         case 'jpg':
         case 'jpeg':
@@ -164,20 +157,22 @@ class FileSaverService {
         default:
           mimeType = MimeType.other;
       }
-      
+
       final String path = await FileSaver.instance.saveFile(
         name: fileName,
         bytes: bytes,
         ext: extension,
         mimeType: mimeType,
       );
-      
+
       if (path.isNotEmpty) {
         debugPrint('✅ Image saved to gallery: $path');
         return path;
       }
 
-      debugPrint('⚠️ FileSaver returned an empty path while saving image "$fileName"');
+      debugPrint(
+        '⚠️ FileSaver returned an empty path while saving image "$fileName"',
+      );
       return null;
     } catch (e) {
       debugPrint('❌ Error saving image to gallery: $e');
@@ -196,15 +191,33 @@ class FileSaverService {
 
   /// Parse MIME type string to MimeType enum
   static MimeType _parseMimeType(String mimeType) {
-    if (mimeType.contains('pdf')) return MimeType.pdf;
-    if (mimeType.contains('jpeg') || mimeType.contains('jpg')) return MimeType.jpeg;
-    if (mimeType.contains('png')) return MimeType.png;
-    if (mimeType.contains('doc')) return MimeType.microsoftWord;
-    if (mimeType.contains('xls')) return MimeType.microsoftExcel;
-    if (mimeType.contains('ppt')) return MimeType.microsoftPresentation;
-    if (mimeType.contains('zip')) return MimeType.zip;
-    if (mimeType.contains('video')) return MimeType.avi;
-    if (mimeType.contains('audio')) return MimeType.aac;
+    if (mimeType.contains('pdf')) {
+      return MimeType.pdf;
+    }
+    if (mimeType.contains('jpeg') || mimeType.contains('jpg')) {
+      return MimeType.jpeg;
+    }
+    if (mimeType.contains('png')) {
+      return MimeType.png;
+    }
+    if (mimeType.contains('doc')) {
+      return MimeType.microsoftWord;
+    }
+    if (mimeType.contains('xls')) {
+      return MimeType.microsoftExcel;
+    }
+    if (mimeType.contains('ppt')) {
+      return MimeType.microsoftPresentation;
+    }
+    if (mimeType.contains('zip')) {
+      return MimeType.zip;
+    }
+    if (mimeType.contains('video')) {
+      return MimeType.avi;
+    }
+    if (mimeType.contains('audio')) {
+      return MimeType.aac;
+    }
     return MimeType.other;
   }
 

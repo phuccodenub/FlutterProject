@@ -48,18 +48,12 @@ class _AnimatedButtonState extends State<AnimatedButton>
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: widget.scaleOnTap,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _elevationAnimation = Tween<double>(
       begin: widget.elevation,
       end: widget.elevation + 2,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -149,10 +143,7 @@ class _PulseButtonState extends State<PulseButton>
     _pulseAnimation = Tween<double>(
       begin: 1.0,
       end: widget.pulseScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.repeat(reverse: true);
   }
@@ -208,8 +199,12 @@ class _RippleButtonState extends State<RippleButton> {
       child: InkWell(
         onTap: widget.onPressed,
         borderRadius: widget.borderRadius,
-        splashColor: widget.rippleColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.3),
-        highlightColor: widget.rippleColor ?? Theme.of(context).primaryColor.withValues(alpha: 0.1),
+        splashColor:
+            widget.rippleColor ??
+            Theme.of(context).primaryColor.withValues(alpha: 0.3),
+        highlightColor:
+            widget.rippleColor ??
+            Theme.of(context).primaryColor.withValues(alpha: 0.1),
         child: Padding(
           padding: widget.padding ?? EdgeInsets.zero,
           child: widget.child,
@@ -253,10 +248,7 @@ class _BounceButtonState extends State<BounceButton>
     _bounceAnimation = Tween<double>(
       begin: 1.0,
       end: widget.bounceScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
   }
 
   @override
@@ -325,10 +317,7 @@ class _ShakeButtonState extends State<ShakeButton>
     _shakeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticIn,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticIn));
   }
 
   @override
@@ -358,8 +347,11 @@ class _ShakeButtonState extends State<ShakeButton>
       child: AnimatedBuilder(
         animation: _shakeAnimation,
         builder: (context, child) {
-          final offset = _shakeAnimation.value * widget.shakeOffset * 
-              (1 - _shakeAnimation.value) * 4;
+          final offset =
+              _shakeAnimation.value *
+              widget.shakeOffset *
+              (1 - _shakeAnimation.value) *
+              4;
           return Transform.translate(
             offset: Offset(offset * (1 - _shakeAnimation.value * 2).sign, 0),
             child: widget.child,
@@ -395,7 +387,6 @@ class _GlowButtonState extends State<GlowButton>
   late AnimationController _controller;
   late Animation<double> _glowAnimation;
 
-
   @override
   void initState() {
     super.initState();
@@ -407,10 +398,7 @@ class _GlowButtonState extends State<GlowButton>
     _glowAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -447,7 +435,9 @@ class _GlowButtonState extends State<GlowButton>
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: glowColor.withValues(alpha: _glowAnimation.value * 0.6),
+                  color: glowColor.withValues(
+                    alpha: _glowAnimation.value * 0.6,
+                  ),
                   blurRadius: widget.glowRadius * _glowAnimation.value,
                   spreadRadius: widget.glowRadius * _glowAnimation.value * 0.3,
                 ),

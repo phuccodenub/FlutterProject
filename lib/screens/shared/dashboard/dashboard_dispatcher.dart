@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/auth_state.dart';
+import '../../../features/auth/models/user_model.dart';
 import 'package:go_router/go_router.dart';
 import '../../student/dashboard/student_dashboard.dart';
 import '../../teacher/dashboard/teacher_dashboard.dart';
@@ -40,29 +41,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  String _getDashboardTitle(String role) {
+  String _getDashboardTitle(UserRole role) {
     switch (role) {
-      case 'student':
+      case UserRole.student:
         return 'Trang chủ Sinh viên';
-      case 'instructor':
+      case UserRole.instructor:
         return 'Trang chủ Giáo viên';
-      case 'admin':
+      case UserRole.admin:
+      case UserRole.superAdmin:
         return 'Trang chủ Quản trị';
-      default:
-        return 'Dashboard';
     }
   }
 
-  Widget _buildDashboardBody(User user) {
+  Widget _buildDashboardBody(UserModel user) {
     switch (user.role) {
-      case 'student':
+      case UserRole.student:
         return StudentDashboard(user: user);
-      case 'instructor':
+      case UserRole.instructor:
         return TeacherDashboard(user: user);
-      case 'admin':
+      case UserRole.admin:
+      case UserRole.superAdmin:
         return AdminDashboard(user: user);
-      default:
-        return const Center(child: Text('Unsupported user role'));
     }
   }
 }

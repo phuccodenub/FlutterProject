@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ShimmerLoading extends StatelessWidget {
-  const ShimmerLoading({super.key, this.width, this.height = 16, this.borderRadius = 4});
+  const ShimmerLoading({
+    super.key,
+    this.width,
+    this.height = 16,
+    this.borderRadius = 4,
+  });
 
   final double? width;
   final double height;
@@ -139,13 +144,17 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
             if (action != null && actionLabel != null) ...[
@@ -182,13 +191,17 @@ class ErrorState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Oops! Something went wrong',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[
@@ -212,7 +225,11 @@ class ErrorState extends StatelessWidget {
 
 // Network Error Overlay
 class NetworkErrorOverlay extends StatelessWidget {
-  const NetworkErrorOverlay({super.key, required this.isVisible, required this.onRetry});
+  const NetworkErrorOverlay({
+    super.key,
+    required this.isVisible,
+    required this.onRetry,
+  });
 
   final bool isVisible;
   final VoidCallback onRetry;
@@ -239,14 +256,20 @@ class NetworkErrorOverlay extends StatelessWidget {
                 const Expanded(
                   child: Text(
                     'No internet connection',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 TextButton(
                   onPressed: onRetry,
                   child: const Text(
                     'RETRY',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -279,7 +302,10 @@ class LoadingOverlay extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const CircularProgressIndicator(),
-                if (message != null) ...[const SizedBox(height: 16), Text(message!)],
+                if (message != null) ...[
+                  const SizedBox(height: 16),
+                  Text(message!),
+                ],
               ],
             ),
           ),

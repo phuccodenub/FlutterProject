@@ -6,6 +6,7 @@ import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/services/logger_service.dart';
 
 class StudentDashboard extends ConsumerWidget {
   const StudentDashboard({super.key, required this.user});
@@ -21,13 +22,14 @@ class StudentDashboard extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Quick Actions
-        _buildSectionHeader('Truy cập nhanh', Icons.flash_on),
+        _buildSectionHeader(context, 'Truy cập nhanh', Icons.flash_on),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildQuickActions(context),
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Learning Progress
         _buildSectionHeader(
+          context,
           'Tiến độ học tập',
           Icons.trending_up,
           action: 'Xem tất cả',
@@ -37,20 +39,25 @@ class StudentDashboard extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Analytics
-        _buildSectionHeader('Thống kê', Icons.analytics),
+        _buildSectionHeader(context, 'Thống kê', Icons.analytics),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildAnalytics(context),
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Recommendations
-        _buildSectionHeader('Gợi ý cho bạn', Icons.recommend),
+        _buildSectionHeader(context, 'Gợi ý cho bạn', Icons.recommend),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildRecommendations(context),
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon, {String? action}) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    IconData icon, {
+    String? action,
+  }) {
     return Row(
       children: [
         Container(
@@ -66,9 +73,7 @@ class StudentDashboard extends ConsumerWidget {
         if (action != null) ...[
           const Spacer(),
           TextButton(
-            onPressed: () {
-              // TODO: Handle action
-            },
+            onPressed: () => _handleSectionAction(context, title),
             child: Text(
               action,
               style: AppTypography.bodySmall.copyWith(
@@ -218,39 +223,8 @@ class StudentDashboard extends ConsumerWidget {
             ),
           ),
         ),
-        ActionCard(
-          title: 'Live Streams',
-          subtitle: '2 buổi học trực tuyến',
-          icon: Icons.videocam_outlined,
-          iconColor: AppColors.error,
-          iconBackgroundColor: AppColors.errorContainer,
-          onTap: () => context.go('/my-courses'),
-        ),
-        ActionCard(
-          title: 'Bài tập',
-          subtitle: '3 bài tập chưa nộp',
-          icon: Icons.quiz_outlined,
-          iconColor: AppColors.secondary,
-          iconBackgroundColor: AppColors.secondaryContainer,
-          onTap: () => context.go('/my-courses'),
-          trailing: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs2,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.secondary,
-              borderRadius: BorderRadius.circular(AppRadius.full),
-            ),
-            child: Text(
-              '3',
-              style: AppTypography.caption.copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
+        // Removed non-essential features: Live Streams and Assignments
+        // Keep only core features: Courses and Notifications
       ],
     );
   }
@@ -340,9 +314,8 @@ class StudentDashboard extends ConsumerWidget {
               'Khóa học cơ bản về thiết kế giao diện và trải nghiệm người dùng',
           icon: Icons.design_services,
           iconColor: Colors.pink,
-          onTap: () {
-            // TODO: Navigate to course detail
-          },
+          onTap: () =>
+              _viewCourseRecommendation(context, 'UI/UX Design Fundamentals'),
         ),
         const SizedBox(height: AppSpacing.sm),
         InfoCard(
@@ -352,9 +325,8 @@ class StudentDashboard extends ConsumerWidget {
               'Học cách phát triển ứng dụng di động với Flutter và React Native',
           icon: Icons.phone_android,
           iconColor: Colors.indigo,
-          onTap: () {
-            // TODO: Navigate to course detail
-          },
+          onTap: () =>
+              _viewCourseRecommendation(context, 'Mobile App Development'),
         ),
         const SizedBox(height: AppSpacing.sm),
         InfoCard(
@@ -364,11 +336,69 @@ class StudentDashboard extends ConsumerWidget {
               'Làm quen với điện toán đám mây và các dịch vụ AWS, Azure',
           icon: Icons.cloud,
           iconColor: Colors.blue,
-          onTap: () {
-            // TODO: Navigate to course detail
-          },
+          onTap: () =>
+              _viewCourseRecommendation(context, 'Cloud Computing Basics'),
         ),
       ],
+    );
+  }
+
+  /// Handle section header actions (Xem tất cả)
+  void _handleSectionAction(BuildContext context, String sectionTitle) {
+    LoggerService.instance.info('Student accessing section: $sectionTitle');
+
+    switch (sectionTitle.toLowerCase()) {
+      case 'tiến độ học tập':
+        context.go('/student/progress');
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Xem tất cả "$sectionTitle" - Tính năng đang được phát triển',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+    }
+  }
+
+  /// View course recommendation details
+  void _viewCourseRecommendation(BuildContext context, String courseTitle) {
+    LoggerService.instance.info(
+      'Student viewing course recommendation: $courseTitle',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Khóa học gợi ý'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Bạn quan tâm đến khóa học "$courseTitle"?'),
+            const SizedBox(height: 16),
+            const Text(
+              'Chúng tôi có thể gợi ý một số khóa học tương tự dựa trên sở thích của bạn.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Để sau'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/courses/recommendations');
+            },
+            child: const Text('Xem khóa học'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,4 +1,15 @@
 {
+  "common": {
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "apply": "Áp dụng",
+    "close": "Đóng",
+    "save": "Lưu",
+    "create": "Tạo",
+    "clear": "Xóa",
+    "reset": "Đặt lại",
+    "ok": "OK"
+  },
   "home": {
     "title": "Hệ thống quản lý học tập thời gian thực",
     "subtitle": "Hệ thống hiện đại với chat thời gian thực, phát trực tiếp và bài kiểm tra tương tác.",
@@ -18,6 +29,138 @@
       "email": "Email",
       "password": "Mật khẩu",
       "submit": "Tạo tài khoản"
+    }
+  },
+  "systemSettings": {
+    "title": "Cài đặt hệ thống",
+    "debugMode": "Chế độ gỡ lỗi",
+    "allowRegistrationOn": "Đã bật đăng ký mới",
+    "allowRegistrationOff": "Đã tắt đăng ký mới",
+    "debugModeOn": "Đã bật Debug Mode",
+    "debugModeOff": "Đã tắt Debug Mode",
+    "maintenanceTitle": "Chế độ bảo trì",
+    "maintenanceMessage": "Bạn có chắc chắn muốn bật chế độ bảo trì? Tất cả người dùng sẽ không thể truy cập hệ thống.",
+    "enabledMaintenance": "Đã bật chế độ bảo trì",
+    "cancel": "Hủy",
+    "enable": "Bật",
+    "storage": "Lưu trữ",
+    "autoCleanup": "Xóa file tạm thời định kỳ"
+  },
+  "security": {
+    "title": "Bảo mật tài khoản",
+    "changePassword": "Đổi mật khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmNewPassword": "Xác nhận mật khẩu mới",
+    "enterCurrentPassword": "Vui lòng nhập mật khẩu hiện tại",
+    "enterNewPassword": "Vui lòng nhập mật khẩu mới",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+    "confirmNotMatch": "Mật khẩu xác nhận không khớp",
+    "updating": "Đang cập nhật...",
+    "updatePassword": "Cập nhật mật khẩu",
+    "changePasswordSuccess": "Đổi mật khẩu thành công",
+    "changePasswordFailed": "Đổi mật khẩu thất bại",
+    "biometricsTitle": "Đăng nhập bằng sinh trắc học",
+    "comingSoon": "Sắp ra mắt",
+    "twoFactor": "Xác thực 2 lớp (2FA)",
+    "activeSessions": "Phiên hoạt động",
+    "refresh": "Làm mới",
+    "noSessions": "Không có phiên nào hoạt động",
+    "current": "Hiện tại",
+    "logout": "Đăng xuất",
+    "loadSessionsError": "Không tải được danh sách phiên: {0}",
+    "sessionsErrorSnack": "Lỗi tải phiên hoạt động: {0}",
+    "logoutSuccess": "Đã đăng xuất phiên đã chọn",
+    "logoutFailed": "Không thể đăng xuất phiên: {0}",
+    "relative": {
+      "now": "Vừa xong",
+      "minutesAgo": "{0} phút trước",
+      "hoursAgo": "{0} giờ trước",
+      "daysAgo": "{0} ngày trước"
+    }
+  },
+  "chat": {
+    "menu": {
+      "copy": "Sao chép",
+      "copied": "Đã sao chép tin nhắn",
+      "reply": "Trả lời",
+      "markAsRead": "Đánh dấu đã đọc"
+    },
+    "download": {
+      "downloading": "Đang tải {file}...",
+      "failed": "Tải tệp thất bại: {error}",
+      "dialogTitle": "Đang tải",
+      "progress": "{percent}%",
+      "openFailed": "Không mở được tệp"
+    }
+  },
+  "admin": {
+    
+    "filters": {
+      "active": "Đang lọc: {0}",
+      "applied": "Đã áp dụng bộ lọc",
+      "cleared": "Đã xóa bộ lọc"
+    },
+    "users": {
+      "title": "Quản lý người dùng",
+      "tabs": {
+        "student": "Sinh viên",
+        "instructor": "Giáo viên",
+        "admin": "Quản trị"
+      },
+      "menu": {
+        "export": "Xuất danh sách",
+        "import": "Nhập từ file",
+        "settings": "Cài đặt",
+        "view": "Xem chi tiết",
+        "edit": "Chỉnh sửa",
+        "activate": "Kích hoạt",
+        "deactivate": "Vô hiệu hóa",
+        "reset_password": "Đặt lại mật khẩu",
+        "delete": "Xóa"
+      },
+      "exporting": "Đang xuất danh sách người dùng...",
+      "openSettings": "Mở cài đặt quản lý người dùng...",
+      "passwordResetSent": "Đã gửi mật khẩu mới qua email",
+      "deleted": "Đã xóa người dùng",
+      "created": "Đã tạo người dùng mới",
+      "updated": "Đã cập nhật thông tin người dùng",
+      "activated": "Đã kích hoạt tài khoản",
+      "deactivated": "Đã vô hiệu hóa tài khoản",
+      "importComingSoon": "Tính năng nhập file sẽ được cập nhật sớm"
+    },
+    "courses": {
+      "title": "Quản lý khóa học",
+      "tabs": {
+        "active": "Đang hoạt động",
+        "pending": "Chờ duyệt",
+        "suspended": "Đã tạm dừng"
+      },
+      "menu": {
+        "export": "Xuất báo cáo",
+        "categories": "Quản lý danh mục",
+        "settings": "Cài đặt",
+        "view": "Xem chi tiết",
+        "edit": "Chỉnh sửa",
+        "analytics": "Phân tích",
+        "suspend": "Tạm dừng",
+        "delete": "Xóa",
+        "approve": "Duyệt",
+        "reject": "Từ chối",
+        "feedback": "Gửi phản hồi",
+        "restore": "Khôi phục",
+        "delete_permanent": "Xóa vĩnh viễn"
+      },
+      "exporting": "Đang xuất báo cáo khóa học...",
+      "openCategoryManager": "Mở quản lý danh mục...",
+      "openCourseSettings": "Mở cài đặt khóa học...",
+      "openAnalytics": "Mở phân tích khóa học...",
+      "restored": "Đã khôi phục khóa học",
+      "approved": "Đã duyệt khóa học",
+      "rejected": "Đã từ chối khóa học",
+      "paused": "Đã tạm dừng khóa học",
+      "deleted": "Đã xóa khóa học",
+      "goToDetail": "Đi đến trang chi tiết khóa học"
     }
   }
 }

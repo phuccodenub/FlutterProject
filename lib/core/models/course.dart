@@ -95,22 +95,27 @@ class Course {
       rating: (json['rating'] ?? 0).toDouble(),
       totalRatings: json['total_ratings'] ?? 0,
       status: _parseCourseStatus(json['status']),
-      publishedAt: json['published_at'] != null 
-          ? DateTime.parse(json['published_at']) : null,
+      publishedAt: json['published_at'] != null
+          ? DateTime.parse(json['published_at'])
+          : null,
       prerequisites: _parseStringList(json['prerequisites']),
       learningObjectives: _parseStringList(json['learning_objectives']),
       tags: _parseStringList(json['tags']),
       metadata: json['metadata'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
-      instructor: json['instructor'] != null 
-          ? User.fromJson(json['instructor']) : null,
-      category: json['category'] != null 
-          ? Category.fromJson(json['category']) : null,
-      sections: json['sections'] != null 
-          ? (json['sections'] as List).map((s) => Section.fromJson(s)).toList() : null,
-      enrollment: json['enrollment'] != null 
-          ? Enrollment.fromJson(json['enrollment']) : null,
+      instructor: json['instructor'] != null
+          ? User.fromJson(json['instructor'])
+          : null,
+      category: json['category'] != null
+          ? Category.fromJson(json['category'])
+          : null,
+      sections: json['sections'] != null
+          ? (json['sections'] as List).map((s) => Section.fromJson(s)).toList()
+          : null,
+      enrollment: json['enrollment'] != null
+          ? Enrollment.fromJson(json['enrollment'])
+          : null,
     );
   }
 
@@ -152,20 +157,29 @@ class Course {
 
   static CourseLevel _parseCourseLevel(String? level) {
     switch (level) {
-      case 'beginner': return CourseLevel.beginner;
-      case 'intermediate': return CourseLevel.intermediate;
-      case 'advanced': return CourseLevel.advanced;
-      case 'expert': return CourseLevel.expert;
-      default: return CourseLevel.beginner;
+      case 'beginner':
+        return CourseLevel.beginner;
+      case 'intermediate':
+        return CourseLevel.intermediate;
+      case 'advanced':
+        return CourseLevel.advanced;
+      case 'expert':
+        return CourseLevel.expert;
+      default:
+        return CourseLevel.beginner;
     }
   }
 
   static CourseStatus _parseCourseStatus(String? status) {
     switch (status) {
-      case 'draft': return CourseStatus.draft;
-      case 'published': return CourseStatus.published;
-      case 'archived': return CourseStatus.archived;
-      default: return CourseStatus.draft;
+      case 'draft':
+        return CourseStatus.draft;
+      case 'published':
+        return CourseStatus.published;
+      case 'archived':
+        return CourseStatus.archived;
+      default:
+        return CourseStatus.draft;
     }
   }
 
@@ -249,8 +263,9 @@ class Enrollment {
       courseId: json['course_id'],
       status: _parseEnrollmentStatus(json['status']),
       enrolledAt: DateTime.parse(json['enrolled_at']),
-      completedAt: json['completed_at'] != null 
-          ? DateTime.parse(json['completed_at']) : null,
+      completedAt: json['completed_at'] != null
+          ? DateTime.parse(json['completed_at'])
+          : null,
       progress: json['progress']?.toDouble(),
       grade: json['grade']?.toDouble(),
     );
@@ -271,11 +286,16 @@ class Enrollment {
 
   static EnrollmentStatus _parseEnrollmentStatus(String? status) {
     switch (status) {
-      case 'enrolled': return EnrollmentStatus.enrolled;
-      case 'completed': return EnrollmentStatus.completed;
-      case 'dropped': return EnrollmentStatus.dropped;
-      case 'suspended': return EnrollmentStatus.suspended;
-      default: return EnrollmentStatus.enrolled;
+      case 'enrolled':
+        return EnrollmentStatus.enrolled;
+      case 'completed':
+        return EnrollmentStatus.completed;
+      case 'dropped':
+        return EnrollmentStatus.dropped;
+      case 'suspended':
+        return EnrollmentStatus.suspended;
+      default:
+        return EnrollmentStatus.enrolled;
     }
   }
 }
@@ -304,8 +324,9 @@ class Section {
       title: json['title'],
       description: json['description'],
       orderIndex: json['order_index'] ?? 0,
-      lessons: json['lessons'] != null 
-          ? (json['lessons'] as List).map((l) => Lesson.fromJson(l)).toList() : null,
+      lessons: json['lessons'] != null
+          ? (json['lessons'] as List).map((l) => Lesson.fromJson(l)).toList()
+          : null,
     );
   }
 

@@ -1,20 +1,31 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// ignore: unused_import
-import 'package:go_router/go_router.dart'; // TODO: May be used for quiz preview navigation
 import '../../../core/widgets/section_header.dart';
+import '../../../core/models/quiz.dart';
+import '../../../core/providers/quiz_provider.dart';
+import '../../../core/services/logger_service.dart';
 
-enum QuestionType {
-  singleChoice,
-  multipleChoice,
-  trueFalse,
-  shortAnswer,
-  essay,
+enum QuestionType { singleChoice, multipleChoice, trueFalse }
+
+// Helper extension to convert to backend enum
+extension QuestionTypeExtension on QuestionType {
+  QuizQuestionType toBackendType() {
+    switch (this) {
+      case QuestionType.singleChoice:
+        return QuizQuestionType.singleChoice;
+      case QuestionType.multipleChoice:
+        return QuizQuestionType.multipleChoice;
+      case QuestionType.trueFalse:
+        return QuizQuestionType.trueFalse;
+    }
+  }
 }
 
 class QuizCreationScreen extends ConsumerStatefulWidget {
-  const QuizCreationScreen({super.key});
+  const QuizCreationScreen({super.key, required this.courseId, this.quizId});
+
+  final String courseId;
+  final String? quizId;
 
   @override
   ConsumerState<QuizCreationScreen> createState() => _QuizCreationScreenState();
@@ -99,7 +110,8 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    initialValue: _maxAttempts,
+                    // ignore: deprecated_member_use
+                    value: _maxAttempts,
                     decoration: const InputDecoration(
                       labelText: 'Số lần làm tối đa',
                     ),
@@ -295,10 +307,6 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
         return 'Trắc nghiệm nhiều đáp án';
       case QuestionType.trueFalse:
         return 'Đúng/Sai';
-      case QuestionType.shortAnswer:
-        return 'Trả lời ngắn';
-      case QuestionType.essay:
-        return 'Tự luận';
     }
   }
 
@@ -319,11 +327,7 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
     final question = Question(
       type: type,
       title: '',
-      options: type == QuestionType.trueFalse
-          ? ['Đúng', 'Sai']
-          : (type == QuestionType.shortAnswer || type == QuestionType.essay)
-          ? []
-          : [''],
+      options: type == QuestionType.trueFalse ? ['Đúng', 'Sai'] : [''],
       correctAnswers: [],
       points: 1,
       timeLimit: 0,
@@ -372,11 +376,60 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
     }
   }
 
-  void _saveAsDraft() {
-    // TODO: Save quiz as draft
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đã lưu nháp quiz')));
+  void _saveAsDraft() async {
+    if (_titleController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập tiêu đề quiz')),
+      );
+      return;
+    }
+
+    try {
+      // Parse duration from text controller
+      int? durationMinutes;
+      if (_timeController.text.isNotEmpty) {
+        durationMinutes = int.tryParse(_timeController.text);
+      }
+
+      final request = CreateQuizRequest(
+        courseId: widget.courseId,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
+        durationMinutes: durationMinutes,
+        maxAttempts: _maxAttempts,
+        shuffleQuestions: _isRandomOrder,
+        showCorrectAnswers: _showCorrectAnswers,
+        isPublished: false, // Save as draft
+      );
+
+      final quizCreationNotifier = ref.read(quizCreationProvider.notifier);
+      final quiz = await quizCreationNotifier.createQuiz(request);
+
+      if (quiz != null) {
+        LoggerService.instance.info('Quiz saved as draft: ${quiz.id}');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đã lưu nháp quiz thành công!')),
+          );
+        }
+
+        // Navigate back or to quiz editor with the created quiz
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+    } catch (e) {
+      LoggerService.instance.error('Failed to save quiz as draft', e);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi lưu nháp: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   void _publishQuiz() {
@@ -394,11 +447,55 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
       return;
     }
 
-    // TODO: Publish quiz
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã xuất bản quiz thành công!')),
-    );
-    Navigator.of(context).pop();
+    // Publish quiz
+    _publishQuizToBackend();
+  }
+
+  Future<void> _publishQuizToBackend() async {
+    try {
+      // Parse duration from text controller
+      int? durationMinutes;
+      if (_timeController.text.isNotEmpty) {
+        durationMinutes = int.tryParse(_timeController.text);
+      }
+
+      final request = CreateQuizRequest(
+        courseId: widget.courseId,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
+        durationMinutes: durationMinutes,
+        maxAttempts: _maxAttempts,
+        shuffleQuestions: _isRandomOrder,
+        showCorrectAnswers: _showCorrectAnswers,
+        isPublished: true, // Publish quiz
+      );
+
+      final quizCreationNotifier = ref.read(quizCreationProvider.notifier);
+      final quiz = await quizCreationNotifier.createQuiz(request);
+
+      if (quiz != null) {
+        LoggerService.instance.info('Quiz published successfully: ${quiz.id}');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đã xuất bản quiz thành công!')),
+          );
+
+          // Navigate back to course or quiz list
+          Navigator.of(context).pop();
+        }
+      }
+    } catch (e) {
+      LoggerService.instance.error('Failed to publish quiz', e);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi xuất bản quiz: ${e.toString()}')),
+        );
+      }
+    }
   }
 }
 
@@ -442,22 +539,6 @@ class QuestionTypeSelector extends StatelessWidget {
             'Đúng/Sai',
             'Câu hỏi có hai lựa chọn: Đúng hoặc Sai',
             Colors.orange,
-          ),
-          _buildQuestionTypeOption(
-            context,
-            QuestionType.shortAnswer,
-            Icons.short_text,
-            'Trả lời ngắn',
-            'Nhập câu trả lời ngắn (1-2 câu)',
-            Colors.purple,
-          ),
-          _buildQuestionTypeOption(
-            context,
-            QuestionType.essay,
-            Icons.article,
-            'Tự luận',
-            'Câu trả lời dài, cần chấm thủ công',
-            Colors.red,
           ),
         ],
       ),
@@ -595,8 +676,7 @@ class _QuestionEditorDialogState extends State<QuestionEditorDialog> {
   }
 
   bool _needsOptions() {
-    return widget.question.type != QuestionType.shortAnswer &&
-        widget.question.type != QuestionType.essay;
+    return true; // All supported question types need options
   }
 
   List<Widget> _buildOptionFields() {
@@ -609,17 +689,20 @@ class _QuestionEditorDialogState extends State<QuestionEditorDialog> {
         child: Row(
           children: [
             if (widget.question.type == QuestionType.singleChoice)
-              GestureDetector(
+              InkWell(
                 onTap: () {
                   setState(() {
                     _correctAnswers.fillRange(0, _correctAnswers.length, false);
                     _correctAnswers[index] = true;
                   });
                 },
-                child: Radio<int>(
-                  value: index,
-                  groupValue: _correctAnswers.indexWhere((correct) => correct),
-                  onChanged: (_) {},
+                child: Icon(
+                  _correctAnswers[index]
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: _correctAnswers[index]
+                      ? Theme.of(context).primaryColor
+                      : null,
                 ),
               )
             else if (widget.question.type == QuestionType.multipleChoice ||

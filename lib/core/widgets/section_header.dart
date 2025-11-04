@@ -30,7 +30,9 @@ class SectionHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
@@ -42,7 +44,13 @@ class SectionHeader extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Flexible(child: Text(action!, overflow: TextOverflow.ellipsis, maxLines: 1)),
+                    Flexible(
+                      child: Text(
+                        action!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     const Icon(Icons.arrow_forward, size: 16),
                   ],

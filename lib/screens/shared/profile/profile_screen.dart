@@ -1,19 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'dart:typed_data';
 import '../../../core/services/url_launcher_service.dart';
 import '../../../features/auth/auth_state.dart';
+import '../../../features/auth/models/user_model.dart';
+import '../../../core/network/dio_client.dart';
+import '../../../core/config/api_config.dart';
 import '../../../core/widgets/info_card.dart';
 import 'profile_edit_screen.dart';
+import 'security_settings_screen.dart';
 
-class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+class ProfileScreen extends ConsumerStatefulWidget {
+  // Test seams for avatar upload flow
+  final Future<Uint8List?> Function(BuildContext context)? debugPickAndCrop;
+  final Future<bool> Function(BuildContext context, Uint8List bytes)? debugUploadImpl;
+
+  const ProfileScreen({super.key, this.debugPickAndCrop, this.debugUploadImpl});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _isUploadingAvatar = false;
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
     final theme = Theme.of(context);
 
@@ -30,7 +46,9 @@ class ProfileScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            onPressed: () {
+            onPressed: _isUploadingAvatar
+                ? null
+                : () {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const ProfileEditScreen(),
@@ -57,34 +75,53 @@ class ProfileScreen extends ConsumerWidget {
                   Stack(
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          _handleAvatarUpload(context);
-                        },
+                        key: const ValueKey('avatar_tap'),
+                        onTap: _isUploadingAvatar
+                            ? null
+                            : () {
+                                _handleAvatarUpload(context);
+                              },
                         child: Container(
                           width: 100,
                           height: 100,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                theme.colorScheme.primary,
-                                theme.colorScheme.secondary,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
                           ),
-                          child: Center(
-                            child: Text(
-                              _getInitials(user.fullName),
-                              style: theme.textTheme.headlineLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                          child: ClipOval(
+                            child:
+                                user.avatarUrl != null &&
+                                    user.avatarUrl!.isNotEmpty
+                                ? Image.network(
+                                    user.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stack) =>
+                                        _buildInitialsAvatar(
+                                          theme,
+                                          user.fullName,
+                                        ),
+                                  )
+                                : _buildInitialsAvatar(theme, user.fullName),
+                          ),
+                        ),
+                      ),
+                      if (_isUploadingAvatar)
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Center(
+                              child: SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
                       Positioned(
                         right: 0,
                         bottom: 0,
@@ -225,7 +262,11 @@ class ProfileScreen extends ConsumerWidget {
             subtitle: 'Đổi mật khẩu, xác thực 2 lớp',
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Navigate to security settings
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const SecuritySettingsScreen(),
+                ),
+              );
             },
           ),
           const SizedBox(height: 8),
@@ -253,7 +294,7 @@ class ProfileScreen extends ConsumerWidget {
 
           // Logout Button
           ElevatedButton.icon(
-            onPressed: () => _showLogoutDialog(context, ref),
+            onPressed: () => _showLogoutDialog(context),
             icon: const Icon(Icons.logout),
             label: const Text('Đăng xuất'),
             style: ElevatedButton.styleFrom(
@@ -305,46 +346,44 @@ class ProfileScreen extends ConsumerWidget {
     return name.substring(0, 1).toUpperCase();
   }
 
-  String _getRoleLabel(String role) {
+  String _getRoleLabel(UserRole role) {
     switch (role) {
-      case 'student':
+      case UserRole.student:
         return 'Sinh viên';
-      case 'instructor':
+      case UserRole.instructor:
         return 'Giáo viên';
-      case 'admin':
+      case UserRole.admin:
         return 'Quản trị viên';
-      default:
-        return role;
+      case UserRole.superAdmin:
+        return 'Siêu quản trị viên';
     }
   }
 
-  IconData _getRoleIcon(String role) {
+  IconData _getRoleIcon(UserRole role) {
     switch (role) {
-      case 'student':
+      case UserRole.student:
         return Icons.school;
-      case 'instructor':
+      case UserRole.instructor:
         return Icons.person;
-      case 'admin':
+      case UserRole.admin:
+      case UserRole.superAdmin:
         return Icons.admin_panel_settings;
-      default:
-        return Icons.person;
     }
   }
 
-  Color _getRoleColor(String role) {
+  Color _getRoleColor(UserRole role) {
     switch (role) {
-      case 'student':
+      case UserRole.student:
         return Colors.blue;
-      case 'instructor':
+      case UserRole.instructor:
         return Colors.green;
-      case 'admin':
+      case UserRole.admin:
+      case UserRole.superAdmin:
         return Colors.orange;
-      default:
-        return Colors.grey;
     }
   }
 
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+  void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -358,10 +397,24 @@ class ProfileScreen extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                context.go('/login');
+              // Close dialog first
+              Navigator.of(context).pop();
+              
+              try {
+                // Logout
+                await ref.read(authProvider.notifier).logout();
+                
+                // Navigate to login after logout
+                if (mounted && context.mounted) {
+                  context.go('/login');
+                }
+              } catch (e) {
+                // Handle logout error
+                if (mounted && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Lỗi đăng xuất: $e')),
+                  );
+                }
               }
             },
             style: ElevatedButton.styleFrom(
@@ -376,32 +429,130 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Future<void> _handleAvatarUpload(BuildContext context) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    // Allow tests to bypass picker/crop flow
+    Uint8List? croppedBytes;
+    if (widget.debugPickAndCrop != null) {
+      croppedBytes = await widget.debugPickAndCrop!(context);
+    } else {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile == null) return;
+      final imageBytes = await pickedFile.readAsBytes();
+      if (context.mounted) {
+        croppedBytes = await Navigator.of(context).push<Uint8List>(
+          MaterialPageRoute(
+            builder: (ctx) => CropImageScreen(imageBytes: imageBytes),
+          ),
+        );
+      }
+    }
 
-    if (pickedFile == null) return;
+    if (croppedBytes != null && context.mounted) {
+      setState(() => _isUploadingAvatar = true);
+      bool success;
+      if (widget.debugUploadImpl != null) {
+        success = await widget.debugUploadImpl!(context, croppedBytes);
+      } else {
+        success = await _uploadProfileImage(context, croppedBytes);
+      }
+      if (mounted) setState(() => _isUploadingAvatar = false);
+      if (context.mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Cập nhật avatar thành công'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tải lên avatar thất bại'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
 
-    final imageBytes = await pickedFile.readAsBytes();
+  Widget _buildInitialsAvatar(ThemeData theme, String fullName) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          _getInitials(fullName),
+          style: theme.textTheme.headlineLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
-    if (context.mounted) {
-      // Navigate to crop screen
-      final croppedBytes = await Navigator.of(context).push<Uint8List>(
-        MaterialPageRoute(
-          builder: (ctx) => CropImageScreen(imageBytes: imageBytes),
+  Future<bool> _uploadProfileImage(
+    BuildContext context,
+    Uint8List bytes,
+  ) async {
+    // Capture messenger before async gaps to avoid using BuildContext afterwards
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final client = DioClient().dio;
+      final form = dio.FormData.fromMap({
+        'avatar': dio.MultipartFile.fromBytes(bytes, filename: 'avatar.jpg'),
+      });
+
+      final response = await client.post(
+        ApiConfig.userAvatar,
+        data: form,
+        options: dio.Options(
+          headers: ApiConfig.multipartHeaders,
+          contentType: 'multipart/form-data',
         ),
       );
 
-      if (croppedBytes != null && context.mounted) {
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Avatar updated successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // TODO: Upload cropped image to server
-        // final success = await _uploadProfileImage(croppedBytes);
+      final data = response.data;
+      String? avatarUrl;
+      if (data is Map) {
+        final d = data['data'] ?? data;
+        if (d is Map) {
+          avatarUrl =
+              d['avatar'] as String? ??
+              d['avatarUrl'] as String? ??
+              (d['user'] is Map ? (d['user']['avatar'] as String?) : null);
+        }
       }
+
+      if (avatarUrl == null || avatarUrl.isEmpty) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Không nhận được URL avatar mới')),
+        );
+        return false;
+      }
+
+      final notifier = ref.read(authProvider.notifier);
+      final current = ref.read(authProvider).user;
+      if (current != null) {
+        final updated = current.copyWith(
+          avatarUrl: avatarUrl,
+          updatedAt: DateTime.now(),
+        );
+        await notifier.updateUserProfile(updated);
+      }
+      return true;
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Tải lên avatar thất bại: $e')),
+      );
+      return false;
     }
   }
 }

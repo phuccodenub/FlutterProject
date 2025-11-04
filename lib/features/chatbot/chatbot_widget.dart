@@ -37,9 +37,9 @@ class _ChatbotFloatingState extends ConsumerState<ChatbotFloating> {
             child: FloatingActionButton(
               onPressed: () {
                 // Show snackbar instead of opening chatbot
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Chatbot không khả dụng')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Chatbot không khả dụng')),
+                );
               },
               child: const Icon(Icons.smart_toy_outlined),
             ),
@@ -61,17 +61,25 @@ class _ChatbotFloatingState extends ConsumerState<ChatbotFloating> {
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12)],
+                          boxShadow: const [
+                            BoxShadow(blurRadius: 10, color: Colors.black12),
+                          ],
                         ),
                         child: Column(
                           children: [
                             Container(
                               height: 44,
                               alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.1),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(12),
+                                ),
                               ),
                               child: const SafeText('AI Assistant'),
                             ),
@@ -87,13 +95,20 @@ class _ChatbotFloatingState extends ConsumerState<ChatbotFloating> {
                                         ? Alignment.centerRight
                                         : Alignment.centerLeft,
                                     child: Container(
-                                      margin: const EdgeInsets.symmetric(vertical: 4),
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 4,
+                                      ),
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: isUser ? Colors.blue.shade50 : Colors.grey.shade200,
+                                        color: isUser
+                                            ? Colors.blue.shade50
+                                            : Colors.grey.shade200,
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: SafeText(m.content, maxLines: null),
+                                      child: SafeText(
+                                        m.content,
+                                        maxLines: null,
+                                      ),
                                     ),
                                   );
                                 },
@@ -125,7 +140,9 @@ class _ChatbotFloatingState extends ConsumerState<ChatbotFloating> {
                                     onPressed: () {
                                       final t = ctrl.text.trim();
                                       if (t.isEmpty) return;
-                                      ref.read(chatbotProvider.notifier).send(t);
+                                      ref
+                                          .read(chatbotProvider.notifier)
+                                          .send(t);
                                       ctrl.clear();
                                     },
                                     child: const SafeText('Gửi'),

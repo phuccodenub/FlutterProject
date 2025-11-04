@@ -2,16 +2,10 @@ class AuthRequest {
   final String email;
   final String password;
 
-  AuthRequest({
-    required this.email,
-    required this.password,
-  });
+  AuthRequest({required this.email, required this.password});
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'password': password,
-    };
+    return {'email': email, 'password': password};
   }
 }
 
@@ -49,11 +43,7 @@ class AuthResponse {
   final String message;
   final AuthData? data;
 
-  AuthResponse({
-    required this.success,
-    required this.message,
-    this.data,
-  });
+  AuthResponse({required this.success, required this.message, this.data});
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
@@ -80,10 +70,23 @@ class AuthData {
   });
 
   factory AuthData.fromJson(Map<String, dynamic> json) {
+    // Handle both old format and new backend format
+    final tokens = json['tokens'] as Map<String, dynamic>?;
+    final accessToken = tokens?['accessToken'] ?? 
+                       json['access_token'] ?? 
+                       json['accessToken'] ?? 
+                       json['token'] ?? '';
+    final refreshToken = tokens?['refreshToken'] ?? 
+                        json['refresh_token'] ?? 
+                        json['refreshToken'];
+    
+    // Ensure user data is not null
+    final userData = json['user'] as Map<String, dynamic>? ?? {};
+    
     return AuthData(
-      accessToken: json['access_token'] ?? json['accessToken'] ?? json['token'] ?? '',
-      refreshToken: json['refresh_token'] ?? json['refreshToken'],
-      user: UserProfile.fromJson(json['user']),
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      user: UserProfile.fromJson(userData),
       expiresIn: json['expires_in'] ?? json['expiresIn'],
       tokenType: json['token_type'] ?? json['tokenType'] ?? 'Bearer',
     );
@@ -125,15 +128,15 @@ class UserProfile {
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      id: json['id'],
-      email: json['email'],
-      firstName: json['first_name'] ?? json['firstName'] ?? '',
-      lastName: json['last_name'] ?? json['lastName'] ?? '',
-      role: json['role'] ?? 'student',
-      status: json['status'] ?? 'pending',
-      avatar: json['avatar'],
-      phone: json['phone'],
-      emailVerified: json['email_verified'] ?? false,
+      id: (json['id'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      firstName: (json['first_name'] ?? json['firstName'] ?? '').toString(),
+      lastName: (json['last_name'] ?? json['lastName'] ?? '').toString(),
+      role: (json['role'] ?? 'student').toString(),
+      status: (json['status'] ?? 'pending').toString(),
+      avatar: json['avatar']?.toString(),
+      phone: json['phone']?.toString(),
+      emailVerified: json['email_verified'] == true,
     );
   }
 
@@ -160,9 +163,7 @@ class RefreshTokenRequest {
   RefreshTokenRequest({required this.refreshToken});
 
   Map<String, dynamic> toJson() {
-    return {
-      'refresh_token': refreshToken,
-    };
+    return {'refresh_token': refreshToken};
   }
 }
 
@@ -176,10 +177,7 @@ class ChangePasswordRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'current_password': currentPassword,
-      'new_password': newPassword,
-    };
+    return {'current_password': currentPassword, 'new_password': newPassword};
   }
 }
 
@@ -189,8 +187,6 @@ class TwoFactorRequest {
   TwoFactorRequest({required this.token});
 
   Map<String, dynamic> toJson() {
-    return {
-      'token': token,
-    };
+    return {'token': token};
   }
 }

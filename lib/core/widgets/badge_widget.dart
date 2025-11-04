@@ -31,7 +31,8 @@ class BadgeWidget extends StatelessWidget {
       return child;
     }
 
-    final displayText = badgeText ?? (badgeCount! > 99 ? '99+' : badgeCount.toString());
+    final displayText =
+        badgeText ?? (badgeCount! > 99 ? '99+' : badgeCount.toString());
 
     return badges.Badge(
       badgeContent: Text(
@@ -94,7 +95,8 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -115,18 +117,11 @@ class StatusBadge extends StatelessWidget {
 class VerifiedBadge extends StatelessWidget {
   final double size;
 
-  const VerifiedBadge({
-    super.key,
-    this.size = 16,
-  });
+  const VerifiedBadge({super.key, this.size = 16});
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.verified,
-      color: Colors.blue,
-      size: size,
-    );
+    return Icon(Icons.verified, color: Colors.blue, size: size);
   }
 }
 
@@ -134,18 +129,11 @@ class VerifiedBadge extends StatelessWidget {
 class PremiumBadge extends StatelessWidget {
   final double size;
 
-  const PremiumBadge({
-    super.key,
-    this.size = 16,
-  });
+  const PremiumBadge({super.key, this.size = 16});
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.workspace_premium,
-      color: Colors.amber,
-      size: size,
-    );
+    return Icon(Icons.workspace_premium, color: Colors.amber, size: size);
   }
 }
 

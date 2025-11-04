@@ -29,7 +29,7 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
   late AnimationController _controller;
   late AnimationController _scaleController;
   late AnimationController _bounceController;
-  
+
   late Animation<double> _scaleAnimation;
   late Animation<double> _bounceAnimation;
   late Animation<Color?> _colorAnimation;
@@ -42,7 +42,7 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: AppAnimations.normal,
       vsync: this,
@@ -58,23 +58,13 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
       vsync: this,
     );
 
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
 
-
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    ));
-
-    _bounceAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _bounceController,
-      curve: Curves.bounceOut,
-    ));
+    _bounceAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _bounceController, curve: Curves.bounceOut),
+    );
 
     _colorAnimation = ColorTween(
       begin: Colors.grey,
@@ -94,7 +84,10 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
     if (_isRefreshing) return;
 
     setState(() {
-      _dragOffset = (_dragOffset + details.delta.dy).clamp(0.0, _maxDragDistance);
+      _dragOffset = (_dragOffset + details.delta.dy).clamp(
+        0.0,
+        _maxDragDistance,
+      );
     });
 
     final progress = _dragOffset / _maxDragDistance;
@@ -102,7 +95,8 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
     _scaleController.value = progress;
 
     // Haptic feedback at trigger point
-    if (_dragOffset >= _triggerDistance && (_dragOffset - details.delta.dy) < _triggerDistance) {
+    if (_dragOffset >= _triggerDistance &&
+        (_dragOffset - details.delta.dy) < _triggerDistance) {
       HapticFeedback.mediumImpact();
     }
   }
@@ -124,7 +118,7 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
 
     // Trigger haptic feedback
     HapticFeedback.heavyImpact();
-    
+
     // Animate to final position
     await _controller.forward();
     _bounceController.forward();
@@ -141,7 +135,7 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
     _bounceController.reverse();
     await _controller.reverse();
     await _scaleController.reverse();
-    
+
     setState(() {
       _isRefreshing = false;
       _dragOffset = 0.0;
@@ -158,7 +152,11 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
           left: 0,
           right: 0,
           child: AnimatedBuilder(
-            animation: Listenable.merge([_controller, _scaleController, _bounceController]),
+            animation: Listenable.merge([
+              _controller,
+              _scaleController,
+              _bounceController,
+            ]),
             builder: (context, child) {
               if (_dragOffset == 0.0 && !_isRefreshing) {
                 return const SizedBox.shrink();
@@ -189,13 +187,16 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
                               child: CircularProgressIndicator(
                                 strokeWidth: 3,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  _colorAnimation.value ?? Theme.of(context).primaryColor,
+                                  _colorAnimation.value ??
+                                      Theme.of(context).primaryColor,
                                 ),
                               ),
                             )
                           : CustomRefreshIcon(
                               progress: _controller.value,
-                              color: _colorAnimation.value ?? Theme.of(context).primaryColor,
+                              color:
+                                  _colorAnimation.value ??
+                                  Theme.of(context).primaryColor,
                             ),
                     ),
                   ),
@@ -204,7 +205,7 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator>
             },
           ),
         ),
-        
+
         // Main content
         GestureDetector(
           onPanUpdate: _onPanUpdate,
@@ -258,14 +259,15 @@ class ElasticRefreshIndicator extends StatefulWidget {
   });
 
   @override
-  State<ElasticRefreshIndicator> createState() => _ElasticRefreshIndicatorState();
+  State<ElasticRefreshIndicator> createState() =>
+      _ElasticRefreshIndicatorState();
 }
 
 class _ElasticRefreshIndicatorState extends State<ElasticRefreshIndicator>
     with TickerProviderStateMixin {
   late AnimationController _elasticController;
   late Animation<double> _elasticAnimation;
-  
+
   bool _isRefreshing = false;
   double _pullDistance = 0.0;
   static const double _maxPullDistance = 150.0;
@@ -274,7 +276,7 @@ class _ElasticRefreshIndicatorState extends State<ElasticRefreshIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _elasticController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -305,7 +307,7 @@ class _ElasticRefreshIndicatorState extends State<ElasticRefreshIndicator>
         setState(() {
           _isRefreshing = true;
         });
-        
+
         HapticFeedback.heavyImpact();
         _elasticController.forward().then((_) {
           _elasticController.reverse();
@@ -327,10 +329,13 @@ class _ElasticRefreshIndicatorState extends State<ElasticRefreshIndicator>
         onNotification: (notification) {
           if (notification.metrics.pixels < 0) {
             setState(() {
-              _pullDistance = (-notification.metrics.pixels).clamp(0.0, _maxPullDistance);
+              _pullDistance = (-notification.metrics.pixels).clamp(
+                0.0,
+                _maxPullDistance,
+              );
             });
-            
-            if (_pullDistance >= _triggerDistance && 
+
+            if (_pullDistance >= _triggerDistance &&
                 (_pullDistance - 10) < _triggerDistance) {
               HapticFeedback.mediumImpact();
             }
@@ -340,7 +345,7 @@ class _ElasticRefreshIndicatorState extends State<ElasticRefreshIndicator>
         child: Stack(
           children: [
             widget.child,
-            
+
             // Custom header
             if (_pullDistance > 0)
               Positioned(
@@ -351,9 +356,12 @@ class _ElasticRefreshIndicatorState extends State<ElasticRefreshIndicator>
                   animation: _elasticAnimation,
                   builder: (context, child) {
                     final elasticOffset = _elasticAnimation.value * 20;
-                    
+
                     return Transform.translate(
-                      offset: Offset(0, -60 + (_pullDistance * 0.5) + elasticOffset),
+                      offset: Offset(
+                        0,
+                        -60 + (_pullDistance * 0.5) + elasticOffset,
+                      ),
                       child: SizedBox(
                         height: 60,
                         child: Center(
@@ -367,23 +375,33 @@ class _ElasticRefreshIndicatorState extends State<ElasticRefreshIndicator>
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      widget.color ?? Theme.of(context).primaryColor,
+                                      widget.color ??
+                                          Theme.of(context).primaryColor,
                                     ),
                                   ),
                                 )
                               else
                                 Transform.rotate(
-                                  angle: (_pullDistance / _maxPullDistance) * 6.28,
+                                  angle:
+                                      (_pullDistance / _maxPullDistance) * 6.28,
                                   child: Icon(
                                     Icons.refresh,
-                                    color: (widget.color ?? Theme.of(context).primaryColor)
-                                        .withValues(alpha: 0.3 + (_pullDistance / _maxPullDistance) * 0.7),
+                                    color:
+                                        (widget.color ??
+                                                Theme.of(context).primaryColor)
+                                            .withValues(
+                                              alpha:
+                                                  0.3 +
+                                                  (_pullDistance /
+                                                          _maxPullDistance) *
+                                                      0.7,
+                                            ),
                                     size: 20,
                                   ),
                                 ),
-                              
+
                               const SizedBox(height: 4),
-                              
+
                               Text(
                                 _currentText,
                                 style: TextStyle(
@@ -431,19 +449,15 @@ class _BounceRefreshIndicatorState extends State<BounceRefreshIndicator>
   @override
   void initState() {
     super.initState();
-    
+
     _bounceController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    _bounceAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _bounceController,
-      curve: Curves.bounceOut,
-    ));
+    _bounceAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _bounceController, curve: Curves.bounceOut),
+    );
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../config/api_config.dart';
 import '../models/models.dart';
 import '../network/dio_client.dart';
+import '../network/api_client.dart';
 
 class CourseApiService {
   late final DioClient _dioClient;
@@ -25,10 +26,7 @@ class CourseApiService {
     bool? isFree,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'page': page,
-        'limit': limit,
-      };
+      final queryParams = <String, dynamic>{'page': page, 'limit': limit};
 
       if (status != null) queryParams['status'] = status;
       if (instructorId != null) queryParams['instructor_id'] = instructorId;
@@ -56,11 +54,11 @@ class CourseApiService {
           apiResponse.data!,
           (json) => Course.fromJson(json),
         );
-        
+
         if (kDebugMode) {
           print('✅ Courses fetched: ${paginatedResponse.items.length} courses');
         }
-        
+
         return paginatedResponse;
       } else {
         throw Exception(apiResponse.message);
@@ -91,7 +89,7 @@ class CourseApiService {
         response.data,
         (data) => Course.fromJson(data),
       );
-      
+
       if (kDebugMode) {
         print('✅ Course fetched: ${apiResponse.success}');
       }
@@ -145,16 +143,14 @@ class CourseApiService {
         print('✏️ Creating course: $title');
       }
 
-      final response = await _dio.post(
-        ApiConfig.courses,
-        data: courseData,
-      );
+      // Use ApiClient for authenticated requests
+      final response = await ApiClient.getInstance().post(ApiConfig.courses, data: courseData);
 
       final apiResponse = ApiResponse<Course>.fromJson(
         response.data,
         (data) => Course.fromJson(data),
       );
-      
+
       if (kDebugMode) {
         print('✅ Course created: ${apiResponse.success}');
       }
@@ -192,26 +188,52 @@ class CourseApiService {
   }) async {
     try {
       final updateData = <String, dynamic>{};
-      
-      if (title != null) updateData['title'] = title;
-      if (description != null) updateData['description'] = description;
-      if (shortDescription != null) updateData['short_description'] = shortDescription;
-      if (categoryId != null) updateData['category_id'] = categoryId;
-      if (level != null) updateData['level'] = level;
-      if (language != null) updateData['language'] = language;
-      if (price != null) updateData['price'] = price;
-      if (currency != null) updateData['currency'] = currency;
-      if (isFree != null) updateData['is_free'] = isFree;
-      if (status != null) updateData['status'] = status;
-      if (prerequisites != null) updateData['prerequisites'] = prerequisites;
-      if (learningObjectives != null) updateData['learning_objectives'] = learningObjectives;
-      if (tags != null) updateData['tags'] = tags;
+
+      if (title != null) {
+        updateData['title'] = title;
+      }
+      if (description != null) {
+        updateData['description'] = description;
+      }
+      if (shortDescription != null) {
+        updateData['short_description'] = shortDescription;
+      }
+      if (categoryId != null) {
+        updateData['category_id'] = categoryId;
+      }
+      if (level != null) {
+        updateData['level'] = level;
+      }
+      if (language != null) {
+        updateData['language'] = language;
+      }
+      if (price != null) {
+        updateData['price'] = price;
+      }
+      if (currency != null) {
+        updateData['currency'] = currency;
+      }
+      if (isFree != null) {
+        updateData['is_free'] = isFree;
+      }
+      if (status != null) {
+        updateData['status'] = status;
+      }
+      if (prerequisites != null) {
+        updateData['prerequisites'] = prerequisites;
+      }
+      if (learningObjectives != null) {
+        updateData['learning_objectives'] = learningObjectives;
+      }
+      if (tags != null) {
+        updateData['tags'] = tags;
+      }
 
       if (kDebugMode) {
         print('✏️ Updating course: $courseId');
       }
 
-      final response = await _dio.put(
+      final response = await ApiClient.getInstance().put(
         ApiConfig.courseById(courseId),
         data: updateData,
       );
@@ -220,7 +242,7 @@ class CourseApiService {
         response.data,
         (data) => Course.fromJson(data),
       );
-      
+
       if (kDebugMode) {
         print('✅ Course updated: ${apiResponse.success}');
       }
@@ -246,10 +268,10 @@ class CourseApiService {
         print('🗑️ Deleting course: $courseId');
       }
 
-      final response = await _dio.delete(ApiConfig.courseById(courseId));
+      final response = await ApiClient.getInstance().delete(ApiConfig.courseById(courseId));
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Course deleted: ${apiResponse.success}');
       }
@@ -275,10 +297,7 @@ class CourseApiService {
     String? status,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'page': page,
-        'limit': limit,
-      };
+      final queryParams = <String, dynamic>{'page': page, 'limit': limit};
 
       if (status != null) queryParams['status'] = status;
 
@@ -301,11 +320,13 @@ class CourseApiService {
           apiResponse.data!,
           (json) => Course.fromJson(json),
         );
-        
+
         if (kDebugMode) {
-          print('✅ Enrolled courses fetched: ${paginatedResponse.items.length} courses');
+          print(
+            '✅ Enrolled courses fetched: ${paginatedResponse.items.length} courses',
+          );
         }
-        
+
         return paginatedResponse;
       } else {
         throw Exception(apiResponse.message);
@@ -330,13 +351,13 @@ class CourseApiService {
         print('📝 Enrolling in course: $courseId');
       }
 
-      final response = await _dio.post(ApiConfig.courseEnroll(courseId));
+      final response = await ApiClient.getInstance().post(ApiConfig.courseEnroll(courseId));
 
       final apiResponse = ApiResponse<Enrollment>.fromJson(
         response.data,
         (data) => Enrollment.fromJson(data),
       );
-      
+
       if (kDebugMode) {
         print('✅ Enrollment successful: ${apiResponse.success}');
       }
@@ -362,10 +383,10 @@ class CourseApiService {
         print('📤 Unenrolling from course: $courseId');
       }
 
-      final response = await _dio.delete(ApiConfig.courseUnenroll(courseId));
+      final response = await ApiClient.getInstance().delete(ApiConfig.courseUnenroll(courseId));
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Unenrollment successful: ${apiResponse.success}');
       }
@@ -392,14 +413,11 @@ class CourseApiService {
     String? status,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'page': page,
-        'limit': limit,
-      };
+      final queryParams = <String, dynamic>{'page': page, 'limit': limit};
 
       if (status != null) queryParams['status'] = status;
 
-      final endpoint = instructorId != null 
+      final endpoint = instructorId != null
           ? '/courses/instructor/$instructorId'
           : '/courses/instructor/my-courses';
 
@@ -407,10 +425,7 @@ class CourseApiService {
         print('👨‍🏫 Fetching instructor courses...');
       }
 
-      final response = await _dio.get(
-        endpoint,
-        queryParameters: queryParams,
-      );
+      final response = await _dio.get(endpoint, queryParameters: queryParams);
 
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
         response.data,
@@ -422,11 +437,13 @@ class CourseApiService {
           apiResponse.data!,
           (json) => Course.fromJson(json),
         );
-        
+
         if (kDebugMode) {
-          print('✅ Instructor courses fetched: ${paginatedResponse.items.length} courses');
+          print(
+            '✅ Instructor courses fetched: ${paginatedResponse.items.length} courses',
+          );
         }
-        
+
         return paginatedResponse;
       } else {
         throw Exception(apiResponse.message);
@@ -451,10 +468,7 @@ class CourseApiService {
     int limit = 10,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'page': page,
-        'limit': limit,
-      };
+      final queryParams = <String, dynamic>{'page': page, 'limit': limit};
 
       if (kDebugMode) {
         print('👥 Fetching course students: $courseId');
@@ -475,11 +489,13 @@ class CourseApiService {
           apiResponse.data!,
           (json) => User.fromJson(json),
         );
-        
+
         if (kDebugMode) {
-          print('✅ Course students fetched: ${paginatedResponse.items.length} students');
+          print(
+            '✅ Course students fetched: ${paginatedResponse.items.length} students',
+          );
         }
-        
+
         return paginatedResponse;
       } else {
         throw Exception(apiResponse.message);
@@ -538,11 +554,13 @@ class CourseApiService {
           apiResponse.data!,
           (json) => Course.fromJson(json),
         );
-        
+
         if (kDebugMode) {
-          print('✅ Course search completed: ${paginatedResponse.items.length} results');
+          print(
+            '✅ Course search completed: ${paginatedResponse.items.length} results',
+          );
         }
-        
+
         return paginatedResponse;
       } else {
         throw Exception(apiResponse.message);
@@ -566,12 +584,14 @@ class CourseApiService {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return Exception('Connection timeout. Please check your internet connection.');
-      
+        return Exception(
+          'Connection timeout. Please check your internet connection.',
+        );
+
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         final data = e.response?.data;
-        
+
         if (statusCode == 401) {
           return Exception('Authentication required.');
         } else if (statusCode == 403) {
@@ -589,13 +609,13 @@ class CourseApiService {
           return Exception(data['message']);
         }
         return Exception('Request failed with status $statusCode');
-      
+
       case DioExceptionType.cancel:
         return Exception('Request was cancelled.');
-      
+
       case DioExceptionType.connectionError:
         return Exception('No internet connection.');
-      
+
       case DioExceptionType.unknown:
       default:
         return Exception('Network error: ${e.message}');

@@ -48,12 +48,17 @@ class _SimpleRichTextEditorState extends State<SimpleRichTextEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [if (!widget.readOnly) _buildToolbar(), _buildEditor()]);
+    return Column(
+      children: [if (!widget.readOnly) _buildToolbar(), _buildEditor()],
+    );
   }
 
   Widget _buildToolbar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(color: AppColors.grey300),
@@ -130,8 +135,16 @@ class _SimpleRichTextEditorState extends State<SimpleRichTextEditor> {
           const SizedBox(width: AppSpacing.sm),
 
           // Other formatting
-          _buildToolbarButton(icon: Icons.link, onPressed: _insertLink, tooltip: 'Thêm liên kết'),
-          _buildToolbarButton(icon: Icons.image, onPressed: _insertImage, tooltip: 'Thêm hình ảnh'),
+          _buildToolbarButton(
+            icon: Icons.link,
+            onPressed: _insertLink,
+            tooltip: 'Thêm liên kết',
+          ),
+          _buildToolbarButton(
+            icon: Icons.image,
+            onPressed: _insertImage,
+            tooltip: 'Thêm hình ảnh',
+          ),
         ],
       ),
     );
@@ -151,7 +164,9 @@ class _SimpleRichTextEditorState extends State<SimpleRichTextEditor> {
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.xs),
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
+            color: isActive
+                ? AppColors.primary.withValues(alpha: 0.1)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(AppRadius.xs),
           ),
           child: Icon(
@@ -186,7 +201,9 @@ class _SimpleRichTextEditorState extends State<SimpleRichTextEditor> {
         style: TextStyle(
           fontWeight: _isBold ? FontWeight.bold : FontWeight.normal,
           fontStyle: _isItalic ? FontStyle.italic : FontStyle.normal,
-          decoration: _isUnderline ? TextDecoration.underline : TextDecoration.none,
+          decoration: _isUnderline
+              ? TextDecoration.underline
+              : TextDecoration.none,
         ),
         decoration: InputDecoration(
           hintText: widget.placeholder ?? 'Nhập nội dung...',
@@ -203,7 +220,9 @@ class _SimpleRichTextEditorState extends State<SimpleRichTextEditor> {
     final currentText = _controller.text;
 
     final newText =
-        currentText.substring(0, cursorPosition) + text + currentText.substring(cursorPosition);
+        currentText.substring(0, cursorPosition) +
+        text +
+        currentText.substring(cursorPosition);
 
     _controller.text = newText;
     _controller.selection = TextSelection.fromPosition(
@@ -268,7 +287,10 @@ class _LinkDialogState extends State<_LinkDialog> {
         children: [
           TextField(
             controller: _urlController,
-            decoration: const InputDecoration(labelText: 'URL', hintText: 'https://example.com'),
+            decoration: const InputDecoration(
+              labelText: 'URL',
+              hintText: 'https://example.com',
+            ),
             keyboardType: TextInputType.url,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -282,7 +304,10 @@ class _LinkDialogState extends State<_LinkDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Hủy'),
+        ),
         TextButton(
           onPressed: () {
             if (_urlController.text.isNotEmpty) {
@@ -344,7 +369,10 @@ class _ImageDialogState extends State<_ImageDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Hủy')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Hủy'),
+        ),
         TextButton(
           onPressed: () {
             if (_urlController.text.isNotEmpty) {
@@ -390,7 +418,10 @@ class RichTextViewer extends StatelessWidget {
       widgets.add(const SizedBox(height: AppSpacing.xs));
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets,
+    );
   }
 
   Widget _parseLineToWidget(BuildContext context, String line) {
@@ -416,7 +447,12 @@ class RichTextViewer extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Expanded(child: Text(line.substring(2), style: style ?? AppTypography.bodyMedium)),
+            Expanded(
+              child: Text(
+                line.substring(2),
+                style: style ?? AppTypography.bodyMedium,
+              ),
+            ),
           ],
         ),
       );
@@ -435,7 +471,12 @@ class RichTextViewer extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Expanded(child: Text(match.group(2) ?? '', style: style ?? AppTypography.bodyMedium)),
+              Expanded(
+                child: Text(
+                  match.group(2) ?? '',
+                  style: style ?? AppTypography.bodyMedium,
+                ),
+              ),
             ],
           ),
         );
@@ -499,7 +540,10 @@ class RichTextViewer extends StatelessWidget {
     // Add remaining text
     if (lastIndex < text.length) {
       spans.add(
-        TextSpan(text: text.substring(lastIndex), style: style ?? AppTypography.bodyMedium),
+        TextSpan(
+          text: text.substring(lastIndex),
+          style: style ?? AppTypography.bodyMedium,
+        ),
       );
     }
 
@@ -513,13 +557,19 @@ class MarkdownEditor extends StatefulWidget {
   final Function(String)? onChanged;
   final bool showPreview;
 
-  const MarkdownEditor({super.key, this.initialContent, this.onChanged, this.showPreview = true});
+  const MarkdownEditor({
+    super.key,
+    this.initialContent,
+    this.onChanged,
+    this.showPreview = true,
+  });
 
   @override
   State<MarkdownEditor> createState() => _MarkdownEditorState();
 }
 
-class _MarkdownEditorState extends State<MarkdownEditor> with SingleTickerProviderStateMixin {
+class _MarkdownEditorState extends State<MarkdownEditor>
+    with SingleTickerProviderStateMixin {
   late TextEditingController _controller;
   late TabController _tabController;
 
@@ -544,7 +594,10 @@ class _MarkdownEditorState extends State<MarkdownEditor> with SingleTickerProvid
         if (widget.showPreview) _buildTabBar(),
         Expanded(
           child: widget.showPreview
-              ? TabBarView(controller: _tabController, children: [_buildEditor(), _buildPreview()])
+              ? TabBarView(
+                  controller: _tabController,
+                  children: [_buildEditor(), _buildPreview()],
+                )
               : _buildEditor(),
         ),
       ],
@@ -607,6 +660,8 @@ class _MarkdownEditorState extends State<MarkdownEditor> with SingleTickerProvid
   }
 
   Widget _buildPreview() {
-    return SingleChildScrollView(child: RichTextViewer(content: _controller.text));
+    return SingleChildScrollView(
+      child: RichTextViewer(content: _controller.text),
+    );
   }
 }

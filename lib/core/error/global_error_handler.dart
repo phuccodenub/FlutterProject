@@ -81,22 +81,32 @@ class GlobalErrorHandler {
           '💡 MODERATE OVERFLOW: Consider using Flexible/Expanded widgets or reducing content size',
         );
       } else {
-        debugPrint('💡 SMALL OVERFLOW: Minor padding/margin adjustments may fix this');
+        debugPrint(
+          '💡 SMALL OVERFLOW: Minor padding/margin adjustments may fix this',
+        );
       }
     }
 
     // Detect overflow direction
     if (errorMessage.contains('bottom')) {
-      debugPrint('📍 VERTICAL OVERFLOW: Check Column height and children constraints');
+      debugPrint(
+        '📍 VERTICAL OVERFLOW: Check Column height and children constraints',
+      );
     } else if (errorMessage.contains('right')) {
-      debugPrint('📍 HORIZONTAL OVERFLOW: Check Row width and children constraints');
+      debugPrint(
+        '📍 HORIZONTAL OVERFLOW: Check Row width and children constraints',
+      );
     }
   }
 }
 
 /// Error widget builder để hiển thị lỗi một cách user-friendly
 class CustomErrorWidget extends StatelessWidget {
-  const CustomErrorWidget({super.key, required this.error, this.showDetails = false});
+  const CustomErrorWidget({
+    super.key,
+    required this.error,
+    this.showDetails = false,
+  });
 
   final FlutterErrorDetails error;
   final bool showDetails;
@@ -104,42 +114,55 @@ class CustomErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        color: Colors.red.shade50,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red.shade700),
-            const SizedBox(height: 16),
-            Text(
-              'Oops! Something went wrong',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.red.shade700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'We encountered an unexpected error',
-              style: TextStyle(color: Colors.red.shade600),
-            ),
-            if (showDetails) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  color: Colors.red.shade50,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 48, color: Colors.red.shade700),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Oops! Something went wrong',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'We encountered an unexpected error',
+                        style: TextStyle(color: Colors.red.shade600),
+                      ),
+                      if (showDetails) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            error.exception.toString(),
+                            style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                child: Text(
-                  error.exception.toString(),
-                  style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
-                ),
               ),
-            ],
-          ],
+            );
+          },
         ),
       ),
     );

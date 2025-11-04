@@ -128,7 +128,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         if (widget.helperText != null || widget.errorText != null) ...[
           const SizedBox(height: AppSpacing.xs),
-          Text(widget.errorText ?? widget.helperText!, style: _getHelperTextStyle()),
+          Text(
+            widget.errorText ?? widget.helperText!,
+            style: _getHelperTextStyle(),
+          ),
         ],
       ],
     );
@@ -169,7 +172,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
           border: _getFilledBorder(),
           enabledBorder: _getFilledBorder(),
           focusedBorder: _getFilledBorder().copyWith(
-            borderSide: BorderSide(color: hasError ? AppColors.error : AppColors.primary, width: 2),
+            borderSide: BorderSide(
+              color: hasError ? AppColors.error : AppColors.primary,
+              width: 2,
+            ),
           ),
           errorBorder: _getFilledBorder().copyWith(
             borderSide: const BorderSide(color: AppColors.error),
@@ -188,14 +194,21 @@ class _CustomTextFieldState extends State<CustomTextField> {
           suffixIcon: widget.suffixIcon,
           filled: false,
           contentPadding: _getContentPadding(),
-          border: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.grey300)),
+          border: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.grey300),
+          ),
           enabledBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.grey300),
           ),
           focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: hasError ? AppColors.error : AppColors.primary, width: 2),
+            borderSide: BorderSide(
+              color: hasError ? AppColors.error : AppColors.primary,
+              width: 2,
+            ),
           ),
-          errorBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.error)),
+          errorBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.error),
+          ),
           focusedErrorBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.error, width: 2),
           ),
@@ -223,11 +236,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
   EdgeInsets _getContentPadding() {
     switch (widget.size) {
       case TextFieldSize.small:
-        return const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm);
+        return const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        );
       case TextFieldSize.medium:
-        return const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md);
+        return const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.md,
+        );
       case TextFieldSize.large:
-        return const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg);
+        return const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.lg,
+        );
     }
   }
 

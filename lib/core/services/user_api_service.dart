@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../config/api_config.dart';
 import '../models/models.dart';
 import '../network/dio_client.dart';
+import '../network/api_client.dart';
 
 class UserApiService {
   late final DioClient _dioClient;
@@ -27,7 +28,7 @@ class UserApiService {
         response.data,
         (data) => User.fromJson(data),
       );
-      
+
       if (kDebugMode) {
         print('✅ Profile fetched: ${apiResponse.success}');
       }
@@ -61,32 +62,51 @@ class UserApiService {
   }) async {
     try {
       final updateData = <String, dynamic>{};
-      
-      if (firstName != null) updateData['first_name'] = firstName;
-      if (lastName != null) updateData['last_name'] = lastName;
-      if (phone != null) updateData['phone'] = phone;
-      if (bio != null) updateData['bio'] = bio;
-      if (dateOfBirth != null) updateData['date_of_birth'] = dateOfBirth.toIso8601String().split('T')[0];
-      if (gender != null) updateData['gender'] = gender;
-      if (address != null) updateData['address'] = address;
-      if (emergencyContact != null) updateData['emergency_contact'] = emergencyContact;
-      if (emergencyPhone != null) updateData['emergency_phone'] = emergencyPhone;
-      if (metadata != null) updateData['metadata'] = metadata;
+
+      if (firstName != null) {
+        updateData['first_name'] = firstName;
+      }
+      if (lastName != null) {
+        updateData['last_name'] = lastName;
+      }
+      if (phone != null) {
+        updateData['phone'] = phone;
+      }
+      if (bio != null) {
+        updateData['bio'] = bio;
+      }
+      if (dateOfBirth != null) {
+        updateData['date_of_birth'] = dateOfBirth.toIso8601String().split(
+          'T',
+        )[0];
+      }
+      if (gender != null) {
+        updateData['gender'] = gender;
+      }
+      if (address != null) {
+        updateData['address'] = address;
+      }
+      if (emergencyContact != null) {
+        updateData['emergency_contact'] = emergencyContact;
+      }
+      if (emergencyPhone != null) {
+        updateData['emergency_phone'] = emergencyPhone;
+      }
+      if (metadata != null) {
+        updateData['metadata'] = metadata;
+      }
 
       if (kDebugMode) {
         print('✏️ Updating user profile...');
       }
 
-      final response = await _dio.put(
-        ApiConfig.userProfile,
-        data: updateData,
-      );
+      final response = await _dio.put(ApiConfig.userProfile, data: updateData);
 
       final apiResponse = ApiResponse<User>.fromJson(
         response.data,
         (data) => User.fromJson(data),
       );
-      
+
       if (kDebugMode) {
         print('✅ Profile updated: ${apiResponse.success}');
       }
@@ -119,19 +139,30 @@ class UserApiService {
         ),
       });
 
-      final response = await _dio.post(
+      // Use ApiClient instead of direct DioClient to ensure proper auth injection
+      final authenticatedDio = ApiClient.getInstance();
+      
+      final response = await authenticatedDio.post(
         ApiConfig.userAvatar,
         data: formData,
         options: Options(
-          headers: ApiConfig.multipartHeaders,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            // Authorization header will be added by AuthInterceptor
+          },
         ),
       );
+
+      if (kDebugMode) {
+        print('📡 Avatar upload response: ${response.statusCode}');
+        print('📋 Avatar upload data: ${response.data}');
+      }
 
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
         response.data,
         (data) => data as Map<String, dynamic>,
       );
-      
+
       if (kDebugMode) {
         print('✅ Avatar uploaded: ${apiResponse.success}');
       }
@@ -140,6 +171,7 @@ class UserApiService {
     } on DioException catch (e) {
       if (kDebugMode) {
         print('❌ Avatar upload failed: ${e.message}');
+        print('📋 Error response: ${e.response?.data}');
       }
       throw _handleDioException(e);
     } catch (e) {
@@ -168,7 +200,7 @@ class UserApiService {
         response.data,
         (data) => data as Map<String, dynamic>,
       );
-      
+
       if (kDebugMode) {
         print('✅ Preferences updated: ${apiResponse.success}');
       }
@@ -198,9 +230,10 @@ class UserApiService {
 
       final apiResponse = ApiResponse<List<UserSession>>.fromJson(
         response.data,
-        (data) => (data as List).map((item) => UserSession.fromJson(item)).toList(),
+        (data) =>
+            (data as List).map((item) => UserSession.fromJson(item)).toList(),
       );
-      
+
       if (kDebugMode) {
         print('✅ Active sessions fetched: ${apiResponse.success}');
       }
@@ -229,7 +262,7 @@ class UserApiService {
       final response = await _dio.post('/users/logout-all');
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Logged out from all devices: ${apiResponse.success}');
       }
@@ -261,7 +294,7 @@ class UserApiService {
         response.data,
         (data) => data as Map<String, dynamic>,
       );
-      
+
       if (kDebugMode) {
         print('✅ User 2FA enabled: ${apiResponse.success}');
       }
@@ -290,7 +323,7 @@ class UserApiService {
       final response = await _dio.post('/users/2fa/disable');
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ User 2FA disabled: ${apiResponse.success}');
       }
@@ -326,13 +359,10 @@ class UserApiService {
         print('🔗 Linking social account: $provider');
       }
 
-      final response = await _dio.post(
-        '/users/social/link',
-        data: linkData,
-      );
+      final response = await _dio.post('/users/social/link', data: linkData);
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Social account linked: ${apiResponse.success}');
       }
@@ -364,7 +394,7 @@ class UserApiService {
         response.data,
         (data) => data as Map<String, dynamic>,
       );
-      
+
       if (kDebugMode) {
         print('✅ User analytics fetched: ${apiResponse.success}');
       }
@@ -398,7 +428,7 @@ class UserApiService {
       );
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Notification settings updated: ${apiResponse.success}');
       }
@@ -432,7 +462,7 @@ class UserApiService {
       );
 
       final apiResponse = ApiResponse<void>.fromJson(response.data, null);
-      
+
       if (kDebugMode) {
         print('✅ Privacy settings updated: ${apiResponse.success}');
       }
@@ -457,12 +487,14 @@ class UserApiService {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return Exception('Connection timeout. Please check your internet connection.');
-      
+        return Exception(
+          'Connection timeout. Please check your internet connection.',
+        );
+
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         final data = e.response?.data;
-        
+
         if (statusCode == 401) {
           return Exception('Authentication required.');
         } else if (statusCode == 403) {
@@ -478,13 +510,13 @@ class UserApiService {
           return Exception(data['message']);
         }
         return Exception('Request failed with status $statusCode');
-      
+
       case DioExceptionType.cancel:
         return Exception('Request was cancelled.');
-      
+
       case DioExceptionType.connectionError:
         return Exception('No internet connection.');
-      
+
       case DioExceptionType.unknown:
       default:
         return Exception('Network error: ${e.message}');
