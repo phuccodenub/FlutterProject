@@ -14,7 +14,8 @@ class RootShell extends ConsumerWidget {
     }
     // Course-related routes should highlight the Courses tab
     if (location.startsWith('/course') ||
-        location.startsWith('/create-course')) {
+        location.startsWith('/create-course') ||
+        location.startsWith('/recommended-courses')) {
       return 1;
     }
     // Admin mappings

@@ -79,7 +79,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
   Widget _buildMyCoursesScaffold(BuildContext context, AuthState auth) {
     return Scaffold(
       appBar: CommonAppBar(
-        title: 'My Courses',
+        title: 'Khóa học của tôi',
         centerTitle: false,
         backgroundColor: AppColors.primary,
         elevation: 0,
@@ -120,7 +120,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
           padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
           child: CustomTextField(
             controller: _searchController,
-            hint: 'Search courses',
+            hint: 'Tìm kiếm khóa học',
             prefixIcon: const Icon(Icons.search),
             onChanged: (v) => setState(() => _searchQuery = v),
             suffixIcon: _searchQuery.isNotEmpty
@@ -143,7 +143,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
           ),
           child: Row(
             children: [
-              _quickFilterChip('All Courses', 'all'),
+              _quickFilterChip('Tất cả', 'all'),
               _quickFilterChip('Đang học', 'inProgress'),
               _quickFilterChip('Hoàn thành', 'completed'),
             ],

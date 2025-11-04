@@ -32,6 +32,7 @@ import '../screens/student/courses/student_courses_screen.dart'; // CoursesScree
 import '../screens/student/courses/course_detail/course_detail_screen.dart'
     as student_course;
 import '../screens/student/courses/course_edit_screen.dart';
+import '../screens/student/courses/discover/recommended_courses_screen.dart';
 
 // Teacher screens
 import '../screens/teacher/courses/teacher_courses_screen.dart';
@@ -108,7 +109,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             redirect: (context, state) => requireAuth(context, state),
             builder: (context, state) => const AdminReportsScreen(),
           ),
-
+          GoRoute(
+            path: '/recommended-courses',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const RecommendedCoursesScreen(),
+          ),
           // GoRoute(
           //   path: '/teacher/courses/:courseId',
           //   redirect: (context, state) => requireAuth(context, state),

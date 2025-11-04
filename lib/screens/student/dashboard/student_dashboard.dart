@@ -44,7 +44,12 @@ class StudentDashboard extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sectionSpacing),
 
         // Recommendations
-        const SectionHeader(title: 'Gợi ý cho bạn', icon: Icons.recommend),
+        SectionHeader(
+          title: 'Gợi ý cho bạn',
+          icon: Icons.recommend,
+          action: 'Xem tất cả',
+          onActionPressed: () => context.go('/recommended-courses'),
+        ),
         const SizedBox(height: AppSpacing.sectionHeaderSpacing),
         _buildRecommendations(context),
       ],
