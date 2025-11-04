@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../features/courses/services/course_service.dart';
 import '../../../teacher/courses/providers/teacher_course_providers.dart';
 import '../../../../features/auth/auth_state.dart';
+import '../../../../features/auth/models/user_model.dart';
+import '../../../../features/courses/models/course_model.dart';
 import '../../../../core/widgets/custom_cards.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/quick_action_card.dart';
@@ -40,7 +42,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     super.initState();
     // Khởi tạo TabController theo vai trò để tránh lệch số tab ngay lần đầu
     final isInstructorInitial =
-        (ref.read(authProvider).user?.role == 'instructor');
+        (ref.read(authProvider).user?.role == UserRole.instructor);
     final initialLength = isInstructorInitial ? 6 : 4; // GV: 6 tab, SV: 4 tab
     _tabController = TabController(length: initialLength, vsync: this);
     // Keep provider in sync with TabController when user swipes or taps
@@ -60,7 +62,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
-    final bool isInstructor = user?.role == 'instructor';
+    final bool isInstructor = user?.role == UserRole.instructor;
     final courseService = CourseService();
     final courseFromState = ref.watch(
       teacherCourseByIdProvider(widget.courseId),
@@ -103,7 +105,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           ? Future.value(courseFromState)
           : courseService.getCourseById(widget.courseId),
       builder: (context, snapshot) {
-        final course = snapshot.data;
+        final course = snapshot.data as CourseModel?;
         final title = course?.title ?? 'Course ${widget.courseId}';
 
         return Scaffold(
@@ -130,18 +132,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                     ),
                     background: Builder(
                       builder: (_) {
-                        // Ảnh bìa nếu có (ưu tiên ảnh file local)
-                        if (course?.imageFile != null) {
-                          return Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Image.file(course!.imageFile!, fit: BoxFit.cover),
-                              Container(
-                                color: Colors.black.withValues(alpha: 0.25),
-                              ),
-                            ],
-                          );
-                        }
+                        // Ảnh bìa từ thumbnailUrl
                         final thumb = (course?.thumbnailUrl ?? '').toString();
                         if (thumb.isNotEmpty) {
                           return Stack(
@@ -199,7 +190,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                     ),
                   ),
                   actions: [
-                    if (user?.role == 'instructor') ...[
+                    if (user?.role == UserRole.instructor) ...[
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
@@ -351,7 +342,7 @@ class _OverviewTab extends StatelessWidget {
   final dynamic user;
   @override
   Widget build(BuildContext context) {
-    final bool isInstructor = user?.role == 'instructor';
+    final bool isInstructor = user?.role == UserRole.instructor;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -381,7 +372,9 @@ class _OverviewTab extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const QuizCreationScreen(),
+                        builder: (_) => QuizCreationScreen(
+                          courseId: courseId,
+                        ),
                       ),
                     );
                   },

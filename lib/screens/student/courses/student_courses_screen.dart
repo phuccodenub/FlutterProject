@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/auth_state.dart';
+import '../../../features/auth/models/user_model.dart';
 import '../../../features/courses/services/course_service.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
@@ -23,16 +24,18 @@ enum CourseFilter {
 
 final coursesServiceProvider = Provider((ref) => CourseService());
 
-final myCoursesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) {
+final myCoursesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
   final auth = ref.watch(authProvider);
-  if (auth.user == null) return Future.value([]); // Sửa nhỏ: trả về Future
-  return ref
+  if (auth.user == null) return [];
+  final result = await ref
       .watch(coursesServiceProvider)
-      .getMyCourses(auth.user!.id, auth.user!.role);
+      .getEnrolledCourses();
+  return result.items;
 });
 
-final allCoursesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) {
-  return ref.watch(coursesServiceProvider).getAllCourses();
+final allCoursesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
+  final result = await ref.watch(coursesServiceProvider).getAllCourses();
+  return result.items;
 });
 // --- KẾT THÚC PHẦN PROVIDER ---
 
@@ -643,7 +646,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
 
   /// [UNCHANGED] Hàm build FAB (Giữ nguyên)
   Widget? _buildFloatingActionButton(AuthState auth) {
-    if (!widget.myCoursesOnly || auth.user?.role != 'instructor') {
+    if (!widget.myCoursesOnly || auth.user?.role != UserRole.instructor) {
       return null;
     }
 

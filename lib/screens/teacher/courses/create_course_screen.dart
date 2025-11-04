@@ -144,23 +144,7 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
       final destPath = '${docsDir.path}${Platform.pathSeparator}$fileName';
       final savedFile = await _pickedImage!.copy(destPath);
 
-      // Parse ngày từ ô nhập (định dạng dd/MM/yyyy)
-      DateTime? parseDdMMyyyy(String s) {
-        try {
-          final parts = s.split('/');
-          if (parts.length != 3) return null;
-          final d = int.tryParse(parts[0]);
-          final m = int.tryParse(parts[1]);
-          final y = int.tryParse(parts[2]);
-          if (d == null || m == null || y == null) return null;
-          return DateTime(y, m, d);
-        } catch (_) {
-          return null;
-        }
-      }
-
-      final start = parseDdMMyyyy(_startDateController.text.trim());
-      final end = parseDdMMyyyy(_endDateController.text.trim());
+      // Note: Date parsing and start/end dates not used in current Course model
 
       final newCourse = Course(
         id: id,
@@ -170,8 +154,6 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
         instructorName: 'Tên giáo viên',
         imageFile: savedFile,
         category: _selectedCategory,
-        startDate: start,
-        endDate: end,
       );
 
       // Lưu bằng Riverpod (teacher scope)

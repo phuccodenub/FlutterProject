@@ -93,9 +93,9 @@ class _RecommendedCoursesScreenState
               );
             }
 
-            final allCourses = List<dynamic>.from(snapshot.data![0]);
+            final allCourses = List<dynamic>.from(snapshot.data![0] as List);
             final myCourses = user != null
-                ? List<dynamic>.from(snapshot.data![1])
+                ? List<dynamic>.from(snapshot.data![1] as List)
                 : <dynamic>[];
 
             // Build a set of identifiers for enrolled courses (id or code or title)

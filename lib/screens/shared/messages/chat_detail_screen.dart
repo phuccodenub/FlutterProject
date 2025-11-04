@@ -106,7 +106,12 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
               if (text.isEmpty) return;
               ref
                   .read(chatProvider.notifier)
-                  .sendMessage(courseId, currentUserId, currentUserName, text);
+                  .sendMessage(
+                    widget.courseId, 
+                    int.tryParse(currentUserId.toString()) ?? 0, 
+                    currentUserName, 
+                    text
+                  );
               _textCtl.clear();
               // Auto scroll a bit after sending
               Future.delayed(const Duration(milliseconds: 100), () {
