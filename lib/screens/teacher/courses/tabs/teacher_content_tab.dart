@@ -477,12 +477,14 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
 
   Future<void> _openLecture(Lecture lecture) async {
     try {
+      // Capture messenger before any await to avoid using BuildContext across async gaps
+      final messenger = ScaffoldMessenger.of(context);
       if (lecture.type == 'video') {
         final raw = lecture.url?.trim();
         if (raw == null || raw.isEmpty) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Không có URL để mở.')));
+          messenger.showSnackBar(
+            const SnackBar(content: Text('Không có URL để mở.')),
+          );
           return;
         }
         Uri? uri = Uri.tryParse(raw);
@@ -491,37 +493,39 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
           uri = Uri.parse('https://$raw');
         }
         if (uri == null) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('URL không hợp lệ.')));
+          messenger.showSnackBar(
+            const SnackBar(content: Text('URL không hợp lệ.')),
+          );
           return;
         }
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(content: Text('Không thể mở URL: ${uri.toString()}')),
           );
         }
       } else if (lecture.type == 'file') {
         final path = lecture.filePath;
         if (path == null || path.isEmpty) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Không có tệp để mở.')));
+          messenger.showSnackBar(
+            const SnackBar(content: Text('Không có tệp để mở.')),
+          );
           return;
         }
         final res = await OpenFilex.open(path);
         if (res.type != ResultType.done) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(content: Text('Không thể mở tệp: ${res.message}')),
           );
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Lỗi khi mở nội dung: $e')));
+      if (!mounted) return; // guard context usage if ever added below
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Lỗi khi mở nội dung: $e')),
+      );
     }
   }
 

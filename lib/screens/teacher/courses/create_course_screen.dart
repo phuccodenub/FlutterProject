@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import '../../../features/courses/course_model.dart';
+import 'providers/teacher_course_providers.dart';
 import '../../../core/widgets/common_app_bar.dart';
 import '../../../core/widgets/custom_cards.dart';
 import '../../../core/widgets/custom_text_field.dart';
@@ -104,12 +107,14 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
     }
   }
 
-  void _submitForm() {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    // Capture messenger early to avoid using context across async gaps
+    final messenger = ScaffoldMessenger.of(context);
+
     if (_pickedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: const Row(
             children: [
@@ -129,18 +134,35 @@ class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
       return;
     }
 
-    final newCourse = Course(
-      id: const Uuid().v4(),
-      title: _titleController.text,
-      description: _descriptionController.text,
-      imageFile: _pickedImage,
-      code: 'NEW101',
-      instructorName: 'Tên giáo viên',
-    );
+    try {
+      // "Upload" ảnh: sao chép vào thư mục ứng dụng để dùng lâu dài
+      final docsDir = await getApplicationDocumentsDirectory();
+      final id = const Uuid().v4();
+      final fileName = 'course_$id${p.extension(_pickedImage!.path)}';
+      final destPath = p.join(docsDir.path, fileName);
+      final savedFile = await _pickedImage!.copy(destPath);
 
-    // Điều hướng đến màn chi tiết khóa học ngay sau khi tạo (dành cho instructor)
-    // Sử dụng go_router để không xung đột với Navigator 2.0/page-based
-    context.go('/course/${newCourse.id}');
+      final newCourse = Course(
+        id: id,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        code: 'NEW101',
+        instructorName: 'Tên giáo viên',
+        imageFile: savedFile,
+        category: _selectedCategory,
+      );
+
+      // Lưu bằng Riverpod (teacher scope)
+      ref.read(teacherCoursesProvider.notifier).addOrUpdate(newCourse);
+
+      if (!mounted) return;
+      // Điều hướng đến trang chi tiết của khóa học vừa tạo
+      context.go('/course/${newCourse.id}');
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Không thể lưu khóa học: $e')),
+      );
+    }
   }
 
   @override

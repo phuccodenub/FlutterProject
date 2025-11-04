@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../features/courses/courses_service.dart';
+import '../../../teacher/courses/providers/teacher_course_providers.dart';
 import '../../../../features/auth/auth_state.dart';
 import '../../../../core/widgets/custom_cards.dart';
 import '../../../../core/widgets/section_header.dart';
@@ -61,6 +62,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     final user = ref.watch(authProvider).user;
     final bool isInstructor = user?.role == 'instructor';
     final coursesService = CoursesService();
+    final courseFromState = ref.watch(
+      teacherCourseByIdProvider(widget.courseId),
+    );
 
     // Listen for external tab switch requests from children (Riverpod requires listen inside build)
     ref.listen<int>(selectedCourseTabProvider, (previous, next) {
@@ -95,7 +99,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     }
 
     return FutureBuilder(
-      future: coursesService.getById(widget.courseId),
+      future: courseFromState != null
+          ? Future.value(courseFromState)
+          : coursesService.getById(widget.courseId),
       builder: (context, snapshot) {
         final course = snapshot.data;
         final title = course?.title ?? 'Course ${widget.courseId}';
@@ -122,45 +128,74 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                         ],
                       ),
                     ),
-                    background: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Theme.of(context).colorScheme.primary,
-                            Theme.of(context).colorScheme.secondary,
-                          ],
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            right: -50,
-                            bottom: -50,
-                            child: Container(
-                              width: 150,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
+                    background: Builder(
+                      builder: (_) {
+                        // Ảnh bìa nếu có (ưu tiên ảnh file local)
+                        if (course?.imageFile != null) {
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.file(course!.imageFile!, fit: BoxFit.cover),
+                              Container(
+                                color: Colors.black.withValues(alpha: 0.25),
                               ),
+                            ],
+                          );
+                        }
+                        final thumb = (course?.thumbnailUrl ?? '').toString();
+                        if (thumb.isNotEmpty) {
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.network(thumb, fit: BoxFit.cover),
+                              Container(
+                                color: Colors.black.withValues(alpha: 0.25),
+                              ),
+                            ],
+                          );
+                        }
+                        // Fallback gradient
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(context).colorScheme.secondary,
+                              ],
                             ),
                           ),
-                          Positioned(
-                            left: -30,
-                            top: -30,
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                right: -50,
+                                bottom: -50,
+                                child: Container(
+                                  width: 150,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                ),
                               ),
-                            ),
+                              Positioned(
+                                left: -30,
+                                top: -30,
+                                child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
                   actions: [

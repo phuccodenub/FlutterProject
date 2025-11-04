@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/course_content_models.dart';
+import '../../../../features/courses/course_model.dart';
 
 // Current user (demo): Trong thực tế sẽ lấy từ hệ thống auth
 final currentUserProvider = StateProvider<Map<String, String>?>((ref) {
@@ -69,4 +70,28 @@ final announcementsProvider = StateProvider<List<Map<String, String>>>((ref) {
       'time': 'Hôm qua 16:20',
     },
   ];
+});
+
+// =====================
+// Courses (Teacher scope)
+// =====================
+
+class TeacherCoursesNotifier extends StateNotifier<Map<String, Course>> {
+  TeacherCoursesNotifier() : super(<String, Course>{});
+
+  void addOrUpdate(Course course) {
+    state = {...state, course.id: course};
+  }
+
+  Course? getById(String id) => state[id];
+}
+
+final teacherCoursesProvider =
+    StateNotifierProvider<TeacherCoursesNotifier, Map<String, Course>>(
+      (ref) => TeacherCoursesNotifier(),
+    );
+
+final teacherCourseByIdProvider = Provider.family<Course?, String>((ref, id) {
+  final map = ref.watch(teacherCoursesProvider);
+  return map[id];
 });
