@@ -63,7 +63,7 @@ class _GradebookScreenState extends State<GradebookScreen> {
               // Gợi ý sử dụng (giữ nguyên, rất tốt)
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.06),
+                  color: Colors.blue.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 padding: const EdgeInsets.symmetric(
@@ -146,7 +146,7 @@ class _GradebookScreenState extends State<GradebookScreen> {
                                   return Container(
                                     // <-- THAY ĐỔI MÀU ZEBRA
                                     color: i.isEven
-                                        ? Colors.black.withOpacity(0.02)
+                                        ? Colors.black.withValues(alpha: 0.02)
                                         : null,
                                     alignment: Alignment.centerLeft,
                                     padding: const EdgeInsets.symmetric(
@@ -193,10 +193,9 @@ class _GradebookScreenState extends State<GradebookScreen> {
                                     data: DataTableThemeData(
                                       headingRowHeight: headerHeight,
                                       // <-- THÊM MÀU NỀN CHO HEADER
-                                      headingRowColor:
-                                          MaterialStateProperty.all(
-                                            Colors.grey.shade100,
-                                          ),
+                                      headingRowColor: WidgetStateProperty.all(
+                                        Colors.grey.shade100,
+                                      ),
                                       dataRowMinHeight: rowHeight,
                                       dataRowMaxHeight: rowHeight,
                                       horizontalMargin: 8,
@@ -264,13 +263,14 @@ class _GradebookScreenState extends State<GradebookScreen> {
                                           );
                                           return DataRow(
                                             color:
-                                                MaterialStateProperty.resolveWith<
+                                                WidgetStateProperty.resolveWith<
                                                   Color?
                                                 >(
                                                   (states) => i.isEven
                                                       // <-- ĐỔI MÀU ZEBRA
-                                                      ? Colors.black
-                                                            .withOpacity(0.02)
+                                                      ? Colors.black.withValues(
+                                                          alpha: 0.02,
+                                                        )
                                                       : null,
                                                 ),
                                             cells: [

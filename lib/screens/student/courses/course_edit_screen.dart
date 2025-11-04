@@ -26,7 +26,7 @@ class _CourseEditScreenState extends State<CourseEditScreen> {
   // ignore: unused_field
   String _selectedLevel = 'Beginner';
   // ignore: unused_field
-  String _selectedLanguage = 'Vietnamese';
+  final String _selectedLanguage = 'Vietnamese';
   bool _isPublished = false;
   bool _allowComments = true;
   bool _allowDownloads = false;

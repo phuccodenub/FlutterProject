@@ -140,7 +140,7 @@ class _ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final bubbleColor = isMine
         ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.surfaceVariant;
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
     final textColor = isMine ? Colors.white : Colors.black87;
 
     return Padding(

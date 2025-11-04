@@ -137,7 +137,7 @@ class _GradesTabState extends ConsumerState<GradesTab> {
                             dataRowMaxHeight: 52,
                             horizontalMargin: 8,
                             columnSpacing: 16,
-                            headingRowColor: MaterialStatePropertyAll(
+                            headingRowColor: WidgetStatePropertyAll(
                               Color(0xFFF5F5F5),
                             ),
                           ),
@@ -196,12 +196,11 @@ class _GradesTabState extends ConsumerState<GradesTab> {
                                 (sum, e) => sum + e,
                               );
                               return DataRow(
-                                color:
-                                    MaterialStateProperty.resolveWith<Color?>(
-                                      (states) => i.isEven
-                                          ? Colors.grey.withOpacity(0.05)
-                                          : null,
-                                    ),
+                                color: WidgetStateProperty.resolveWith<Color?>(
+                                  (states) => i.isEven
+                                      ? Colors.grey.withValues(alpha: 0.05)
+                                      : null,
+                                ),
                                 cells: [
                                   DataCell(
                                     SizedBox(

@@ -27,7 +27,7 @@ class AssignmentGradeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -43,7 +43,7 @@ class AssignmentGradeScreen extends StatelessWidget {
                   dataRowMaxHeight: 52,
                   horizontalMargin: 8,
                   columnSpacing: 16,
-                  headingRowColor: MaterialStatePropertyAll(Color(0xFFF5F5F5)),
+                  headingRowColor: WidgetStatePropertyAll(Color(0xFFF5F5F5)),
                 ),
                 child: SizedBox(
                   width: double.infinity,
@@ -71,9 +71,10 @@ class AssignmentGradeScreen extends StatelessWidget {
                       // TODO: khi có dữ liệu thực, thay 0 bằng điểm thực tế của sinh viên cho bài này
                       final int score = 0;
                       return DataRow(
-                        color: MaterialStateProperty.resolveWith<Color?>(
-                          (states) =>
-                              i.isEven ? Colors.grey.withOpacity(0.04) : null,
+                        color: WidgetStateProperty.resolveWith<Color?>(
+                          (states) => i.isEven
+                              ? Colors.grey.withValues(alpha: 0.04)
+                              : null,
                         ),
                         cells: [
                           DataCell(

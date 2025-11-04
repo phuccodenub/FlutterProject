@@ -66,7 +66,7 @@ class LectureContentScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(lesson.title, style: AppTypography.h6),
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha: 0.1),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

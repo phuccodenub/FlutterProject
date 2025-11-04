@@ -180,6 +180,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
 
   Future<void> _handleAddSection(BuildContext ctx) async {
     final title = await _showSectionDialog(ctx);
+    if (!mounted) return;
     if (title == null) return;
     setState(() {
       _sections.add(
@@ -192,7 +193,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
     });
     // Hook
     try {
-      widget.onAddSection(ctx);
+      widget.onAddSection(context);
     } catch (_) {}
   }
 
@@ -200,23 +201,25 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
     final section = _sections[sectionIndex];
     final currentTitle = _getString(section, ['title']) ?? '';
     final title = await _showSectionDialog(ctx, initial: currentTitle);
+    if (!mounted) return;
     if (title == null) return;
     setState(() {
       section.title = title;
     });
     try {
-      widget.onEditSection(ctx, sectionIndex);
+      widget.onEditSection(context, sectionIndex);
     } catch (_) {}
   }
 
   Future<void> _handleDeleteSection(BuildContext ctx, int sectionIndex) async {
     final confirmed = await _confirmDelete(ctx, 'Xóa chương này?');
+    if (!mounted) return;
     if (confirmed != true) return;
     setState(() {
       _sections.removeAt(sectionIndex);
     });
     try {
-      widget.onDeleteSection(ctx, sectionIndex);
+      widget.onDeleteSection(context, sectionIndex);
     } catch (_) {}
   }
 
@@ -238,6 +241,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
       initialTitle: initialTitle,
       initialType: initialType,
     );
+    if (!mounted) return;
     if (result == null) return;
 
     final section = _sections[sectionIndex];
@@ -264,7 +268,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
 
     try {
       widget.onAddEditLecture(
-        ctx,
+        context,
         sectionIndex,
         lecture: lecture,
         lectureIndex: lectureIndex,
@@ -279,13 +283,14 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
     String title,
   ) async {
     final confirmed = await _confirmDelete(ctx, 'Xóa bài giảng "$title"?');
+    if (!mounted) return;
     if (confirmed != true) return;
     final section = _sections[sectionIndex];
     setState(() {
       section.lectures.removeAt(lectureIndex);
     });
     try {
-      widget.onDeleteLecture(ctx, sectionIndex, lectureIndex, title);
+      widget.onDeleteLecture(context, sectionIndex, lectureIndex, title);
     } catch (_) {}
   }
 
@@ -345,7 +350,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: type,
+                initialValue: type,
                 items: const [
                   DropdownMenuItem(value: 'video', child: Text('Video')),
                   DropdownMenuItem(value: 'file', child: Text('Tệp')),
@@ -492,7 +497,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -511,7 +516,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
                     leading: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: theme.primaryColor.withOpacity(0.1),
+                        color: theme.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -643,7 +648,7 @@ class _TeacherContentTabState extends State<TeacherContentTab> {
                                 leading: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: color.withOpacity(0.1),
+                                    color: color.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Icon(

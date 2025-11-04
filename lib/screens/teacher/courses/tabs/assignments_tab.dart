@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/teacher_course_providers.dart';
 import '../grading_screen.dart';
@@ -77,7 +78,7 @@ class AssignmentsTab extends ConsumerWidget {
         const SizedBox(height: 16),
         if (assignments.isEmpty)
           (readOnly
-              ? EmptyState(
+              ? const EmptyState(
                   icon: Icons.assignment_outlined,
                   title: 'Chưa có bài tập nào',
                   subtitle: 'Hiện chưa có bài tập nào được giao.',
@@ -150,8 +151,11 @@ class AssignmentsTab extends ConsumerWidget {
         final titleCtl = TextEditingController();
         final descCtl = TextEditingController();
         final pointsCtl = TextEditingController(text: '10');
-        DateTime? pickedDeadline;
-        String deadlineLabel = 'Chọn hạn nộp';
+        DateTime? pickedDate;
+        TimeOfDay? pickedTime;
+        String dateLabel = 'Chọn ngày';
+        String timeLabel = 'Chọn giờ';
+        final List<PlatformFile> pickedFiles = [];
         return StatefulBuilder(
           builder: (context, setModalState) => Padding(
             padding: EdgeInsets.only(
@@ -215,6 +219,7 @@ class AssignmentsTab extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           prefixIcon: const Icon(Icons.score_outlined),
+                          suffixText: 'điểm',
                         ),
                       ),
                     ),
@@ -234,15 +239,140 @@ class AssignmentsTab extends ConsumerWidget {
                           );
                           if (d != null) {
                             setModalState(() {
-                              pickedDeadline = d;
-                              deadlineLabel = _fmtDateTime(d);
+                              pickedDate = d;
+                              dateLabel =
+                                  '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
                             });
                           }
                         },
                         icon: const Icon(Icons.event_outlined),
-                        label: Text(deadlineLabel),
+                        label: Text(dateLabel),
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final t = await showTimePicker(
+                            context: ctx,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (t != null) {
+                            setModalState(() {
+                              pickedTime = t;
+                              timeLabel =
+                                  '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.schedule_outlined),
+                        label: Text(timeLabel),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Builder(
+                        builder: (_) {
+                          final previewDate =
+                              pickedDate ??
+                              DateTime.now().add(const Duration(days: 7));
+                          final previewTime =
+                              pickedTime ??
+                              const TimeOfDay(hour: 23, minute: 59);
+                          final preview = DateTime(
+                            previewDate.year,
+                            previewDate.month,
+                            previewDate.day,
+                            previewTime.hour,
+                            previewTime.minute,
+                          );
+                          return Container(
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'Hạn: ${_fmtDateTime(preview)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Attachments section
+                Text(
+                  'Tệp đính kèm (tuỳ chọn)',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                if (pickedFiles.isNotEmpty)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final f in pickedFiles)
+                        Chip(
+                          label: Text(f.name, overflow: TextOverflow.ellipsis),
+                          onDeleted: () {
+                            setModalState(() {
+                              pickedFiles.remove(f);
+                            });
+                          },
+                        ),
+                    ],
+                  )
+                else
+                  Text(
+                    'Chưa chọn tệp nào',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final res = await FilePicker.platform.pickFiles(
+                            allowMultiple: true,
+                          );
+                          if (res != null && res.files.isNotEmpty) {
+                            setModalState(() {
+                              pickedFiles.addAll(res.files);
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.attach_file),
+                        label: const Text('Chọn tệp đính kèm'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    if (pickedFiles.isNotEmpty)
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            setModalState(() {
+                              pickedFiles.clear();
+                            });
+                          },
+                          icon: const Icon(Icons.clear_all),
+                          label: const Text('Xoá tất cả'),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -257,13 +387,28 @@ class AssignmentsTab extends ConsumerWidget {
                     ElevatedButton(
                       onPressed: () {
                         if (titleCtl.text.trim().isEmpty) return;
+                        final baseDate =
+                            pickedDate ??
+                            DateTime.now().add(const Duration(days: 7));
+                        final t =
+                            pickedTime ?? const TimeOfDay(hour: 23, minute: 59);
+                        final deadline = DateTime(
+                          baseDate.year,
+                          baseDate.month,
+                          baseDate.day,
+                          t.hour,
+                          t.minute,
+                        );
+
                         final newItem = AssignmentItem(
                           title: titleCtl.text.trim(),
-                          deadline:
-                              pickedDeadline ??
-                              DateTime.now().add(const Duration(days: 7)),
+                          deadline: deadline,
                           submitted: 0,
                           total: totalStudents,
+                          description: descCtl.text.trim().isEmpty
+                              ? null
+                              : descCtl.text.trim(),
+                          attachments: pickedFiles.map((f) => f.name).toList(),
                         );
                         ref.read(assignmentsProvider.notifier).state = [
                           ...ref.read(assignmentsProvider),
@@ -288,10 +433,10 @@ class AssignmentsTab extends ConsumerWidget {
       MaterialPageRoute(
         builder: (_) => AssignmentDetailScreen(
           assignment: a,
-          // Optional demo description/attachments
-          description:
-              'Hãy nộp báo cáo tuần dưới dạng PDF. Yêu cầu: tối thiểu 2 trang, mô tả tiến độ và vấn đề gặp phải.',
-          attachments: const ['Huong_dan_nop_bai.pdf'],
+          // Đồng bộ với mô tả đã nhập khi tạo bài tập
+          description: a.description,
+          attachments: a.attachments,
+          // Không cần truyền studentId/name nữa - đọc từ currentUserProvider
         ),
       ),
     );

@@ -20,7 +20,8 @@ enum _SubmissionFilter { all, submitted, notSubmitted, graded }
 
 class _GradingScreenState extends State<GradingScreen> {
   final TextEditingController _searchController = TextEditingController();
-  _SubmissionFilter _filter = _SubmissionFilter.all;
+  _SubmissionFilter _filter =
+      _SubmissionFilter.submitted; // mặc định chỉ hiện người đã nộp
 
   @override
   void dispose() {
@@ -126,19 +127,44 @@ class _GradingScreenState extends State<GradingScreen> {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      'Chưa có mô tả chi tiết cho bài tập này.',
-                      // Nếu có rich text, thay thế bằng widget render tương ứng (Quill viewer, v.v.)
-                      style: theme.textTheme.bodyMedium,
+                    Builder(
+                      builder: (_) {
+                        final desc = widget.assignment.description?.trim();
+                        final hasDesc = desc != null && desc.isNotEmpty;
+                        return Text(
+                          hasDesc
+                              ? desc
+                              : 'Chưa có mô tả chi tiết cho bài tập này.',
+                          // Nếu có rich text, thay thế bằng widget render tương ứng (Quill viewer, v.v.)
+                          style: theme.textTheme.bodyMedium,
+                        );
+                      },
                     ),
                     const SizedBox(height: 8),
-                    // Tệp đính kèm (nếu có)
-                    // Ví dụ minh họa một mục tệp đính kèm. Khi có dữ liệu thật, lặp qua danh sách.
-                    // ListTile(
-                    //   leading: const Icon(Icons.attachment),
-                    //   title: const Text('debai.pdf'),
-                    //   onTap: () {},
-                    // ),
+                    if (widget.assignment.attachments.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tệp đính kèm:',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      ...widget.assignment.attachments.map(
+                        (name) => ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.attachment),
+                          title: Text(name),
+                          onTap: () {
+                            // TODO: Tải xuống/mở tệp
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Đang mở "$name" (demo)')),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

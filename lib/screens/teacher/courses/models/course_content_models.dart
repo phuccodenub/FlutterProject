@@ -34,10 +34,14 @@ class AssignmentItem {
   DateTime deadline;
   int submitted;
   int total;
+  String? description; // mô tả bài tập (tùy chọn)
+  List<String> attachments; // danh sách tệp đính kèm (tên/đường dẫn)
   AssignmentItem({
     required this.title,
     required this.deadline,
     required this.submitted,
     required this.total,
-  });
+    this.description,
+    List<String>? attachments,
+  }) : attachments = attachments ?? const [];
 }

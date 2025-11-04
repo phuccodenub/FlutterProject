@@ -22,7 +22,7 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bg = switch (variant) {
-      BadgeVariant.subtle => color.withOpacity(0.1),
+      BadgeVariant.subtle => color.withValues(alpha: 0.1),
       BadgeVariant.solid => color,
     };
     final fg = switch (variant) {

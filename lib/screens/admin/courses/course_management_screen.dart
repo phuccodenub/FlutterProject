@@ -373,7 +373,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
             Icon(Icons.star, size: 16, color: Colors.orange),
             const SizedBox(width: 4),
             Text(
-              '${course['rating']}',
+              (course['rating']).toString(),
               style: const TextStyle(fontSize: 12, color: Colors.orange),
             ),
             const Spacer(),

@@ -1,6 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/course_content_models.dart';
 
+// Current user (demo): Trong thực tế sẽ lấy từ hệ thống auth
+final currentUserProvider = StateProvider<Map<String, String>?>((ref) {
+  return {
+    'id': 'SV001',
+    'name': 'Nguyễn Văn A',
+    'email': 'a.nguyen@example.com',
+    'role': 'student',
+  };
+});
+
 // Students
 final studentsProvider = StateProvider<List<Map<String, String>>>((ref) {
   return [

@@ -78,7 +78,7 @@ class CourseCard extends StatelessWidget {
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          '${_enrollmentCount()}',
+                          _enrollmentCount().toString(),
                           style: AppTypography.bodySmall.copyWith(
                             color: AppColors.grey600,
                           ),
@@ -97,7 +97,7 @@ class CourseCard extends StatelessWidget {
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          '${_getRating().toStringAsFixed(1)}',
+                          _getRating().toStringAsFixed(1),
                           style: AppTypography.bodySmall.copyWith(
                             color: AppColors.grey600,
                           ),

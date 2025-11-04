@@ -206,7 +206,7 @@ class _QuizCreationScreenState extends ConsumerState<QuizCreationScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ExpansionTile(
-        leading: CircleAvatar(child: Text('${index + 1}')),
+        leading: CircleAvatar(child: Text((index + 1).toString())),
         title: Text(
           question.title.isEmpty ? 'Câu hỏi ${index + 1}' : question.title,
           maxLines: 2,

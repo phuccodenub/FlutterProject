@@ -121,7 +121,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
     final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(
-        color: colorScheme.outline.withOpacity(0.5),
+        color: colorScheme.outline.withValues(alpha: 0.5),
         width: 1,
       ),
     );
@@ -175,7 +175,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
           boxShadow: _hasFocus
               ? [
                   BoxShadow(
-                    color: colorScheme.primary.withOpacity(0.3),
+                    color: colorScheme.primary.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

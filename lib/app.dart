@@ -6,7 +6,6 @@ import 'core/config/app_config.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/auth_state.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'features/chatbot/chatbot_widget.dart';
 import 'routes/app_router.dart';
 
 class LMSApp extends ConsumerWidget {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../../teacher/courses/providers/teacher_course_providers.dart';
 import '../../../teacher/courses/models/course_content_models.dart';
 import '../../../../core/widgets/widgets.dart';
 
@@ -106,7 +107,7 @@ class _AssignmentDetailScreenState
                         children: [
                           Chip(
                             label: Text(status.$1),
-                            backgroundColor: status.$2.withOpacity(0.12),
+                            backgroundColor: status.$2.withValues(alpha: 0.12),
                             labelStyle: theme.textTheme.labelMedium?.copyWith(
                               color: status.$2.shade700,
                             ),
@@ -303,6 +304,20 @@ class _AssignmentDetailScreenState
     setState(() {
       _isSubmitted = true;
     });
+
+    // Đọc current user và đánh dấu đã nộp theo studentId
+    final current = ref.read(currentUserProvider);
+    final studentId = current?['id'];
+    if (studentId != null && studentId.isNotEmpty) {
+      final list = List<Map<String, String>>.from(ref.read(studentsProvider));
+      final idx = list.indexWhere((s) => (s['id'] ?? '') == studentId);
+      if (idx != -1) {
+        final updated = Map<String, String>.from(list[idx]);
+        updated['submitted'] = 'true';
+        list[idx] = updated;
+        ref.read(studentsProvider.notifier).state = list;
+      }
+    }
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Nộp bài thành công')));

@@ -405,7 +405,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen>
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: type,
+                  initialValue: type,
                   items: const [
                     DropdownMenuItem(value: 'video', child: Text('Video')),
                     DropdownMenuItem(value: 'file', child: Text('Tệp tin')),

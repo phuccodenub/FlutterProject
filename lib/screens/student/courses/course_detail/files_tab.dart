@@ -161,7 +161,7 @@ class _FilesTabViewState extends State<FilesTabView> {
                                 }
                               },
                             ),
-                          Text('${f.downloadCount}'),
+                          Text(f.downloadCount.toString()),
                         ],
                       ),
                       onTap: () async {
@@ -230,7 +230,10 @@ class _FilesTabViewState extends State<FilesTabView> {
     );
   }
 
-  Future<void> _showDownloadDialog(BuildContext context, CourseFile file) async {
+  Future<void> _showDownloadDialog(
+    BuildContext context,
+    CourseFile file,
+  ) async {
     if (!context.mounted) return;
 
     double progress = 0.0;
@@ -257,27 +260,20 @@ class _FilesTabViewState extends State<FilesTabView> {
                   ),
                   const SizedBox(height: 16),
                   if (errorMessage == null) ...[
-                    LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 8,
-                    ),
+                    LinearProgressIndicator(value: progress, minHeight: 8),
                     const SizedBox(height: 8),
                     Text(
                       '${(progress * 100).toStringAsFixed(0)}%',
                       style: Theme.of(statefulContext).textTheme.bodySmall,
                     ),
                   ] else ...[
-                    Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 48,
-                    ),
+                    Icon(Icons.error_outline, color: Colors.red, size: 48),
                     const SizedBox(height: 8),
                     Text(
                       errorMessage,
-                      style: Theme.of(statefulContext).textTheme.bodySmall?.copyWith(
-                        color: Colors.red,
-                      ),
+                      style: Theme.of(
+                        statefulContext,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.red),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -302,8 +298,7 @@ class _FilesTabViewState extends State<FilesTabView> {
     // Perform download
     try {
       // Build download URL (adjust based on your API)
-      final downloadUrl =
-          'https://api.lms.local/files/${file.id}/download';
+      final downloadUrl = 'https://api.lms.local/files/${file.id}/download';
 
       await FileSaverService.downloadAndSave(
         url: downloadUrl,
