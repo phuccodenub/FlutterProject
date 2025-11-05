@@ -3,9 +3,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_cards.dart';
+import '../../../../core/services/progress_service.dart';
 import 'student_content_tab.dart';
 
-class LectureContentScreen extends StatelessWidget {
+class LectureContentScreen extends StatefulWidget {
   final Lesson lesson;
   final VoidCallback? onNext;
   final VoidCallback? onPrevious;
@@ -17,9 +18,17 @@ class LectureContentScreen extends StatelessWidget {
     this.onPrevious,
   });
 
+  @override
+  State<LectureContentScreen> createState() => _LectureContentScreenState();
+}
+
+class _LectureContentScreenState extends State<LectureContentScreen> {
+  final ProgressService _progressService = ProgressService();
+  bool _isMarking = false;
+
   // Widget hiển thị nội dung dựa trên loại bài học
   Widget _buildContentArea() {
-    switch (lesson.type) {
+    switch (widget.lesson.type) {
       case 'video':
         return const CustomCard(
           child: AspectRatio(
@@ -60,11 +69,11 @@ class LectureContentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // A local variable to track completion state, as StatelessWidget is immutable.
-    bool isCompleted = lesson.isCompleted;
+    bool isCompleted = widget.lesson.isCompleted;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(lesson.title, style: AppTypography.h6),
+        title: Text(widget.lesson.title, style: AppTypography.h6),
         elevation: 1,
         shadowColor: Colors.black.withValues(alpha: 0.1),
       ),
@@ -84,20 +93,49 @@ class LectureContentScreen extends StatelessWidget {
                   text: isCompleted
                       ? 'Đã hoàn thành'
                       : 'Đánh dấu đã hoàn thành',
-                  onPressed: isCompleted
-                      ? null // Vô hiệu hóa nếu đã hoàn thành
-                      : () {
-                          // TODO: Gọi API để cập nhật trạng thái
+                  onPressed: (_isMarking || isCompleted)
+                      ? null // Vô hiệu hóa nếu đang xử lý hoặc đã hoàn thành
+                      : () async {
                           setState(() {
-                            isCompleted = true;
-                            lesson.isCompleted = true;
+                            _isMarking = true;
                           });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Đã cập nhật trạng thái bài học.'),
-                              backgroundColor: AppColors.success,
-                            ),
-                          );
+
+                          try {
+                            // Call API to mark lesson as complete
+                            await _progressService.markLessonComplete(
+                              lessonId: widget.lesson.id,
+                              completed: true,
+                            );
+
+                            if (!context.mounted) return;
+
+                            setState(() {
+                              isCompleted = true;
+                              widget.lesson.isCompleted = true;
+                              _isMarking = false;
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Đã cập nhật trạng thái bài học.'),
+                                backgroundColor: AppColors.success,
+                              ),
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+
+                            setState(() {
+                              _isMarking = false;
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Lỗi: $e'),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                          }
                         },
                   variant: isCompleted
                       ? ButtonVariant.success
@@ -128,8 +166,8 @@ class LectureContentScreen extends StatelessWidget {
         children: [
           TextButton.icon(
             onPressed: () {
-              if (onPrevious != null) {
-                onPrevious!();
+              if (widget.onPrevious != null) {
+                widget.onPrevious!();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -141,15 +179,15 @@ class LectureContentScreen extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             label: const Text('Bài trước'),
             style: TextButton.styleFrom(
-              foregroundColor: onPrevious != null
+              foregroundColor: widget.onPrevious != null
                   ? AppColors.primary
                   : AppColors.grey400,
             ),
           ),
           TextButton.icon(
             onPressed: () {
-              if (onNext != null) {
-                onNext!();
+              if (widget.onNext != null) {
+                widget.onNext!();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -163,7 +201,7 @@ class LectureContentScreen extends StatelessWidget {
             icon: const Icon(Icons.arrow_forward),
             label: const Text('Bài tiếp theo'),
             style: TextButton.styleFrom(
-              foregroundColor: onNext != null
+              foregroundColor: widget.onNext != null
                   ? AppColors.primary
                   : AppColors.grey400,
             ),

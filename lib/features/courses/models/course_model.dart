@@ -110,14 +110,27 @@ class CourseModel extends Equatable {
   });
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
+    // Extract instructor name from instructor object if present
+    String instructorName = 'Unknown Instructor';
+    if (json['instructor'] != null && json['instructor'] is Map) {
+      final instructor = json['instructor'] as Map<String, dynamic>;
+      final firstName = instructor['first_name'] ?? '';
+      final lastName = instructor['last_name'] ?? '';
+      instructorName = '$firstName $lastName'.trim();
+      if (instructorName.isEmpty) {
+        instructorName = instructor['email'] ?? 'Unknown Instructor';
+      }
+    } else if (json['instructor_name'] != null) {
+      instructorName = json['instructor_name'] as String;
+    }
+
     return CourseModel(
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
       shortDescription: json['short_description'] as String?,
       instructorId: json['instructor_id'] as String,
-      instructorName:
-          json['instructor_name'] as String? ?? 'Unknown Instructor',
+      instructorName: instructorName,
       instructorAvatar: json['instructor_avatar'] as String?,
       categoryId: json['category_id'] as String?,
       categoryName: json['category_name'] as String?,

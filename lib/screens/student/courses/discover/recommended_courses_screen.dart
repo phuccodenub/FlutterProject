@@ -5,6 +5,7 @@ import '../../../../features/courses/services/course_service.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../courses/course_preview_screen.dart';
 // CourseCard is exported from widgets.dart
 
@@ -26,10 +27,39 @@ class _RecommendedCoursesScreenState
     if (mounted) setState(() => _refreshTick++);
   }
 
+  Future<Map<String, List<dynamic>>> _loadCourses(bool isLoggedIn) async {
+    final courseService = CourseService();
+    
+    try {
+      // Always get all courses (public endpoint)
+      final allCoursesResponse = await courseService.getAllCourses();
+      final allCourses = allCoursesResponse.items;
+      
+      // Only get enrolled courses if user is logged in
+      List<dynamic> enrolledCourses = [];
+      if (isLoggedIn) {
+        try {
+          final enrolledResponse = await courseService.getEnrolledCourses();
+          enrolledCourses = enrolledResponse.items;
+        } catch (e) {
+          // If getting enrolled courses fails, just continue with empty list
+          AppLogger.error('Failed to get enrolled courses in recommendations', e);
+        }
+      }
+      
+      return {
+        'all': allCourses,
+        'enrolled': enrolledCourses,
+      };
+    } catch (e) {
+      AppLogger.error('Failed to load courses for recommendations', e);
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
-    final courseService = CourseService();
 
     return Scaffold(
       appBar: AppBar(
@@ -47,15 +77,9 @@ class _RecommendedCoursesScreenState
       ),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
-        child: FutureBuilder(
+        child: FutureBuilder<Map<String, List<dynamic>>>(
           key: ValueKey(_refreshTick),
-          future: Future.wait([
-            courseService.getAllCourses(),
-            if (user != null)
-              courseService.getEnrolledCourses()
-            else
-              Future.value(<dynamic>[]),
-          ]),
+          future: _loadCourses(user != null),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               // Shimmer loading list + header để kéo refresh được
@@ -77,7 +101,7 @@ class _RecommendedCoursesScreenState
               );
             }
 
-            if (!snapshot.hasData) {
+            if (!snapshot.hasData || snapshot.hasError) {
               // Đảm bảo vẫn kéo refresh được
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -87,16 +111,17 @@ class _RecommendedCoursesScreenState
                     context,
                     icon: Icons.cloud_off,
                     title: 'Không thể tải dữ liệu',
-                    subtitle: 'Vui lòng kiểm tra kết nối và thử lại.',
+                    subtitle: snapshot.hasError 
+                        ? 'Lỗi: ${snapshot.error}' 
+                        : 'Vui lòng kiểm tra kết nối và thử lại.',
                   ),
                 ],
               );
             }
 
-            final allCourses = List<dynamic>.from(snapshot.data![0] as List);
-            final myCourses = user != null
-                ? List<dynamic>.from(snapshot.data![1] as List)
-                : <dynamic>[];
+            final data = snapshot.data!;
+            final allCourses = data['all'] ?? [];
+            final myCourses = data['enrolled'] ?? [];
 
             // Build a set of identifiers for enrolled courses (id or code or title)
             final enrolledKeys = myCourses.map((c) => _courseKey(c)).toSet();

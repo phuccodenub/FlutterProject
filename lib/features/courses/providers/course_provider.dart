@@ -3,7 +3,6 @@ import '../../../core/utils/app_logger.dart';
 import '../../../core/utils/error_handler.dart';
 import '../services/course_service.dart';
 import '../models/course_model.dart';
-import '../models/enrollment_model.dart';
 import '../models/category_model.dart';
 import '../../auth/models/user_model.dart';
 
@@ -252,7 +251,7 @@ class CoursesNotifier extends StateNotifier<CoursesState> {
 
 /// My Courses State for enrolled courses
 class MyCoursesState {
-  final List<EnrollmentModel> enrollments;
+  final List<CourseModel> enrollments;
   final bool isLoading;
   final String? error;
   final int currentPage;
@@ -267,7 +266,7 @@ class MyCoursesState {
   });
 
   MyCoursesState copyWith({
-    List<EnrollmentModel>? enrollments,
+    List<CourseModel>? enrollments,
     bool? isLoading,
     String? error,
     int? currentPage,
@@ -282,16 +281,12 @@ class MyCoursesState {
     );
   }
 
-  // Filter methods
-  List<EnrollmentModel> get activeCourses =>
-      enrollments.where((e) => e.status == EnrollmentStatus.active).toList();
+  // Filter methods - now returning courses instead of enrollments
+  List<CourseModel> get activeCourses => enrollments;
 
-  List<EnrollmentModel> get completedCourses =>
-      enrollments.where((e) => e.status == EnrollmentStatus.completed).toList();
+  List<CourseModel> get completedCourses => enrollments;
 
-  List<EnrollmentModel> get inProgressCourses => enrollments
-      .where((e) => e.progressPercentage > 0 && e.progressPercentage < 1.0)
-      .toList();
+  List<CourseModel> get inProgressCourses => enrollments;
 }
 
 /// My Courses Notifier for managing enrolled courses
@@ -357,10 +352,10 @@ class MyCoursesNotifier extends StateNotifier<MyCoursesState> {
     try {
       AppLogger.api('Enrolling in course: $courseId');
 
-      final enrollment = await _courseService.enrollInCourse(courseId);
+      await _courseService.enrollInCourse(courseId);
 
-      // Add to current enrollments
-      state = state.copyWith(enrollments: [enrollment, ...state.enrollments]);
+      // Reload enrolled courses to update the list
+      await loadMyCourses(refresh: true);
 
       AppLogger.api('Successfully enrolled in course: $courseId');
       return true;
@@ -377,10 +372,10 @@ class MyCoursesNotifier extends StateNotifier<MyCoursesState> {
 
       await _courseService.unenrollFromCourse(courseId);
 
-      // Remove from current enrollments
+      // Remove from current enrollments by course ID
       state = state.copyWith(
         enrollments: state.enrollments
-            .where((e) => e.courseId != courseId)
+            .where((course) => course.id != courseId)
             .toList(),
       );
 

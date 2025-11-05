@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/admin_provider.dart';
-import '../../../core/models/user.dart';
+import '../../auth/models/user_model.dart';
 import '../../../core/utils/app_logger.dart';
 
 class AdminUserFilter {

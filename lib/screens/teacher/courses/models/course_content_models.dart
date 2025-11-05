@@ -30,6 +30,7 @@ class CourseSection {
 }
 
 class AssignmentItem {
+  final String id;
   String title;
   DateTime deadline;
   int submitted;
@@ -37,6 +38,7 @@ class AssignmentItem {
   String? description; // mô tả bài tập (tùy chọn)
   List<String> attachments; // danh sách tệp đính kèm (tên/đường dẫn)
   AssignmentItem({
+    required this.id,
     required this.title,
     required this.deadline,
     required this.submitted,

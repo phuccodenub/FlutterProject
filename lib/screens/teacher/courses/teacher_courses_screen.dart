@@ -5,6 +5,7 @@ import '../../../core/widgets/common_app_bar.dart';
 import '../../../core/widgets/teacher_course_card.dart';
 import '../../../core/widgets/quick_action_card.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../student/courses/course_edit_screen.dart';
 
 class TeacherCoursesScreen extends ConsumerStatefulWidget {
   const TeacherCoursesScreen({super.key});
@@ -213,11 +214,10 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                           onSelected: (value) {
                             switch (value) {
                               case 'edit':
-                                // TODO: điều hướng đến màn hình chỉnh sửa
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Mở màn hình chỉnh sửa khoá học',
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => CourseEditScreen(
+                                      courseId: raw['id'] as String,
                                     ),
                                   ),
                                 );

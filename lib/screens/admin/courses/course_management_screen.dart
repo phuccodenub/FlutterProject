@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../student/courses/course_detail/course_detail_screen.dart';
+import '../../../screens/student/courses/course_edit_screen.dart';
+import '../../../features/admin/courses/admin_course_list_provider.dart';
 
 class CourseManagementScreen extends ConsumerStatefulWidget {
   const CourseManagementScreen({super.key});
@@ -14,20 +17,12 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
   late TabController _tabController;
   final _searchController = TextEditingController();
   String _searchQuery = '';
-
-  // Local state lists to allow moving items across tabs
-  // Khởi tạo mặc định để tránh LateInitializationError khi hot reload
-  // (hot reload không gọi lại initState, dẫn tới biến late chưa được gán)
-  List<Map<String, dynamic>> _activeCourses = [];
-  List<Map<String, dynamic>> _suspendedCourses = [];
+  final int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    // Initialize local state from mock sources
-    _activeCourses = _getMockCourses('active');
-    _suspendedCourses = _getMockCourses('suspended');
   }
 
   @override
@@ -164,121 +159,69 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
   }
 
   Widget _buildCourses(String status) {
-    final List<Map<String, dynamic>> courses;
-    switch (status) {
-      case 'active':
-        courses = _activeCourses;
-        break;
-      case 'suspended':
-        courses = _suspendedCourses;
-        break;
-      default:
-        courses = const [];
-    }
-    final query = _searchQuery.trim().toLowerCase();
-    final List<Map<String, dynamic>> displayCourses = query.isEmpty
-        ? courses
-        : courses.where((c) {
-            final title = (c['title'] ?? '').toString().toLowerCase();
-            final instructor = (c['instructor'] ?? '').toString().toLowerCase();
-            final category = (c['category'] ?? '').toString().toLowerCase();
-            return title.contains(query) ||
-                instructor.contains(query) ||
-                category.contains(query);
-          }).toList();
+    // Map status to API filter
+    final apiStatus = status == 'active' ? 'published' : 'draft';
+    
+    final filter = AdminCourseFilter(
+      status: apiStatus,
+      search: _searchQuery,
+      page: _currentPage,
+      limit: 100, // Load more items
+    );
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: displayCourses.length,
-      itemBuilder: (context, index) {
-        final course = displayCourses[index];
-        return _buildCourseCard(course, status);
+    final coursesAsync = ref.watch(adminCourseListProvider(filter));
+
+    return coursesAsync.when(
+      data: (courseList) {
+        if (courseList.items.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.school_outlined, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'Không có khóa học',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: courseList.items.length,
+          itemBuilder: (context, index) {
+            final course = courseList.items[index];
+            return _buildCourseCardFromApi(course, status);
+          },
+        );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            const SizedBox(height: 16),
+            Text(
+              'Lỗi tải dữ liệu',
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error.toString(),
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void _moveCourseToSuspended(
-    String courseId,
-    String fromStatus,
-    String reason,
-  ) {
-    Map<String, dynamic>? removed;
-    if (fromStatus == 'active') {
-      removed = _activeCourses.firstWhere(
-        (c) => c['id'] == courseId,
-        orElse: () => {},
-      );
-      if (removed.isNotEmpty) {
-        _activeCourses.removeWhere((c) => c['id'] == courseId);
-      }
-    }
-    // Fallback: search in all if not found in declared status
-    if (removed == null || removed.isEmpty) {
-      final inActive = _activeCourses.firstWhere(
-        (c) => c['id'] == courseId,
-        orElse: () => {},
-      );
-      if (inActive.isNotEmpty) {
-        removed = inActive;
-        _activeCourses.removeWhere((c) => c['id'] == courseId);
-      }
-    }
-
-    if (removed != null && removed.isNotEmpty) {
-      final toAdd = Map<String, dynamic>.from(removed);
-      toAdd['reason'] = reason;
-      toAdd['suspendedAt'] = 'Hôm nay';
-      _suspendedCourses.insert(0, toAdd);
-    }
-  }
-
-  List<Map<String, dynamic>> _getMockCourses(String status) {
-    switch (status) {
-      case 'active':
-        return [
-          {
-            'id': '1',
-            'title': 'Flutter Development Basics',
-            'instructor': 'TS. Phạm Văn Đức',
-            'category': 'Lập trình Mobile',
-            'students': 245,
-            'rating': 4.8,
-            'price': 'Miễn phí',
-            'thumbnail': '📱',
-            'createdAt': '2023-01-15',
-            'lastUpdated': '2 ngày trước',
-          },
-          {
-            'id': '2',
-            'title': 'Advanced JavaScript',
-            'instructor': 'ThS. Hoàng Thị Ê',
-            'category': 'Lập trình Web',
-            'students': 189,
-            'rating': 4.6,
-            'price': '999,000 VNĐ',
-            'thumbnail': '🌐',
-            'createdAt': '2023-02-20',
-            'lastUpdated': '1 tuần trước',
-          },
-        ];
-      case 'suspended':
-        return [
-          {
-            'id': '4',
-            'title': 'Outdated Course',
-            'instructor': 'Cũ Rồi',
-            'category': 'Lỗi thời',
-            'reason': 'Nội dung lỗi thời',
-            'suspendedAt': '1 tháng trước',
-            'thumbnail': '❌',
-          },
-        ];
-      default:
-        return [];
-    }
-  }
-
-  Widget _buildCourseCard(Map<String, dynamic> course, String status) {
+  Widget _buildCourseCardFromApi(AdminCourseItem course, String status) {
     final theme = Theme.of(context);
 
     return Card(
@@ -295,11 +238,8 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Center(
-                child: Text(
-                  course['thumbnail'] ?? '📚',
-                  style: const TextStyle(fontSize: 24),
-                ),
+              child: const Center(
+                child: Icon(Icons.school, size: 30),
               ),
             ),
             const SizedBox(width: 16),
@@ -309,7 +249,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course['title'],
+                    course.title,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -318,20 +258,37 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Bởi ${course['instructor']}',
+                    'Bởi ${course.instructor}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    course['category'],
+                    course.category,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey.shade600,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildCourseStats(course, status, theme),
+                  // Stats
+                  Row(
+                    children: [
+                      Icon(Icons.people, size: 16, color: Colors.grey.shade600),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${course.students} học viên',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      ),
+                      const SizedBox(width: 16),
+                      const Icon(Icons.star, size: 16, color: Colors.orange),
+                      const SizedBox(width: 4),
+                      Text(
+                        course.rating.toStringAsFixed(1),
+                        style: const TextStyle(fontSize: 12, color: Colors.orange),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -340,7 +297,7 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
               itemBuilder: (context) => _buildCourseActions(status),
               onSelected: (value) => _handleCourseAction(
                 context,
-                course['id'],
+                course.id,
                 value.toString(),
                 status,
               ),
@@ -349,56 +306,6 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
         ),
       ),
     );
-  }
-
-  Widget _buildCourseStats(
-    Map<String, dynamic> course,
-    String status,
-    ThemeData theme,
-  ) {
-    switch (status) {
-      case 'active':
-        return Row(
-          children: [
-            Icon(Icons.people, size: 16, color: Colors.grey.shade600),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                '${course['students']} học viên',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Icon(Icons.star, size: 16, color: Colors.orange),
-            const SizedBox(width: 4),
-            Text(
-              (course['rating']).toString(),
-              style: const TextStyle(fontSize: 12, color: Colors.orange),
-            ),
-            const Spacer(),
-          ],
-        );
-      case 'suspended':
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Lý do: ${course['reason']}',
-              style: TextStyle(fontSize: 12, color: Colors.red.shade700),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Tạm dừng: ${course['suspendedAt']}',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-            ),
-          ],
-        );
-      default:
-        return const SizedBox.shrink();
-    }
   }
 
   List<PopupMenuEntry> _buildCourseActions(String status) {
@@ -441,8 +348,60 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     );
   }
 
-  void _showFilterDialog(BuildContext context) {
-    // TODO: Show filter dialog
+  void _showFilterDialog(BuildContext context) async {
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Lọc khóa học'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Trạng thái',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: '', child: Text('Tất cả')),
+                  DropdownMenuItem(value: 'draft', child: Text('Bản nháp')),
+                  DropdownMenuItem(value: 'published', child: Text('Đã xuất bản')),
+                  DropdownMenuItem(value: 'archived', child: Text('Đã lưu trữ')),
+                ],
+                onChanged: (value) {},
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Tìm kiếm',
+                  hintText: 'Nhập từ khóa...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, {}),
+            child: const Text('Áp dụng'),
+          ),
+        ],
+      ),
+    );
+
+    if (!context.mounted) return;
+    
+    if (result != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã áp dụng bộ lọc')),
+      );
+      // TODO: Call API with filters
+    }
   }
 
   void _handleMenuAction(BuildContext context, String action) {
@@ -472,11 +431,23 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     String status,
   ) {
     switch (action) {
-      case 'viTODO: Navigate to course detailew':
-        //
+      case 'view':
+        // Navigate to course detail
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailScreen(courseId: courseId),
+          ),
+        );
         break;
       case 'edit':
-        // TODO: Navigate to course editor
+        // Navigate to course editor
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseEditScreen(courseId: courseId),
+          ),
+        );
         break;
       case 'analytics':
         ScaffoldMessenger.of(context).showSnackBar(
@@ -561,17 +532,11 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           ),
           ElevatedButton(
             onPressed: () {
-              final reason = reasonCtl.text.trim().isEmpty
-                  ? 'Tạm dừng theo quyết định quản trị'
-                  : reasonCtl.text.trim();
-              setState(() {
-                _moveCourseToSuspended(courseId, currentStatus, reason);
-                // Chuyển sang tab "Đã tạm dừng" (index 1 sau khi bỏ tab "Chờ duyệt")
-                _tabController.index = 1;
-              });
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã tạm dừng khóa học')),
+                const SnackBar(
+                  content: Text('Chức năng tạm dừng khóa học sẽ được cập nhật sau'),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
@@ -611,45 +576,12 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
     );
   }
 
-  void _moveCourseToActive(String courseId, {String? note}) {
-    final idx = _suspendedCourses.indexWhere((c) => c['id'] == courseId);
-    if (idx == -1) return;
-    final removed = Map<String, dynamic>.from(_suspendedCourses.removeAt(idx));
-    // Clean suspended-only fields
-    removed.remove('reason');
-    removed.remove('suspendedAt');
-    // Provide sensible defaults for active stats if missing
-    removed['students'] = removed['students'] ?? 0;
-    removed['rating'] = removed['rating'] ?? 0.0;
-    removed['price'] = removed['price'] ?? 'Miễn phí';
-    if (note != null && note.isNotEmpty) {
-      removed['restoredNote'] = note;
-    }
-    _activeCourses.insert(0, removed);
-  }
-
   void _showRestoreDialog(BuildContext context, String courseId) {
-    final noteCtl = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Khôi phục khóa học'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Ghi chú (tuỳ chọn):'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: noteCtl,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'Nhập ghi chú khôi phục... (tuỳ chọn)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
+        content: const Text('Bạn có muốn khôi phục khóa học này không?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -657,15 +589,11 @@ class _CourseManagementScreenState extends ConsumerState<CourseManagementScreen>
           ),
           ElevatedButton(
             onPressed: () {
-              final note = noteCtl.text.trim();
-              setState(() {
-                _moveCourseToActive(courseId, note: note);
-                // Chuyển về tab "Đang hoạt động"
-                _tabController.index = 0;
-              });
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã khôi phục khóa học')),
+                const SnackBar(
+                  content: Text('Chức năng khôi phục sẽ được cập nhật sau'),
+                ),
               );
             },
             child: const Text('Khôi phục'),

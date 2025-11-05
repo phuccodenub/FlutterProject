@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/api_config.dart';
-import '../storage/prefs.dart';
 import '../utils/app_logger.dart';
+import '../../features/auth/services/token_manager.dart';
 
 /// Centralized HTTP client for API communication
 /// Provides configured Dio instance with interceptors for authentication,
@@ -78,39 +78,34 @@ class ApiClient {
 /// Authentication Interceptor
 /// Automatically adds Authorization header with JWT token
 class AuthInterceptor extends Interceptor {
+  final _tokenManager = TokenManager();
+
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
     try {
-      // Debug logging for all requests
-      AppLogger.error('🔐 AuthInterceptor: Processing ${options.method} ${options.path}');
-      
       // Skip auth for public endpoints
       if (_isPublicEndpoint(options.path)) {
-        AppLogger.error('🌐 AuthInterceptor: Public endpoint, skipping auth');
+        AppLogger.debug('🌐 Public endpoint: ${options.path}');
         handler.next(options);
         return;
       }
 
-      // Get stored token
-      final authData = await Prefs.loadAuth();
-      AppLogger.error('🎫 AuthInterceptor: Retrieved token: ${authData.token?.substring(0, 20)}...');
+      // Get stored token from TokenManager
+      final token = await _tokenManager.getAccessToken();
       
-      if (authData.token != null && authData.token!.isNotEmpty) {
-        options.headers['Authorization'] = 'Bearer ${authData.token}';
-        AppLogger.error('✅ AuthInterceptor: Added Authorization header');
+      if (token != null && token.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $token';
+        AppLogger.debug('✅ Auth added for: ${options.path}');
       } else {
-        AppLogger.error('❌ AuthInterceptor: No token found in storage');
+        AppLogger.warning('⚠️ No token found for protected endpoint: ${options.path}');
       }
-
-      // Log final headers
-      AppLogger.error('📋 AuthInterceptor: Final headers: ${options.headers}');
       
       handler.next(options);
     } catch (error) {
-      AppLogger.error('💥 AuthInterceptor: Error adding auth token: $error');
+      AppLogger.error('💥 AuthInterceptor error', error);
       handler.reject(
         DioException(
           requestOptions: options,
@@ -150,57 +145,72 @@ class AuthInterceptor extends Interceptor {
       '/auth/login',
       '/auth/register',
       '/auth/refresh-token',
-      '/courses', // Public course browsing
-      '/categories', // Public category browsing
+      '/auth/forgot-password',
+      '/auth/reset-password',
+      // Note: /courses is public but /courses/enrolled is NOT
+      // We check for exact matches or starts with
     ];
-    return publicEndpoints.any((endpoint) => path.contains(endpoint));
+    
+    // Check exact matches first
+    for (final endpoint in publicEndpoints) {
+      if (path == endpoint || path.endsWith(endpoint)) {
+        return true;
+      }
+    }
+    
+    // Special case: /courses without /enrolled is public
+    if (path.contains('/courses') && !path.contains('/enrolled')) {
+      // But only if it's GET /courses or GET /courses/:id
+      // Not POST /courses/:id/enroll or similar
+      if (!path.contains('/enroll') && 
+          !path.contains('/unenroll') && 
+          !path.contains('/students') &&
+          !path.contains('/sections')) {
+        return true;
+      }
+    }
+    
+    // /categories is public
+    if (path.contains('/categories')) {
+      return true;
+    }
+    
+    return false;
   }
 
   /// Attempt to refresh JWT token
   Future<bool> _refreshToken() async {
     try {
-      AppLogger.error('🔄 AuthInterceptor: Starting token refresh...');
+      AppLogger.debug('🔄 Attempting token refresh...');
       
-      final authData = await Prefs.loadAuth();
-      if (authData.refreshToken == null) {
-        AppLogger.error('❌ AuthInterceptor: No refresh token available');
+      final refreshToken = await _tokenManager.getRefreshToken();
+      if (refreshToken == null) {
+        AppLogger.warning('❌ No refresh token available');
         return false;
       }
-
-      AppLogger.error('🎫 AuthInterceptor: Using refresh token: ${authData.refreshToken?.substring(0, 20)}...');
 
       final dio = Dio(BaseOptions(baseUrl: ApiConfig.baseUrl));
       final response = await dio.post(
         '/auth/refresh-token',
-        data: {'refreshToken': authData.refreshToken},
+        data: {'refreshToken': refreshToken},
       );
-
-      AppLogger.error('📡 AuthInterceptor: Refresh response: ${response.statusCode}');
-      AppLogger.error('📋 AuthInterceptor: Refresh data: ${response.data}');
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final tokens = response.data['data']['tokens'];
         final newToken = tokens['accessToken'];
         final newRefreshToken = tokens['refreshToken'];
 
-        AppLogger.error('✅ AuthInterceptor: Got new tokens');
-        AppLogger.error('🎫 AuthInterceptor: New access token: ${newToken?.substring(0, 20)}...');
+        // Save new tokens using TokenManager
+        await _tokenManager.updateAccessToken(newToken);
+        await _tokenManager.updateRefreshToken(newRefreshToken);
 
-        // Save new tokens
-        await Prefs.saveAuth(
-          token: newToken,
-          refreshToken: newRefreshToken,
-          user: authData.user ?? {},
-        );
-
-        AppLogger.error('💾 AuthInterceptor: New tokens saved successfully');
+        AppLogger.debug('✅ Token refreshed successfully');
         return true;
       }
       
-      AppLogger.error('❌ AuthInterceptor: Refresh failed - invalid response');
+      AppLogger.warning('❌ Token refresh failed - invalid response');
       return false;
     } catch (error) {
-      AppLogger.error('💥 AuthInterceptor: Token refresh error: $error');
       AppLogger.error('Token refresh failed', error);
       return false;
     }
@@ -208,8 +218,8 @@ class AuthInterceptor extends Interceptor {
 
   /// Retry request with new token
   Future<Response> _retry(RequestOptions requestOptions) async {
-    final authData = await Prefs.loadAuth();
-    requestOptions.headers['Authorization'] = 'Bearer ${authData.token}';
+    final token = await _tokenManager.getAccessToken();
+    requestOptions.headers['Authorization'] = 'Bearer $token';
 
     final dio = Dio(BaseOptions(baseUrl: ApiConfig.baseUrl));
     return await dio.fetch(requestOptions);
@@ -217,7 +227,7 @@ class AuthInterceptor extends Interceptor {
 
   /// Handle logout when token refresh fails
   Future<void> _handleLogout() async {
-    await Prefs.clearAuth();
+    await _tokenManager.clearAllAuthData();
     // Note: In a real app, you'd navigate to login screen here
     // This requires access to navigation context
   }

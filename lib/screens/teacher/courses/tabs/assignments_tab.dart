@@ -401,6 +401,7 @@ class AssignmentsTab extends ConsumerWidget {
                         );
 
                         final newItem = AssignmentItem(
+                          id: 'assignment_${DateTime.now().millisecondsSinceEpoch}',
                           title: titleCtl.text.trim(),
                           deadline: deadline,
                           submitted: 0,

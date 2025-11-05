@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../core/models/api_response.dart';
-import '../../../core/models/user.dart';
+import '../../auth/models/user_model.dart';
 import '../../../core/utils/app_logger.dart';
 
 // Import PaginatedResponse from providers
@@ -57,7 +57,7 @@ class AdminService {
   AdminService(this._dio);
 
   /// Get all users with pagination and filters
-  Future<ApiResponse<PaginatedResponse<User>>> getAllUsers({
+  Future<ApiResponse<PaginatedResponse<UserModel>>> getAllUsers({
     int page = 1,
     int limit = 10,
     String? role,
@@ -79,62 +79,38 @@ class AdminService {
       );
 
       // Debug logging
-      AppLogger.error('👥 Admin Users Response: ${response.data}');
+      AppLogger.debug('👥 Admin Users Response: ${response.data}');
       
       // Handle case where API returns error response
       if (response.data['success'] == false) {
         throw Exception(response.data['message'] ?? 'Failed to fetch users');
       }
 
-      // Check if data exists and is the expected format
+      // Backend returns: {success, message, data: [...], pagination: {...}}
       final responseData = response.data['data'];
-      if (responseData == null) {
+      if (responseData == null || responseData is! List) {
         throw Exception('No user data returned from server');
       }
 
-      List<User> users;
-      Pagination pagination;
+      // Parse users from direct array
+      final users = responseData
+          .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
+          .toList();
       
-      // Handle different possible response formats
-      if (responseData is List) {
-        // Direct list of users (fallback format)
-        users = responseData.map((json) => User.fromJson(json)).toList();
-        pagination = Pagination(
-          page: page,
-          limit: limit,
-          total: users.length,
-          totalPages: 1,
-          hasNext: false,
-          hasPrev: false,
-        );
-      } else if (responseData is Map<String, dynamic>) {
-        // Paginated response format
-        final usersData = responseData['users'] ?? responseData['items'];
-        if (usersData == null || usersData is! List) {
-          throw Exception('Invalid users data format');
-        }
-        
-        users = usersData.map((json) => User.fromJson(json)).toList();
-        
-        final paginationData = responseData['pagination'] ?? response.data['pagination'];
-        if (paginationData != null) {
-          pagination = Pagination.fromJson(paginationData);
-        } else {
-          // Fallback pagination
-          pagination = Pagination(
-            page: page,
-            limit: limit,
-            total: users.length,
-            totalPages: 1,
-            hasNext: false,
-            hasPrev: false,
-          );
-        }
-      } else {
-        throw Exception('Unexpected response data format');
-      }
+      // Parse pagination from top level
+      final paginationData = response.data['pagination'];
+      final pagination = paginationData != null
+          ? Pagination.fromJson(paginationData as Map<String, dynamic>)
+          : Pagination(
+              page: page,
+              limit: limit,
+              total: users.length,
+              totalPages: 1,
+              hasNext: false,
+              hasPrev: false,
+            );
 
-      return ApiResponse<PaginatedResponse<User>>.fromJson(
+      return ApiResponse<PaginatedResponse<UserModel>>.fromJson(
         response.data,
         (data) => PaginatedResponse(
           items: users,
@@ -145,11 +121,11 @@ class AdminService {
       AppLogger.error('❌ Admin Users Error: $e');
       
       // Return fallback empty result instead of throwing
-      return ApiResponse<PaginatedResponse<User>>(
+      return ApiResponse<PaginatedResponse<UserModel>>(
         success: false,
         message: 'Failed to load users: $e',
         data: PaginatedResponse(
-          items: <User>[],
+          items: <UserModel>[],
           pagination: Pagination(
             page: page,
             limit: limit,
@@ -164,13 +140,13 @@ class AdminService {
   }
 
   /// Get user by ID
-  Future<ApiResponse<User>> getUserById(String userId) async {
+  Future<ApiResponse<UserModel>> getUserById(String userId) async {
     try {
       final response = await _dio.get('/v1/admin/users/$userId');
       
-      return ApiResponse<User>.fromJson(
+      return ApiResponse<UserModel>.fromJson(
         response.data,
-        (data) => User.fromJson(data),
+        (data) => UserModel.fromJson(data),
       );
     } on DioException catch (e) {
       throw Exception('Failed to get user: ${e.message}');
@@ -178,7 +154,7 @@ class AdminService {
   }
 
   /// Create new user
-  Future<ApiResponse<User>> createUser({
+  Future<ApiResponse<UserModel>> createUser({
     required String email,
     required String password,
     required String firstName,
@@ -201,9 +177,9 @@ class AdminService {
         data: requestData,
       );
 
-      return ApiResponse<User>.fromJson(
+      return ApiResponse<UserModel>.fromJson(
         response.data,
-        (data) => User.fromJson(data),
+        (data) => UserModel.fromJson(data),
       );
     } on DioException catch (e) {
       throw Exception('Failed to create user: ${e.message}');
@@ -211,7 +187,7 @@ class AdminService {
   }
 
   /// Update user information
-  Future<ApiResponse<User>> updateUser(
+  Future<ApiResponse<UserModel>> updateUser(
     String userId,
     Map<String, dynamic> updateData,
   ) async {
@@ -221,9 +197,9 @@ class AdminService {
         data: updateData,
       );
 
-      return ApiResponse<User>.fromJson(
+      return ApiResponse<UserModel>.fromJson(
         response.data,
-        (data) => User.fromJson(data),
+        (data) => UserModel.fromJson(data),
       );
     } on DioException catch (e) {
       throw Exception('Failed to update user: ${e.message}');
@@ -231,16 +207,16 @@ class AdminService {
   }
 
   /// Update user role
-  Future<ApiResponse<User>> updateUserRole(String userId, String role) async {
+  Future<ApiResponse<UserModel>> updateUserRole(String userId, String role) async {
     try {
       final response = await _dio.put(
         '/v1/admin/users/$userId/role',
         data: {'role': role},
       );
 
-      return ApiResponse<User>.fromJson(
+      return ApiResponse<UserModel>.fromJson(
         response.data,
-        (data) => User.fromJson(data),
+        (data) => UserModel.fromJson(data),
       );
     } on DioException catch (e) {
       throw Exception('Failed to update user role: ${e.message}');
@@ -248,16 +224,16 @@ class AdminService {
   }
 
   /// Update user status
-  Future<ApiResponse<User>> updateUserStatus(String userId, String status) async {
+  Future<ApiResponse<UserModel>> updateUserStatus(String userId, String status) async {
     try {
       final response = await _dio.patch(
         '/v1/admin/users/$userId/status',
         data: {'status': status},
       );
 
-      return ApiResponse<User>.fromJson(
+      return ApiResponse<UserModel>.fromJson(
         response.data,
-        (data) => User.fromJson(data),
+        (data) => UserModel.fromJson(data),
       );
     } on DioException catch (e) {
       throw Exception('Failed to update user status: ${e.message}');
@@ -288,15 +264,15 @@ class AdminService {
   }
 
   /// Get users by role
-  Future<ApiResponse<List<User>>> getUsersByRole(String role) async {
+  Future<ApiResponse<List<UserModel>>> getUsersByRole(String role) async {
     try {
       final response = await _dio.get('/v1/admin/users/role/$role');
       
       final users = (response.data['data'] as List)
-          .map((json) => User.fromJson(json))
+          .map((json) => UserModel.fromJson(json))
           .toList();
           
-      return ApiResponse<List<User>>.fromJson(
+      return ApiResponse<List<UserModel>>.fromJson(
         response.data,
         (data) => users,
       );
@@ -306,7 +282,7 @@ class AdminService {
   }
 
   /// Search user by email
-  Future<ApiResponse<User?>> getUserByEmail(String email) async {
+  Future<ApiResponse<UserModel?>> getUserByEmail(String email) async {
     try {
       final response = await _dio.get(
         '/v1/admin/users/email/search',
@@ -314,15 +290,15 @@ class AdminService {
       );
       
       if (response.data['data'] == null) {
-        return ApiResponse<User?>.fromJson(
+        return ApiResponse<UserModel?>.fromJson(
           response.data,
           (data) => null,
         );
       }
       
-      return ApiResponse<User?>.fromJson(
+      return ApiResponse<UserModel?>.fromJson(
         response.data,
-        (data) => User.fromJson(data),
+        (data) => UserModel.fromJson(data),
       );
     } on DioException catch (e) {
       throw Exception('Failed to search user by email: ${e.message}');

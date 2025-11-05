@@ -47,6 +47,16 @@ import '../screens/student/analytics/student_analytics_screen.dart';
 
 // Admin screens
 import '../screens/admin/system/system_settings_screen.dart';
+import '../screens/admin/courses/course_management_screen.dart';
+import '../screens/admin/users/user_management_screen.dart';
+import '../screens/admin/reports/admin_reports_screen.dart';
+
+// Message screens
+import '../screens/shared/messages/messages_screen.dart';
+import '../screens/shared/messages/chat_detail_screen.dart';
+
+// Course preview screen
+import '../screens/student/courses/course_preview_screen.dart';
 
 import 'guards/auth_guard.dart';
 import '../core/widgets/page_transitions.dart';
@@ -112,6 +122,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const SystemSettingsScreen(),
           ),
 
+          GoRoute(
+            path: '/admin-course-management',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const CourseManagementScreen(),
+          ),
+
+          GoRoute(
+            path: '/admin-user-management',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const UserManagementScreen(),
+          ),
+
+          GoRoute(
+            path: '/admin-reports',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const AdminReportsScreen(),
+          ),
           // GoRoute(
           //   path: '/teacher/courses/:courseId',
           //   redirect: (context, state) => requireAuth(context, state),
@@ -142,9 +169,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           ),
           GoRoute(
+            path: '/course-preview/:courseId',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => CoursePreviewScreen(
+              courseId: state.pathParameters['courseId']!,
+            ),
+          ),
+          GoRoute(
             path: '/notifications-demo',
             redirect: (context, state) => requireAuth(context, state),
             builder: (context, state) => const NotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/messages',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) => const MessagesScreen(),
+          ),
+          GoRoute(
+            path: '/messages/:courseId',
+            redirect: (context, state) => requireAuth(context, state),
+            builder: (context, state) =>
+                ChatDetailScreen(courseId: state.pathParameters['courseId']!),
           ),
           GoRoute(
             path: '/settings',

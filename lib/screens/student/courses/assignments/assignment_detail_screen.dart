@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../teacher/courses/providers/teacher_course_providers.dart';
 import '../../../teacher/courses/models/course_content_models.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../core/services/assignment_service.dart';
 
 class AssignmentDetailScreen extends ConsumerStatefulWidget {
   const AssignmentDetailScreen({
@@ -30,6 +33,9 @@ class _AssignmentDetailScreenState
   Timer? _timer;
   bool _isSubmitted = false;
   final List<PlatformFile> _selectedFiles = [];
+  final _assignmentService = AssignmentService();
+  // ignore: unused_field
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -68,6 +74,29 @@ class _AssignmentDetailScreenState
     final seconds = d.inSeconds % 60;
     if (minutes > 0) return 'Còn $minutes phút $seconds giây';
     return 'Còn $seconds giây';
+  }
+
+  Future<void> _openAttachment(String fileName) async {
+    try {
+      // In a real app, you would have the full URL from the assignment data
+      // For now, we'll construct a mock URL or show that it would open
+      final url = 'https://lms.example.com/attachments/$fileName';
+      final uri = Uri.parse(url);
+      
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Không thể mở tệp: $fileName')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi mở tệp: $e')),
+      );
+    }
   }
 
   @override
@@ -175,14 +204,9 @@ class _AssignmentDetailScreenState
             ...widget.attachments.map(
               (name) => ActionCard(
                 title: name,
-                subtitle: 'Nhấn để tải xuống',
+                subtitle: 'Nhấn để mở/tải xuống',
                 icon: Icons.insert_drive_file,
-                onTap: () {
-                  // TODO: Implement download/open
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Đang tải "$name" (demo)')),
-                  );
-                },
+                onTap: () => _openAttachment(name),
               ),
             ),
           ],
@@ -297,30 +321,68 @@ class _AssignmentDetailScreenState
 
     if (ok != true) return;
 
-    // TODO: Upload files & submit via API
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    if (!mounted) return;
     setState(() {
-      _isSubmitted = true;
+      _isSubmitting = true;
     });
 
-    // Đọc current user và đánh dấu đã nộp theo studentId
-    final current = ref.read(currentUserProvider);
-    final studentId = current?['id'];
-    if (studentId != null && studentId.isNotEmpty) {
-      final list = List<Map<String, String>>.from(ref.read(studentsProvider));
-      final idx = list.indexWhere((s) => (s['id'] ?? '') == studentId);
-      if (idx != -1) {
-        final updated = Map<String, String>.from(list[idx]);
-        updated['submitted'] = 'true';
-        list[idx] = updated;
-        ref.read(studentsProvider.notifier).state = list;
+    try {
+      // Upload files first if any
+      final List<String> fileUrls = [];
+      for (final file in _selectedFiles) {
+        if (file.path != null) {
+          try {
+            final url = await _assignmentService.uploadFile(file.path!);
+            fileUrls.add(url);
+          } catch (e) {
+            if (kDebugMode) {
+              print('Failed to upload ${file.name}: $e');
+            }
+          }
+        }
       }
+
+      // Submit assignment
+      await _assignmentService.submitAssignment(
+        assignmentId: widget.assignment.id,
+        submissionText: _selectedFiles.isEmpty ? 'Đã nộp bài' : null,
+        fileUrls: fileUrls.isNotEmpty ? fileUrls : null,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _isSubmitted = true;
+        _isSubmitting = false;
+      });
+
+      // Đọc current user và đánh dấu đã nộp theo studentId
+      final current = ref.read(currentUserProvider);
+      final studentId = current?['id'];
+      if (studentId != null && studentId.isNotEmpty) {
+        final list = List<Map<String, String>>.from(ref.read(studentsProvider));
+        final idx = list.indexWhere((s) => (s['id'] ?? '') == studentId);
+        if (idx != -1) {
+          final updated = Map<String, String>.from(list[idx]);
+          updated['submitted'] = 'true';
+          list[idx] = updated;
+          ref.read(studentsProvider.notifier).state = list;
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nộp bài thành công')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi nộp bài: $e')),
+      );
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Nộp bài thành công')));
   }
 
   String _fmtDateTime(DateTime dt) {

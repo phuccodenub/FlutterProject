@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../features/courses/services/course_service.dart';
 import '../../../teacher/courses/providers/teacher_course_providers.dart';
 import '../../../../features/auth/auth_state.dart';
@@ -20,6 +21,7 @@ import '../../../teacher/courses/tabs/assignments_tab.dart';
 import '../../../teacher/courses/tabs/teacher_content_tab.dart';
 import '../../../teacher/courses/tabs/students_tab.dart';
 import '../../../teacher/courses/tabs/grades_tab.dart';
+import '../../../shared/instructor/instructor_profile_screen.dart';
 
 // Provider to control/switch CourseDetail tabs from child widgets
 final selectedCourseTabProvider = rp.StateProvider<int>((ref) => 0);
@@ -205,8 +207,30 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                     ],
                     IconButton(
                       icon: const Icon(Icons.share),
-                      onPressed: () {
-                        // TODO: Share course
+                      onPressed: () async {
+                        if (course == null) return;
+                        
+                        final shareText = '''
+📚 ${course.title}
+
+${course.description}
+
+👨‍🏫 Giảng viên: ${course.instructorName}
+📱 Xem chi tiết và đăng ký tại: https://lms.app/courses/${course.id}
+''';
+                        
+                        try {
+                          await Share.share(
+                            shareText,
+                            subject: course.title,
+                          );
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Lỗi chia sẻ: $e')),
+                            );
+                          }
+                        }
                       },
                     ),
                   ],
@@ -435,7 +459,7 @@ class _OverviewTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  course?.code ?? 'FLT101',
+                  course?.id.substring(0, 8).toUpperCase() ?? 'FLT101',
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: theme.colorScheme.primary,
                   ),
@@ -457,15 +481,16 @@ class _OverviewTab extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${course?.enrollmentCount ?? 245} sinh viên',
+                      '${course?.totalStudents ?? 245} sinh viên',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.grey.shade600,
                       ),
                     ),
                   ],
                 ),
-                // Hàng hiển thị thời gian bắt đầu và kết thúc (nếu có)
-                if (course?.startDate != null || course?.endDate != null) ...[
+                // CourseModel không có startDate/endDate fields
+                // Hiển thị published date thay vì start/end dates
+                if (course?.publishedAt != null) ...[
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -475,33 +500,11 @@ class _OverviewTab extends StatelessWidget {
                         color: Colors.grey.shade600,
                       ),
                       const SizedBox(width: 4),
-                      Builder(
-                        builder: (_) {
-                          String fmt(DateTime d) {
-                            final dd = d.day.toString().padLeft(2, '0');
-                            final mm = d.month.toString().padLeft(2, '0');
-                            final yyyy = d.year.toString();
-                            return '$dd/$mm/$yyyy';
-                          }
-
-                          final s = course?.startDate != null
-                              ? fmt(course!.startDate as DateTime)
-                              : null;
-                          final e = course?.endDate != null
-                              ? fmt(course!.endDate as DateTime)
-                              : null;
-                          final text = (s != null && e != null)
-                              ? 'Từ $s • Đến $e'
-                              : (s != null)
-                              ? 'Bắt đầu: $s'
-                              : 'Kết thúc: $e';
-                          return Text(
-                            text,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade700,
-                            ),
-                          );
-                        },
+                      Text(
+                        'Xuất bản: ${_formatDate(course!.publishedAt!)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade700,
+                        ),
                       ),
                     ],
                   ),
@@ -622,12 +625,35 @@ class _OverviewTab extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              // TODO: View instructor profile
+              // Navigate to instructor profile
+              if (course?.instructorId != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InstructorProfileScreen(
+                      instructorId: course!.instructorId!,
+                    ),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Thông tin giảng viên chưa có sẵn'),
+                  ),
+                );
+              }
             },
             icon: const Icon(Icons.arrow_forward_ios, size: 16),
           ),
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final dd = date.day.toString().padLeft(2, '0');
+    final mm = date.month.toString().padLeft(2, '0');
+    final yyyy = date.year.toString();
+    return '$dd/$mm/$yyyy';
   }
 }

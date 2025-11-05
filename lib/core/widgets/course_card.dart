@@ -4,10 +4,10 @@ import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 import '../theme/app_dimensions.dart';
 import 'custom_cards.dart';
-import '../../features/courses/course_model.dart';
+import '../../features/courses/models/course_model.dart';
 
 class CourseCard extends StatelessWidget {
-  final dynamic course; // Có thể là Course (model) hoặc dữ liệu khác (Map)
+  final dynamic course; // Có thể là CourseModel (model) hoặc dữ liệu khác (Map)
   final VoidCallback? onTap;
   final bool isEnrolled;
   final bool showProgress;
@@ -268,17 +268,17 @@ class CourseCard extends StatelessWidget {
     return Row(
       children: [
         Icon(
-          Icons.play_circle_outline,
+          Icons.schedule,
           size: AppSizes.iconSm,
           color: AppColors.grey600,
         ),
         const SizedBox(width: AppSpacing.xs),
         Text(
-          '${course.duration ?? '30'} phút',
+          course.formattedDuration,
           style: AppTypography.bodySmall.copyWith(color: AppColors.grey600),
         ),
         const SizedBox(width: AppSpacing.md),
-        Icon(Icons.schedule, size: AppSizes.iconSm, color: AppColors.grey600),
+        Icon(Icons.star, size: AppSizes.iconSm, color: AppColors.grey600),
         const SizedBox(width: AppSpacing.xs),
         Text(
           _getDifficultyText(),
@@ -476,9 +476,11 @@ class CourseCard extends StatelessWidget {
   }
 
   double _getRating() {
-    // Model Course không có rating -> mặc định
+    // CourseModel có rating
+    if (_courseOrNull != null) return _courseOrNull!.rating;
+    
+    // Nếu dữ liệu là Map và có 'rating'
     try {
-      // Nếu dữ liệu là Map và có 'rating'
       if (course is Map && (course as Map).containsKey('rating')) {
         final r = (course as Map)['rating'];
         if (r is num) return r.toDouble();
@@ -489,7 +491,7 @@ class CourseCard extends StatelessWidget {
 
   double _getProgress() {
     if (!isEnrolled) return 0.0;
-    // Model Course không có progress -> mặc định 0
+    // CourseModel không có progress -> mặc định 0
     try {
       if (course is Map && (course as Map).containsKey('progress')) {
         final p = (course as Map)['progress'];
@@ -499,8 +501,8 @@ class CourseCard extends StatelessWidget {
     return 0.0;
   }
 
-  // ------- Helpers để an toàn với model Course hiện tại -------
-  Course? get _courseOrNull => course is Course ? course as Course : null;
+  // ------- Helpers để an toàn với model CourseModel hiện tại -------
+  CourseModel? get _courseOrNull => course is CourseModel ? course as CourseModel : null;
 
   String _title() =>
       _courseOrNull?.title ??
@@ -516,9 +518,10 @@ class CourseCard extends StatelessWidget {
           : 'No description available');
 
   int _enrollmentCount() =>
-      _courseOrNull?.enrollmentCount ??
+      _courseOrNull?.totalStudents ??
       (course is Map
-          ? (((course as Map)['enrollmentCount'] as num?)?.toInt() ?? 0)
+          ? (((course as Map)['enrollmentCount'] as num?)?.toInt() ?? 
+             ((course as Map)['totalStudents'] as num?)?.toInt() ?? 0)
           : 0);
 
   String? _imageUrl() =>
@@ -528,17 +531,13 @@ class CourseCard extends StatelessWidget {
                 ((course as Map)['thumbnailUrl']?.toString()))
           : null);
 
-  File? _imageFile() => _courseOrNull?.imageFile;
+  File? _imageFile() => null; // CourseModel không có imageFile
 
   String _categoryLower() {
-    // Nếu là Course -> suy diễn từ code; nếu là Map -> lấy trực tiếp nếu có
+    // Nếu là CourseModel -> lấy từ categoryName; nếu là Map -> lấy trực tiếp nếu có
     if (_courseOrNull != null) {
-      final code = _courseOrNull!.code.toUpperCase();
-      if (code.startsWith('CS') || code.startsWith('IT')) return 'programming';
-      if (code.startsWith('DES')) return 'design';
-      if (code.startsWith('BUS')) return 'business';
-      if (code.startsWith('MK')) return 'marketing';
-      if (code.startsWith('DATA')) return 'data';
+      final catName = _courseOrNull!.categoryName?.toLowerCase() ?? '';
+      if (catName.isNotEmpty) return catName;
       return 'general';
     }
     if (course is Map) {

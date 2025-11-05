@@ -98,7 +98,7 @@ class CourseService {
   }
 
   /// Get user's enrolled courses
-  Future<PaginatedResponse<EnrollmentModel>> getEnrolledCourses({
+  Future<PaginatedResponse<CourseModel>> getEnrolledCourses({
     int page = 1,
     int limit = 10,
     String? status,
@@ -116,9 +116,25 @@ class CourseService {
       );
 
       AppLogger.api('Enrolled courses fetched successfully');
-      return PaginatedResponse<EnrollmentModel>.fromJson(
+      AppLogger.debug('API Response: ${response.data}');
+      
+      // Validate response structure
+      if (response.data == null) {
+        AppLogger.warning('Received null response data for enrolled courses');
+        return PaginatedResponse<CourseModel>(
+          items: [],
+          total: 0,
+          page: page,
+          limit: limit,
+          totalPages: 0,
+          hasNext: false,
+          hasPrevious: false,
+        );
+      }
+
+      return PaginatedResponse<CourseModel>.fromJson(
         response.data,
-        (json) => EnrollmentModel.fromJson(json),
+        (json) => CourseModel.fromJson(json),
       );
     } catch (error) {
       AppLogger.error('Failed to get enrolled courses', error);
@@ -457,15 +473,38 @@ class PaginatedResponse<T> {
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) fromJsonT,
   ) {
-    final data = json['data'] ?? json;
+    // Backend returns: { success: true, data: { data: [...], pagination: {...} } }
+    final outerData = json['data'] ?? json;
+    
+    // Try to get items from different possible keys
+    List? itemsList;
+    
+    // Check for 'data' key first (nested data array)
+    if (outerData['data'] is List) {
+      itemsList = outerData['data'] as List;
+    } 
+    // Then check for 'items' key
+    else if (outerData['items'] is List) {
+      itemsList = outerData['items'] as List;
+    }
+    // Fallback: if outerData itself is a list
+    else if (outerData is List) {
+      itemsList = outerData;
+    }
+    
+    // Extract pagination info
+    final pagination = outerData['pagination'] as Map<String, dynamic>?;
+    
     return PaginatedResponse(
-      items: (data['items'] as List).map((item) => fromJsonT(item)).toList(),
-      total: data['total'] ?? 0,
-      page: data['page'] ?? 1,
-      limit: data['limit'] ?? 10,
-      totalPages: data['total_pages'] ?? 0,
-      hasNext: data['has_next'] ?? false,
-      hasPrevious: data['has_previous'] ?? false,
+      items: itemsList != null 
+          ? itemsList.map((item) => fromJsonT(item as Map<String, dynamic>)).toList()
+          : [],
+      total: pagination?['total'] ?? outerData['total'] ?? 0,
+      page: pagination?['page'] ?? outerData['page'] ?? 1,
+      limit: pagination?['limit'] ?? outerData['limit'] ?? 10,
+      totalPages: pagination?['total_pages'] ?? outerData['total_pages'] ?? 0,
+      hasNext: pagination?['has_next'] ?? outerData['has_next'] ?? false,
+      hasPrevious: pagination?['has_previous'] ?? outerData['has_previous'] ?? false,
     );
   }
 }

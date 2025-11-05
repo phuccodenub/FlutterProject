@@ -20,18 +20,21 @@ final studentsProvider = StateProvider<List<Map<String, String>>>((ref) {
       'name': 'Nguyễn Văn A',
       'email': 'a.nguyen@example.com',
       'joined': '2025-10-01',
+      'submissionId': 'sub_001',
     },
     {
       'id': 'SV002',
       'name': 'Trần Thị B',
       'email': 'b.tran@example.com',
       'joined': '2025-10-02',
+      'submissionId': 'sub_002',
     },
     {
       'id': 'SV003',
       'name': 'Lê Hoàng C',
       'email': 'c.le@example.com',
       'joined': '2025-10-03',
+      'submissionId': 'sub_003',
     },
   ];
 });
@@ -42,12 +45,14 @@ final studentQueryProvider = StateProvider<String>((ref) => '');
 final assignmentsProvider = StateProvider<List<AssignmentItem>>((ref) {
   return [
     AssignmentItem(
+      id: 'assignment_1',
       title: 'Bài tập 1: Widgets cơ bản',
       deadline: DateTime.now().add(const Duration(days: 3)),
       submitted: 12,
       total: 40,
     ),
     AssignmentItem(
+      id: 'assignment_2',
       title: 'Quiz: State Management',
       deadline: DateTime.now().add(const Duration(days: 7)),
       submitted: 5,

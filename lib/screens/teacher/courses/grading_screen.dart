@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/widgets/widgets.dart';
 import 'models/course_content_models.dart';
 import 'grading_detail_screen.dart';
@@ -27,6 +28,28 @@ class _GradingScreenState extends State<GradingScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openAttachment(String fileName) async {
+    try {
+      // In a real app, you would have the full URL from the assignment data
+      final url = 'https://lms.example.com/attachments/$fileName';
+      final uri = Uri.parse(url);
+      
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Không thể mở tệp: $fileName')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi mở tệp: $e')),
+      );
+    }
   }
 
   @override
@@ -156,12 +179,7 @@ class _GradingScreenState extends State<GradingScreen> {
                           contentPadding: EdgeInsets.zero,
                           leading: const Icon(Icons.attachment),
                           title: Text(name),
-                          onTap: () {
-                            // TODO: Tải xuống/mở tệp
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Đang mở "$name" (demo)')),
-                            );
-                          },
+                          onTap: () => _openAttachment(name),
                         ),
                       ),
                     ],
@@ -361,6 +379,7 @@ class _GradingScreenState extends State<GradingScreen> {
                                   builder: (_) => GradingDetailScreen(
                                     studentName: name,
                                     assignment: widget.assignment,
+                                    submissionId: s['submissionId'] ?? '',
                                     submissionText: s['submission'],
                                   ),
                                 ),

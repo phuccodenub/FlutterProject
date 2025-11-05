@@ -6,6 +6,7 @@ import '../../../features/auth/auth_state.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
+import '../courses/course_detail/course_detail_screen.dart';
 
 class StudentDashboard extends ConsumerWidget {
   const StudentDashboard({super.key, required this.user});
@@ -206,7 +207,13 @@ class StudentDashboard extends ConsumerWidget {
           icon: Icons.design_services,
           iconColor: Colors.pink,
           onTap: () {
-            // TODO: Navigate to course detail
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const CourseDetailScreen(
+                  courseId: 'rec_course_1',
+                ),
+              ),
+            );
           },
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -218,7 +225,13 @@ class StudentDashboard extends ConsumerWidget {
           icon: Icons.phone_android,
           iconColor: Colors.indigo,
           onTap: () {
-            // TODO: Navigate to course detail
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const CourseDetailScreen(
+                  courseId: 'rec_course_2',
+                ),
+              ),
+            );
           },
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -230,7 +243,13 @@ class StudentDashboard extends ConsumerWidget {
           icon: Icons.cloud,
           iconColor: Colors.blue,
           onTap: () {
-            // TODO: Navigate to course detail
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const CourseDetailScreen(
+                  courseId: 'rec_course_3',
+                ),
+              ),
+            );
           },
         ),
       ],

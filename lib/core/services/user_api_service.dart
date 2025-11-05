@@ -47,6 +47,35 @@ class UserApiService {
     }
   }
 
+  /// Get user by ID (for viewing instructor profiles, etc.)
+  Future<User> getUserById(String userId) async {
+    try {
+      if (kDebugMode) {
+        print('👤 Fetching user by ID: $userId');
+      }
+
+      final response = await _dio.get('/admin/users/$userId');
+
+      final user = User.fromJson(response.data['data']);
+
+      if (kDebugMode) {
+        print('✅ User fetched: ${user.email}');
+      }
+
+      return user;
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        print('❌ User fetch failed: ${e.message}');
+      }
+      throw _handleDioException(e);
+    } catch (e) {
+      if (kDebugMode) {
+        print('💥 Unexpected user fetch error: $e');
+      }
+      throw Exception('User fetch failed: $e');
+    }
+  }
+
   /// Update user profile
   Future<ApiResponse<User>> updateProfile({
     String? firstName,

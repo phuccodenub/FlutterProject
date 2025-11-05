@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/admin_service.dart';
 import '../../../core/network/api_client.dart';
-import '../../../core/models/user.dart';
+import '../../auth/models/user_model.dart';
 
 /// Admin service provider
 final adminServiceProvider = Provider<AdminService>((ref) {
@@ -201,17 +201,17 @@ class AdminUser {
     required this.createdAt,
   });
 
-  factory AdminUser.fromUser(User user) {
+  factory AdminUser.fromUser(UserModel user) {
     return AdminUser(
       id: user.id,
       name: user.fullName,
       email: user.email,
       role: _getRoleString(user.role),
       status: _getStatusString(user.status),
-      avatar: user.avatar,
+      avatar: user.avatarUrl,
       lastLogin: user.lastLogin,
       emailVerified: user.emailVerified,
-      createdAt: user.createdAt,
+      createdAt: user.createdAt!,
     );
   }
 

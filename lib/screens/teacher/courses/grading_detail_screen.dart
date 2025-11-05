@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../core/services/grade_service.dart';
 import 'models/course_content_models.dart';
 
 class GradingDetailScreen extends StatefulWidget {
   final String studentName;
   final AssignmentItem assignment;
+  final String submissionId; // ID of the submission to grade
   final String? submissionText; // Tuỳ chọn: nội dung nộp
   const GradingDetailScreen({
     super.key,
     required this.studentName,
     required this.assignment,
+    required this.submissionId,
     this.submissionText,
   });
 
@@ -20,6 +23,9 @@ class GradingDetailScreen extends StatefulWidget {
 class _GradingDetailScreenState extends State<GradingDetailScreen> {
   final TextEditingController _scoreCtrl = TextEditingController();
   final TextEditingController _commentCtrl = TextEditingController();
+  final GradeService _gradeService = GradeService();
+  // ignore: unused_field
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -97,7 +103,7 @@ class _GradingDetailScreenState extends State<GradingDetailScreen> {
     );
   }
 
-  void _onSave() {
+  void _onSave() async {
     final scoreRaw = _scoreCtrl.text.trim();
     final score = double.tryParse(scoreRaw);
     if (score == null || score < 0 || score > 10) {
@@ -107,15 +113,40 @@ class _GradingDetailScreenState extends State<GradingDetailScreen> {
       return;
     }
 
-    // TODO: Gọi API lưu điểm & nhận xét nếu có backend
+    setState(() {
+      _isSaving = true;
+    });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đã lưu điểm')));
+    try {
+      // Call API to save grade
+      await _gradeService.gradeSubmission(
+        submissionId: widget.submissionId,
+        grade: score,
+        feedback: _commentCtrl.text.trim().isEmpty
+            ? null
+            : _commentCtrl.text.trim(),
+      );
 
-    // Trả kết quả về nếu cần
-    Navigator.of(
-      context,
-    ).pop({'score': score, 'comment': _commentCtrl.text.trim()});
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã lưu điểm')));
+
+      // Trả kết quả về nếu cần
+      Navigator.of(
+        context,
+      ).pop({'score': score, 'comment': _commentCtrl.text.trim()});
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isSaving = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi lưu điểm: $e')),
+      );
+    }
   }
 }

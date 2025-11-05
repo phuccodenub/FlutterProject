@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/auth_state.dart';
 import '../../../features/auth/models/user_model.dart';
 import '../../../features/courses/services/course_service.dart';
+import '../../../features/courses/models/course_model.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_typography.dart';
 import 'course_detail/course_detail_screen.dart';
 import 'discover/recommended_courses_screen.dart';
+import 'course_edit_screen.dart';
 //import '../courses/course_preview_screen.dart';
 
 // --- PHẦN PROVIDER (GIỮ NGUYÊN) ---
@@ -100,9 +102,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
           ),
           IconButton(
             tooltip: 'Bộ lọc',
-            onPressed: () {
-              // TODO: Mở bottom sheet/bộ lọc nâng cao nếu cần
-            },
+            onPressed: _showAdvancedFilter,
             icon: const Icon(Icons.filter_list, color: Colors.white),
           ),
         ],
@@ -486,27 +486,49 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
   List<dynamic> _filterList(List<dynamic> courses, CourseFilter filter) {
     switch (filter) {
       case CourseFilter.enrolled:
-        // TODO: c.status == 'enrolled'
+        // All courses from myCoursesProvider are enrolled courses
         return courses;
+        
       case CourseFilter.inProgress:
-        // TODO: c.status == 'inProgress'
+        // For CourseModel, we show all courses (no progress info available)
         return courses;
+        
       case CourseFilter.completed:
-        // TODO: c.status == 'completed'
+        // For CourseModel, we show all courses (no progress info available)
         return courses;
 
       // Các filter của "Khám phá"
       case CourseFilter.all:
         return courses;
+        
       case CourseFilter.recommended:
-        // TODO: c.isRecommended
-        return courses;
+        // Filter featured/recommended courses
+        return courses.where((c) {
+          if (c is CourseModel) {
+            return c.isFeatured; // Use isFeatured as recommended
+          }
+          return false;
+        }).toList();
+        
       case CourseFilter.trending:
-        // TODO: c.isTrending
-        return courses;
+        // Filter trending courses (by student count)
+        final sorted = List.from(courses);
+        sorted.sort((a, b) {
+          final aStudents = a is CourseModel ? a.totalStudents : 0;
+          final bStudents = b is CourseModel ? b.totalStudents : 0;
+          return bStudents.compareTo(aStudents); // Descending order
+        });
+        return sorted.take(10).toList(); // Top 10 trending
+        
       case CourseFilter.newCourses:
-        // TODO: orderBy(c.createdAt)
-        return courses;
+        // Sort by creation date (newest first)
+        final sorted = List.from(courses);
+        sorted.sort((a, b) {
+          final aDate = a is CourseModel ? a.createdAt : DateTime(2000);
+          final bDate = b is CourseModel ? b.createdAt : DateTime(2000);
+          return bDate.compareTo(aDate); // Descending order (newest first)
+        });
+        return sorted;
     }
   }
 
@@ -644,6 +666,147 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
     );
   }
 
+  /// Show advanced filter bottom sheet
+  void _showAdvancedFilter() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 8, bottom: 16),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Bộ lọc nâng cao',
+                    style: AppTypography.h6,
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _quickFilter = 'all';
+                        _selectedCategory = 'all';
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Đặt lại'),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            // Filter options
+            Expanded(
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.all(16),
+                children: [
+                  // Status filters
+                  Text('Trạng thái', style: AppTypography.labelLarge),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      FilterChip(
+                        label: const Text('Tất cả'),
+                        selected: _quickFilter == 'all',
+                        onSelected: (selected) {
+                          setState(() => _quickFilter = 'all');
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('Đã đăng ký'),
+                        selected: _quickFilter == 'enrolled',
+                        onSelected: (selected) {
+                          setState(() => _quickFilter = 'enrolled');
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('Đang học'),
+                        selected: _quickFilter == 'inProgress',
+                        onSelected: (selected) {
+                          setState(() => _quickFilter = 'inProgress');
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('Đã hoàn thành'),
+                        selected: _quickFilter == 'completed',
+                        onSelected: (selected) {
+                          setState(() => _quickFilter = 'completed');
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // Recommendation filters
+                  Text('Đề xuất', style: AppTypography.labelLarge),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      FilterChip(
+                        label: const Text('Được đề xuất'),
+                        selected: _quickFilter == 'recommended',
+                        onSelected: (selected) {
+                          setState(() => _quickFilter = 'recommended');
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('Thịnh hành'),
+                        selected: _quickFilter == 'trending',
+                        onSelected: (selected) {
+                          setState(() => _quickFilter = 'trending');
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('Mới nhất'),
+                        selected: _quickFilter == 'newCourses',
+                        onSelected: (selected) {
+                          setState(() => _quickFilter = 'newCourses');
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // Apply button
+                  CustomButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // Trigger rebuild with new filters
+                      setState(() {});
+                    },
+                    text: 'Áp dụng',
+                    variant: ButtonVariant.primary,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// [UNCHANGED] Hàm build FAB (Giữ nguyên)
   Widget? _buildFloatingActionButton(AuthState auth) {
     if (!widget.myCoursesOnly || auth.user?.role != UserRole.instructor) {
@@ -652,7 +815,13 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
 
     return FloatingActionButton.extended(
       onPressed: () {
-        // TODO: Navigate to create course
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const CourseEditScreen(
+              courseId: 'new',
+            ),
+          ),
+        );
       },
       icon: const Icon(Icons.add),
       label: const Text('Tạo khóa học'),

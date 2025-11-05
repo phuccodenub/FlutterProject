@@ -5,10 +5,10 @@ class ApiConfig {
   // - Android emulator uses 10.0.2.2 to reach host machine
   // - iOS simulator, desktop and web can use localhost
   static String get _devBaseUrl => kIsWeb
-      ? 'http://localhost:3000/api/v1'
+      ? 'http://localhost:3000/api'
       : (defaultTargetPlatform == TargetPlatform.android
-          ? 'http://10.0.2.2:3000/api/v1'
-          : 'http://localhost:3000/api/v1');
+          ? 'http://10.0.2.2:3000/api'
+          : 'http://localhost:3000/api');
 
   static String get _devSocketUrl => kIsWeb
       ? 'http://localhost:3003'
@@ -16,10 +16,10 @@ class ApiConfig {
           ? 'http://10.0.2.2:3003'
           : 'http://localhost:3003');
 
-  static const String _stagingBaseUrl = 'https://staging-api.lms.com/api/v1';
+  static const String _stagingBaseUrl = 'https://staging-api.lms.com/api';
   static const String _stagingSocketUrl = 'https://staging-socket.lms.com';
 
-  static const String _prodBaseUrl = 'https://api.lms.com/api/v1';
+  static const String _prodBaseUrl = 'https://api.lms.com/api';
   static const String _prodSocketUrl = 'https://socket.lms.com';
 
   // Current environment
